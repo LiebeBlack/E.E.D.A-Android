@@ -1,6 +1,6 @@
 # Isla Digital
 
-Aplicación educativa multiplataforma para niños de 4-6 años de Nueva Esparta, Venezuela.
+Aplicación educativa multiplataforma para niños de 3-8 años de Nueva Esparta, Venezuela.
 
 ## Descripción
 
