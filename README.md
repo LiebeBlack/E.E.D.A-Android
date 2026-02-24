@@ -84,26 +84,10 @@ lib/
 - **Ligera**: Optimizada para dispositivos de gama baja
 - **State Management**: Riverpod para reactividad
 
-## Desarrollo
-
-### Añadir un nuevo nivel
-
-1. Crear carpeta en `lib/ui/levels/`
-2. Implementar pantalla principal
-3. Registrar en `LevelSelectScreen`
-4. Añadir insignias en `Badge` model
-
-### Personalizar colores
-
-Modificar `lib/core/theme/app_theme.dart`:
-
-```dart
-static const Color oceanBlue = Color(0xFF0066CC);
-```
 
 ## Licencia
 
 Proyecto educativo para la comunidad de Nueva Esparta, Venezuela.
 
 ## Contacto
-Para soporte o sugerencias, contactar a [![Telegram](https://img.shields.io/badge/Telegram-Canal_Oficial-26A5E4?style=for-the-badge&logo=telegram&logoColor=white)](https://t.me/LiebeBlack0)
+[![Telegram](https://img.shields.io/badge/Telegram-Asistencia-000000?style=for-the-badge&logo=telegram&logoColor=white)](https://t.me/LiebeBlack0)
