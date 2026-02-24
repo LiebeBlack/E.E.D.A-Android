@@ -106,3 +106,4 @@ static const Color oceanBlue = Color(0xFF0066CC);
 Proyecto educativo para la comunidad de Nueva Esparta, Venezuela.
 
 Copyright (c) 2026 Yoangel De Dios Nícolas Gómez Gómez/Isla Digital. Todos los derechos reservados.
+Verificación de seguridad activa ✅
