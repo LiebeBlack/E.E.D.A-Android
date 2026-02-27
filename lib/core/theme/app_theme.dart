@@ -46,62 +46,62 @@ class IslaTypography {
     return GoogleFonts.nunitoTextTheme().copyWith(
       displayLarge: GoogleFonts.nunito(
         fontSize: 38,
-        fontWeight: FontWeight.bold,
+        fontWeight: FontWeight.w900, // Black
         color: IslaColors.black,
       ),
       displayMedium: GoogleFonts.nunito(
         fontSize: 28,
-        fontWeight: FontWeight.bold,
+        fontWeight: FontWeight.w900,
         color: IslaColors.black,
       ),
       displaySmall: GoogleFonts.nunito(
         fontSize: 22,
-        fontWeight: FontWeight.bold,
+        fontWeight: FontWeight.w900,
         color: IslaColors.black,
       ),
       headlineLarge: GoogleFonts.nunito(
-        fontSize: 19,
-        fontWeight: FontWeight.w800,
+        fontSize: 20,
+        fontWeight: FontWeight.w900,
         color: IslaColors.black,
       ),
       headlineMedium: GoogleFonts.nunito(
-        fontSize: 16,
-        fontWeight: FontWeight.w700,
+        fontSize: 18,
+        fontWeight: FontWeight.w800, // ExtraBold
         color: IslaColors.black,
       ),
       headlineSmall: GoogleFonts.nunito(
+        fontSize: 16,
+        fontWeight: FontWeight.w800,
+        color: IslaColors.black,
+      ),
+      titleLarge: GoogleFonts.nunito(
+        fontSize: 18,
+        fontWeight: FontWeight.w800,
+        color: IslaColors.black,
+      ),
+      titleMedium: GoogleFonts.nunito(
+        fontSize: 16,
+        fontWeight: FontWeight.w700, // Bold
+        color: IslaColors.black,
+      ),
+      titleSmall: GoogleFonts.nunito(
         fontSize: 14,
         fontWeight: FontWeight.w700,
         color: IslaColors.black,
       ),
-      titleLarge: GoogleFonts.nunito(
-        fontSize: 16,
-        fontWeight: FontWeight.w600,
-        color: IslaColors.black,
-      ),
-      titleMedium: GoogleFonts.nunito(
-        fontSize: 13,
-        fontWeight: FontWeight.w600,
-        color: IslaColors.black,
-      ),
-      titleSmall: GoogleFonts.nunito(
-        fontSize: 11,
-        fontWeight: FontWeight.w600,
-        color: IslaColors.black,
-      ),
       bodyLarge: GoogleFonts.nunito(
-        fontSize: 14,
-        fontWeight: FontWeight.normal,
+        fontSize: 16,
+        fontWeight: FontWeight.w600, // SemiBold
         color: IslaColors.black,
       ),
       bodyMedium: GoogleFonts.nunito(
-        fontSize: 13,
-        fontWeight: FontWeight.normal,
+        fontSize: 14,
+        fontWeight: FontWeight.w600,
         color: IslaColors.black,
       ),
       bodySmall: GoogleFonts.nunito(
-        fontSize: 11,
-        fontWeight: FontWeight.normal,
+        fontSize: 12,
+        fontWeight: FontWeight.w600,
         color: IslaColors.black,
       ),
     );

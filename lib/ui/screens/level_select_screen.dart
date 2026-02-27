@@ -11,6 +11,7 @@ import '../levels/level4/level4_screen.dart';
 import '../levels/level5/level5_screen.dart';
 import '../widgets/island_background.dart';
 import '../widgets/progress_widgets.dart';
+import '../widgets/glass_container.dart';
 
 class LevelSelectScreen extends ConsumerWidget {
   const LevelSelectScreen({super.key});
@@ -62,33 +63,49 @@ class LevelSelectScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final profile = ref.watch(currentProfileProvider);
     final currentLevel = profile?.currentLevel ?? 1;
+    final size = MediaQuery.of(context).size;
+    final isSmallScreen = size.width <= 360;
 
     return Scaffold(
       body: IslandBackground(
+        showDecorations: true,
         child: SafeArea(
           child: Column(
             children: [
-              _buildHeader(context),
-              const SizedBox(height: 16),
+              _buildHeader(context, isSmallScreen),
+              const SizedBox(height: 8),
               Expanded(
-                child: ListView.builder(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  itemCount: levels.length,
-                  itemBuilder: (context, index) {
-                    final level = levels[index];
-                    final isUnlocked = index < currentLevel;
-                    final isCurrent = index == currentLevel - 1;
+                child: Padding(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: isSmallScreen ? 12 : 16,
+                  ),
+                  child: GlassContainer(
+                    padding: EdgeInsets.symmetric(
+                      vertical: 16,
+                      horizontal: isSmallScreen ? 8 : 12,
+                    ),
+                    child: ListView.builder(
+                      physics: const BouncingScrollPhysics(),
+                      itemCount: levels.length,
+                      itemBuilder: (context, index) {
+                        final level = levels[index];
+                        final isUnlocked = index < currentLevel;
+                        final isCurrent = index == currentLevel - 1;
 
-                    return _buildLevelCard(
-                      context,
-                      level,
-                      isUnlocked,
-                      isCurrent,
-                      profile?.levelProgress[level['id']] ?? 0,
-                    );
-                  },
+                        return _buildLevelCard(
+                          context,
+                          level,
+                          isUnlocked,
+                          isCurrent,
+                          profile?.levelProgress[level['id']] ?? 0,
+                          isSmallScreen,
+                        );
+                      },
+                    ),
+                  ),
                 ),
               ),
+              const SizedBox(height: 16),
             ],
           ),
         ),
@@ -96,23 +113,32 @@ class LevelSelectScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildHeader(BuildContext context) {
+  Widget _buildHeader(BuildContext context, bool isSmallScreen) {
     return Padding(
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.all(isSmallScreen ? 12 : 16),
       child: Row(
         children: [
-          IconButton(
-            onPressed: () => Navigator.pop(context),
-            icon: const Icon(Icons.arrow_back),
-            color: IslaColors.oceanBlue,
+          Container(
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.3),
+              shape: BoxShape.circle,
+            ),
+            child: IconButton(
+              onPressed: () => Navigator.pop(context),
+              icon: const Icon(Icons.arrow_back, size: 24),
+              color: IslaColors.oceanDark,
+            ),
           ),
-          const SizedBox(width: 8),
+          const SizedBox(width: 12),
           Text(
             'Elige un Nivel',
-            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                  color: IslaColors.oceanBlue,
-                  fontWeight: FontWeight.bold,
-                ),
+            style: (isSmallScreen
+                    ? Theme.of(context).textTheme.headlineSmall
+                    : Theme.of(context).textTheme.headlineMedium)
+                ?.copyWith(
+              color: IslaColors.oceanDark,
+              fontWeight: FontWeight.w900,
+            ),
           ),
         ],
       ),
@@ -125,102 +151,111 @@ class LevelSelectScreen extends ConsumerWidget {
     bool isUnlocked,
     bool isCurrent,
     int progress,
+    bool isSmallScreen,
   ) {
     final color = level['color'] as Color;
 
     return Container(
-      margin: const EdgeInsets.only(bottom: 16),
+      margin: const EdgeInsets.only(bottom: 12),
       child: Opacity(
-        opacity: isUnlocked ? 1.0 : 0.5,
-        child: Card(
-          elevation: isCurrent ? 8 : 4,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
-            side: isCurrent
-                ? BorderSide(color: color, width: 3)
-                : BorderSide.none,
-          ),
-          child: InkWell(
-            onTap: isUnlocked
-                ? () => _navigateToLevel(context, level['id'] as String)
-                : null,
-            borderRadius: BorderRadius.circular(20),
-            child: Padding(
-              padding: const EdgeInsets.all(20),
-              child: Row(
-                children: [
-                  Container(
-                    width: 64,
-                    height: 64,
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [color, ColorUtils.darken(color, 0.2)],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      ),
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    child: Icon(
-                      level['icon'] as IconData,
-                      size: 36,
-                      color: IslaColors.white,
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          level['title'] as String,
-                          style:
-                              Theme.of(context).textTheme.titleLarge?.copyWith(
-                                    fontWeight: FontWeight.bold,
-                                    color: isUnlocked
-                                        ? IslaColors.black
-                                        : IslaColors.greyDark,
-                                  ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          level['subtitle'] as String,
-                          style:
-                              Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                    color: IslaColors.greyDark,
-                                  ),
-                        ),
-                        if (isUnlocked) ...[
-                          const SizedBox(height: 12),
-                          IslandProgressBar(
-                            progress: progress,
-                            height: 12,
-                            fillColor: color,
-                            showPercentage: false,
-                          ),
-                        ],
-                      ],
-                    ),
-                  ),
-                  if (!isUnlocked)
-                    const Icon(
-                      Icons.lock,
-                      color: IslaColors.grey,
-                      size: 28,
-                    )
-                  else if (progress >= 100)
-                    const Icon(
-                      Icons.check_circle,
-                      color: IslaColors.success,
-                      size: 32,
-                    )
-                  else
-                    Icon(
-                      Icons.play_circle_fill,
-                      color: color,
-                      size: 32,
-                    ),
-                ],
+        opacity: isUnlocked ? 1.0 : 0.6,
+        child: InkWell(
+          onTap: isUnlocked
+              ? () => _navigateToLevel(context, level['id'] as String)
+              : null,
+          borderRadius: BorderRadius.circular(20),
+          child: Container(
+            padding: EdgeInsets.all(isSmallScreen ? 12 : 16),
+            decoration: BoxDecoration(
+              color: isCurrent
+                  ? color.withOpacity(0.15)
+                  : Colors.white.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(
+                color: isCurrent ? color : Colors.white.withOpacity(0.2),
+                width: isCurrent ? 2.5 : 1.5,
               ),
+            ),
+            child: Row(
+              children: [
+                Container(
+                  width: isSmallScreen ? 50 : 64,
+                  height: isSmallScreen ? 50 : 64,
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [color, ColorUtils.darken(color, 0.2)],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                    borderRadius: BorderRadius.circular(16),
+                    boxShadow: [
+                      BoxShadow(
+                        color: color.withOpacity(0.3),
+                        blurRadius: 8,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: Icon(
+                    level['icon'] as IconData,
+                    size: isSmallScreen ? 28 : 36,
+                    color: IslaColors.white,
+                  ),
+                ),
+                SizedBox(width: isSmallScreen ? 12 : 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        level['title'] as String,
+                        style: (isSmallScreen
+                                ? Theme.of(context).textTheme.titleMedium
+                                : Theme.of(context).textTheme.titleLarge)
+                            ?.copyWith(
+                          fontWeight: FontWeight.w900,
+                          color: IslaColors.oceanDark,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        level['subtitle'] as String,
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                              color: IslaColors.oceanDark.withOpacity(0.8),
+                              fontWeight: FontWeight.w600,
+                            ),
+                      ),
+                      if (isUnlocked) ...[
+                        const SizedBox(height: 8),
+                        IslandProgressBar(
+                          progress: progress,
+                          height: isSmallScreen ? 8 : 10,
+                          fillColor: color,
+                          showPercentage: false,
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+                if (!isUnlocked)
+                  const Icon(
+                    Icons.lock,
+                    color: IslaColors.oceanDark,
+                    size: 24,
+                  )
+                else if (progress >= 100)
+                  const Icon(
+                    Icons.check_circle,
+                    color: IslaColors.palmGreen,
+                    size: 28,
+                  )
+                else
+                  Icon(
+                    Icons.play_circle_fill,
+                    color: color,
+                    size: 28,
+                  ),
+              ],
             ),
           ),
         ),
