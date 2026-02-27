@@ -296,7 +296,7 @@ class _DrawingCanvasState extends State<DrawingCanvas> {
               borderRadius: BorderRadius.circular(20),
               boxShadow: [
                 BoxShadow(
-                  color: IslaColors.black.withOpacity(0.1),
+                  color: IslaColors.black.withValues(alpha: 0.1),
                   blurRadius: 10,
                   offset: const Offset(0, 4),
                 ),
@@ -365,7 +365,7 @@ class _DrawingCanvasState extends State<DrawingCanvas> {
                 boxShadow: isSelected
                     ? [
                         BoxShadow(
-                          color: color.withOpacity(0.5),
+                          color: color.withValues(alpha: 0.5),
                           blurRadius: 8,
                           spreadRadius: 2,
                         ),
@@ -411,13 +411,17 @@ class DrawingPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     for (int i = 0; i < points.length - 1; i++) {
-      if (points[i].offset != null && points[i + 1].offset != null) {
+      if (points[i].offset != null &&
+          points[i].paint != null &&
+          points[i + 1].offset != null) {
         canvas.drawLine(
           points[i].offset!,
           points[i + 1].offset!,
           points[i].paint!,
         );
-      } else if (points[i].offset != null && points[i + 1].offset == null) {
+      } else if (points[i].offset != null &&
+          points[i].paint != null &&
+          points[i + 1].offset == null) {
         canvas.drawCircle(
           points[i].offset!,
           points[i].paint!.strokeWidth / 2,
@@ -565,7 +569,7 @@ class _MusicSequencerState extends State<MusicSequencer> {
                         decoration: BoxDecoration(
                           color: currentBeat == beat
                               ? IslaColors.sunsetPink
-                              : IslaColors.grey.withOpacity(0.3),
+                              : IslaColors.grey.withValues(alpha: 0.3),
                           shape: BoxShape.circle,
                         ),
                         child: Center(
@@ -644,7 +648,7 @@ class _MusicSequencerState extends State<MusicSequencer> {
       avatar: const Icon(Icons.music_note, size: 18),
       label: Text(label),
       onPressed: () => _loadPreset(preset),
-      backgroundColor: IslaColors.sunYellow.withOpacity(0.3),
+      backgroundColor: IslaColors.sunYellow.withValues(alpha: 0.3),
     );
   }
 

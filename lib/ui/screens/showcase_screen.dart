@@ -1,6 +1,6 @@
+import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
-import 'package:audioplayers/audioplayers.dart';
 
 import '../../core/theme/app_theme.dart';
 
@@ -55,7 +55,7 @@ class _ShowcaseScreenState extends State<ShowcaseScreen>
           controller: _tabController,
           indicatorColor: IslaColors.sunYellow,
           labelColor: IslaColors.white,
-          unselectedLabelColor: IslaColors.white.withOpacity(0.6),
+          unselectedLabelColor: IslaColors.white.withValues(alpha: 0.6),
           tabs: const [
             Tab(icon: Icon(Icons.animation), text: 'Animaciones'),
             Tab(icon: Icon(Icons.music_note), text: 'Audio'),
@@ -148,7 +148,7 @@ class _ShowcaseScreenState extends State<ShowcaseScreen>
           const SizedBox(height: 8),
           const Text(
             'assets/audio/music/01.mp3',
-            style: const TextStyle(fontSize: 12, color: IslaColors.grey),
+            style: TextStyle(fontSize: 12, color: IslaColors.grey),
           ),
           const SizedBox(height: 32),
           ElevatedButton.icon(
@@ -189,6 +189,8 @@ class _ShowcaseScreenState extends State<ShowcaseScreen>
       itemCount: backgrounds.length,
       itemBuilder: (context, index) {
         final bg = backgrounds[index];
+        final bgName = bg['name'] ?? '';
+        final bgPath = bg['path'] ?? '';
         return Card(
           margin: const EdgeInsets.only(bottom: 16),
           elevation: 4,
@@ -201,16 +203,16 @@ class _ShowcaseScreenState extends State<ShowcaseScreen>
               SizedBox(
                 height: 180,
                 width: double.infinity,
-                child: Image.asset(bg['path']!, fit: BoxFit.cover),
+                child: Image.asset(bgPath, fit: BoxFit.cover),
               ),
               Padding(
                 padding: const EdgeInsets.all(12),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(bg['name']!,
+                    Text(bgName,
                         style: const TextStyle(fontWeight: FontWeight.bold)),
-                    Text(bg['path']!,
+                    Text(bgPath,
                         style: const TextStyle(
                             fontSize: 10, color: IslaColors.grey)),
                   ],
@@ -249,6 +251,8 @@ class _ShowcaseScreenState extends State<ShowcaseScreen>
       itemCount: icons.length,
       itemBuilder: (context, index) {
         final icon = icons[index];
+        final iconName = icon['name'] ?? '';
+        final iconPath = icon['path'] ?? '';
         return Card(
           elevation: 4,
           shape:
@@ -259,11 +263,11 @@ class _ShowcaseScreenState extends State<ShowcaseScreen>
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Expanded(
-                  child: Image.asset(icon['path']!, fit: BoxFit.contain),
+                  child: Image.asset(iconPath, fit: BoxFit.contain),
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  icon['name']!,
+                  iconName,
                   style: const TextStyle(
                       fontWeight: FontWeight.bold, fontSize: 12),
                   textAlign: TextAlign.center,

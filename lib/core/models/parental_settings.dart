@@ -1,6 +1,3 @@
-/// Configuración del control parental.
-
-/// Configuración del control parental.
 /// Modelo separado para mantener la separación de responsabilidades.
 class ParentalSettings {
   const ParentalSettings({
@@ -11,6 +8,18 @@ class ParentalSettings {
     this.allowedContacts = const [],
     this.lastAccess,
   });
+
+  /// Crea una instancia a partir de un Map.
+  factory ParentalSettings.fromJson(Map<String, dynamic> json) {
+    return ParentalSettings(
+      dailyTimeLimitMinutes: json['dailyTimeLimitMinutes'] as int? ?? 30,
+      soundEnabled: json['soundEnabled'] as bool? ?? true,
+      musicEnabled: json['musicEnabled'] as bool? ?? true,
+      notificationsEnabled: json['notificationsEnabled'] as bool? ?? true,
+      allowedContacts:
+          List<String>.from(json['allowedContacts'] as List? ?? []),
+    );
+  }
 
   final int dailyTimeLimitMinutes;
   final bool soundEnabled;
@@ -46,16 +55,4 @@ class ParentalSettings {
         'notificationsEnabled': notificationsEnabled,
         'allowedContacts': allowedContacts,
       };
-
-  /// Crea una instancia a partir de un Map.
-  factory ParentalSettings.fromJson(Map<String, dynamic> json) {
-    return ParentalSettings(
-      dailyTimeLimitMinutes: json['dailyTimeLimitMinutes'] as int? ?? 30,
-      soundEnabled: json['soundEnabled'] as bool? ?? true,
-      musicEnabled: json['musicEnabled'] as bool? ?? true,
-      notificationsEnabled: json['notificationsEnabled'] as bool? ?? true,
-      allowedContacts:
-          List<String>.from(json['allowedContacts'] as List? ?? []),
-    );
-  }
 }

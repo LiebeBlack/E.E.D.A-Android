@@ -6,6 +6,7 @@ import '../../../core/providers/app_providers.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../widgets/island_background.dart';
 import '../../widgets/progress_widgets.dart';
+import '../../widgets/big_button.dart';
 
 /// Nivel 1: Mi Primer Encuentro
 /// Simulación interactiva para familiarizarse con el dispositivo
@@ -191,7 +192,7 @@ class _Level1ScreenState extends ConsumerState<Level1Screen> {
           Icon(
             Icons.phone_android,
             size: 120,
-            color: IslaColors.oceanBlue.withOpacity(0.3),
+            color: IslaColors.oceanBlue.withValues(alpha: 0.3),
           ),
           const SizedBox(height: 32),
           Text(
@@ -234,7 +235,7 @@ class _Level1ScreenState extends ConsumerState<Level1Screen> {
             width: 200,
             height: 320,
             decoration: BoxDecoration(
-              color: IslaColors.oceanBlue.withOpacity(0.1),
+              color: IslaColors.oceanBlue.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(20),
               border: Border.all(
                 color: IslaColors.oceanBlue,
@@ -278,7 +279,7 @@ class _Level1ScreenState extends ConsumerState<Level1Screen> {
             child: Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: IslaColors.sunYellow.withOpacity(0.3),
+                color: IslaColors.sunYellow.withValues(alpha: 0.3),
                 borderRadius: BorderRadius.circular(16),
               ),
               child: Row(
@@ -339,7 +340,7 @@ class _Level1ScreenState extends ConsumerState<Level1Screen> {
                   borderRadius: BorderRadius.circular(20),
                   boxShadow: [
                     BoxShadow(
-                      color: IslaColors.oceanBlue.withOpacity(0.1),
+                      color: IslaColors.oceanBlue.withValues(alpha: 0.1),
                       blurRadius: 12,
                       offset: const Offset(0, 6),
                     ),
@@ -495,83 +496,6 @@ class _Level1ScreenState extends ConsumerState<Level1Screen> {
                 style: Theme.of(context).textTheme.titleMedium,
               ),
             ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-// Widget auxiliar para botón animado con icono
-class AnimatedIconButton extends StatefulWidget {
-  const AnimatedIconButton({
-    super.key,
-    required this.icon,
-    required this.color,
-    required this.onPressed,
-    this.size = 80,
-  });
-  final IconData icon;
-  final Color color;
-  final VoidCallback onPressed;
-  final double size;
-
-  @override
-  State<AnimatedIconButton> createState() => _AnimatedIconButtonState();
-}
-
-class _AnimatedIconButtonState extends State<AnimatedIconButton>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
-  late Animation<double> _scaleAnimation;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = AnimationController(
-      duration: const Duration(milliseconds: 150),
-      vsync: this,
-    );
-    _scaleAnimation = Tween<double>(begin: 1, end: 0.9).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
-    );
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTapDown: (_) => _controller.forward(),
-      onTapUp: (_) {
-        _controller.reverse();
-        widget.onPressed();
-      },
-      onTapCancel: () => _controller.reverse(),
-      child: ScaleTransition(
-        scale: _scaleAnimation,
-        child: Container(
-          width: widget.size,
-          height: widget.size,
-          decoration: BoxDecoration(
-            color: widget.color,
-            shape: BoxShape.circle,
-            boxShadow: [
-              BoxShadow(
-                color: widget.color.withOpacity(0.4),
-                blurRadius: 12,
-                offset: const Offset(0, 6),
-              ),
-            ],
-          ),
-          child: Icon(
-            widget.icon,
-            size: widget.size * 0.5,
-            color: IslaColors.white,
           ),
         ),
       ),

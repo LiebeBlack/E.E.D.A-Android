@@ -267,7 +267,7 @@ class _CalculatorWidgetState extends State<CalculatorWidget> {
           Container(
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
-              color: (theme['color'] as Color).withOpacity(0.1),
+              color: (theme['color'] as Color).withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(20),
             ),
             child: Row(
@@ -470,7 +470,7 @@ class CalendarWidget extends StatelessWidget {
                 width: 60,
                 height: 60,
                 decoration: BoxDecoration(
-                  color: IslaColors.sunsetCoral.withOpacity(0.2),
+                  color: IslaColors.sunsetCoral.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Column(
@@ -585,7 +585,7 @@ class _CameraMissionWidgetState extends State<CameraMissionWidget> {
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: IslaColors.sunYellow.withOpacity(0.2),
+              color: IslaColors.sunYellow.withValues(alpha: 0.2),
               borderRadius: BorderRadius.circular(16),
             ),
             child: Row(
@@ -656,7 +656,7 @@ class _CameraMissionWidgetState extends State<CameraMissionWidget> {
         child: DecoratedBox(
           decoration: BoxDecoration(
             color: completed
-                ? IslaColors.palmLight.withOpacity(0.3)
+                ? IslaColors.palmLight.withValues(alpha: 0.3)
                 : IslaColors.white,
             borderRadius: BorderRadius.circular(20),
             border: Border.all(

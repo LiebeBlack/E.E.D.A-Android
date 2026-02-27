@@ -23,44 +23,53 @@ class BigButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Material(
-      elevation: 6,
-      borderRadius: BorderRadius.circular(20),
-      shadowColor: color.withOpacity(0.4),
-      child: InkWell(
-        onTap: onPressed,
-        borderRadius: BorderRadius.circular(20),
-        child: Container(
-          width: width ?? double.infinity,
-          height: height ?? 50,
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: [color, ColorUtils.darken(color, 0.1)],
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-            ),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final buttonHeight = height ?? 56.0;
+        final iconSize = buttonHeight * 0.45;
+        final fontSize = buttonHeight * 0.32;
+
+        return Material(
+          elevation: 6,
+          borderRadius: BorderRadius.circular(20),
+          shadowColor: color.withValues(alpha: 0.4),
+          child: InkWell(
+            onTap: onPressed,
             borderRadius: BorderRadius.circular(20),
-          ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                icon,
-                size: 24,
-                color: IslaColors.white,
+            child: Container(
+              width: width ?? double.infinity,
+              height: buttonHeight,
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [color, ColorUtils.darken(color)],
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                ),
+                borderRadius: BorderRadius.circular(20),
               ),
-              const SizedBox(width: 12),
-              Text(
-                label,
-                style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      color: IslaColors.white,
-                      fontWeight: FontWeight.bold,
-                    ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    icon,
+                    size: iconSize,
+                    color: IslaColors.white,
+                  ),
+                  const SizedBox(width: 12),
+                  Text(
+                    label,
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                          color: IslaColors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: fontSize,
+                        ),
+                  ),
+                ],
               ),
-            ],
+            ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 }
@@ -89,7 +98,7 @@ class CircleActionButton extends StatelessWidget {
         Material(
           elevation: 4,
           shape: const CircleBorder(),
-          shadowColor: color.withOpacity(0.4),
+          shadowColor: color.withValues(alpha: 0.4),
           child: InkWell(
             onTap: onPressed,
             customBorder: const CircleBorder(),
@@ -188,7 +197,7 @@ class _AnimatedIconButtonState extends State<AnimatedIconButton>
             shape: BoxShape.circle,
             boxShadow: [
               BoxShadow(
-                color: widget.color.withOpacity(0.4),
+                color: widget.color.withValues(alpha: 0.4),
                 blurRadius: 12,
                 offset: const Offset(0, 6),
               ),

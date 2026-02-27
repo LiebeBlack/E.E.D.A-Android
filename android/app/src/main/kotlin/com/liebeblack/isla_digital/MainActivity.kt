@@ -1,4 +1,4 @@
-package com.example.isla_digital
+package com.liebeblack.isla_digital
 
 import io.flutter.embedding.android.FlutterActivity
 

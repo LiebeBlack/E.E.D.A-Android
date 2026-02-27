@@ -270,7 +270,7 @@ class _Level3ScreenState extends ConsumerState<Level3Screen> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             decoration: BoxDecoration(
-              color: IslaColors.sunYellow.withOpacity(0.3),
+              color: IslaColors.sunYellow.withValues(alpha: 0.3),
               borderRadius: BorderRadius.circular(16),
             ),
             child: Text(
@@ -297,7 +297,7 @@ class _Level3ScreenState extends ConsumerState<Level3Screen> {
           Container(
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
-              color: IslaColors.sunsetPurple.withOpacity(0.1),
+              color: IslaColors.sunsetPurple.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(20),
               border: Border.all(color: IslaColors.sunsetPurple, width: 2),
             ),
@@ -346,12 +346,16 @@ class _Level3ScreenState extends ConsumerState<Level3Screen> {
               itemCount: websites.length,
               separatorBuilder: (_, __) => const SizedBox(height: 16),
               itemBuilder: (context, index) {
-                final site = websites[index];
+                final site = websites[index] as Map<String, dynamic>;
+                final siteName = site['name'] as String;
+                final siteIcon = site['icon'] as IconData;
+                final siteSafe = site['safe'] as bool;
+                final siteShield = site['shield'] as String;
                 return _buildWebsiteCard(
-                  site['name'] as String,
-                  site['icon'] as IconData,
-                  site['safe'] as bool,
-                  site['shield'] as String,
+                  siteName,
+                  siteIcon,
+                  siteSafe,
+                  siteShield,
                 );
               },
             ),
@@ -390,7 +394,7 @@ class _Level3ScreenState extends ConsumerState<Level3Screen> {
             color: IslaColors.white,
             borderRadius: BorderRadius.circular(20),
             border: Border.all(
-              color: shield.withOpacity(0.5),
+              color: shield.withValues(alpha: 0.5),
               width: 3,
             ),
           ),
@@ -401,8 +405,8 @@ class _Level3ScreenState extends ConsumerState<Level3Screen> {
                 height: 60,
                 decoration: BoxDecoration(
                   color: safe
-                      ? IslaColors.palmLight.withOpacity(0.3)
-                      : IslaColors.error.withOpacity(0.1),
+                      ? IslaColors.palmLight.withValues(alpha: 0.3)
+                      : IslaColors.error.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(16),
                 ),
                 child: Icon(

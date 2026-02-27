@@ -1,5 +1,4 @@
 import 'dart:math';
-import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -10,8 +9,8 @@ import '../../core/models/parental_settings.dart';
 import '../../core/providers/app_providers.dart';
 import '../../core/theme/app_theme.dart';
 import '../widgets/badge_card.dart';
-import '../widgets/island_background.dart';
 import '../widgets/glass_container.dart';
+import '../widgets/island_background.dart';
 
 /// Dashboard de Control Parental con bloqueo matemático
 class ParentalDashboardScreen extends ConsumerStatefulWidget {
@@ -93,7 +92,6 @@ class _ParentalDashboardScreenState
 
     return Scaffold(
       body: IslandBackground(
-        showDecorations: true,
         child: SafeArea(
           child: !_isAuthenticated
               ? _buildAuthScreen(isSmallScreen)
@@ -155,7 +153,7 @@ class _ParentalDashboardScreenState
                     decoration: InputDecoration(
                       hintText: '?',
                       filled: true,
-                      fillColor: Colors.white.withOpacity(0.5),
+                      fillColor: Colors.white.withValues(alpha: 0.5),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(16),
                         borderSide: BorderSide.none,
@@ -265,7 +263,7 @@ class _ParentalDashboardScreenState
                 Text(
                   'Configuración para padres',
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: IslaColors.oceanDark.withOpacity(0.7),
+                        color: IslaColors.oceanDark.withValues(alpha: 0.7),
                         fontWeight: FontWeight.w600,
                       ),
                 ),
@@ -350,7 +348,7 @@ class _ParentalDashboardScreenState
             max: 120,
             divisions: 7,
             activeColor: IslaColors.oceanBlue,
-            inactiveColor: IslaColors.oceanBlue.withOpacity(0.2),
+            inactiveColor: IslaColors.oceanBlue.withValues(alpha: 0.2),
             label: '${settings.dailyTimeLimitMinutes} min',
             onChanged: (value) {
               ref.read(parentalSettingsProvider.notifier).updateTimeLimit(value.toInt());
@@ -407,7 +405,7 @@ class _ParentalDashboardScreenState
         Switch(
           value: value,
           onChanged: onChanged,
-          activeColor: IslaColors.oceanBlue,
+          activeThumbColor: IslaColors.oceanBlue,
         ),
       ],
     );

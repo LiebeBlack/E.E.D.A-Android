@@ -9,9 +9,9 @@ import '../levels/level2/level2_screen.dart';
 import '../levels/level3/level3_screen.dart';
 import '../levels/level4/level4_screen.dart';
 import '../levels/level5/level5_screen.dart';
+import '../widgets/glass_container.dart';
 import '../widgets/island_background.dart';
 import '../widgets/progress_widgets.dart';
-import '../widgets/glass_container.dart';
 
 class LevelSelectScreen extends ConsumerWidget {
   const LevelSelectScreen({super.key});
@@ -68,7 +68,6 @@ class LevelSelectScreen extends ConsumerWidget {
 
     return Scaffold(
       body: IslandBackground(
-        showDecorations: true,
         child: SafeArea(
           child: Column(
             children: [
@@ -118,9 +117,9 @@ class LevelSelectScreen extends ConsumerWidget {
       padding: EdgeInsets.all(isSmallScreen ? 12 : 16),
       child: Row(
         children: [
-          Container(
+          DecoratedBox(
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.3),
+              color: Colors.white.withValues(alpha: 0.3),
               shape: BoxShape.circle,
             ),
             child: IconButton(
@@ -168,11 +167,11 @@ class LevelSelectScreen extends ConsumerWidget {
             padding: EdgeInsets.all(isSmallScreen ? 12 : 16),
             decoration: BoxDecoration(
               color: isCurrent
-                  ? color.withOpacity(0.15)
-                  : Colors.white.withOpacity(0.1),
+                  ? color.withValues(alpha: 0.15)
+                  : Colors.white.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(20),
               border: Border.all(
-                color: isCurrent ? color : Colors.white.withOpacity(0.2),
+                color: isCurrent ? color : Colors.white.withValues(alpha: 0.2),
                 width: isCurrent ? 2.5 : 1.5,
               ),
             ),
@@ -190,7 +189,7 @@ class LevelSelectScreen extends ConsumerWidget {
                     borderRadius: BorderRadius.circular(16),
                     boxShadow: [
                       BoxShadow(
-                        color: color.withOpacity(0.3),
+                        color: color.withValues(alpha: 0.3),
                         blurRadius: 8,
                         offset: const Offset(0, 4),
                       ),
@@ -221,7 +220,7 @@ class LevelSelectScreen extends ConsumerWidget {
                       Text(
                         level['subtitle'] as String,
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              color: IslaColors.oceanDark.withOpacity(0.8),
+                              color: IslaColors.oceanDark.withValues(alpha: 0.8),
                               fontWeight: FontWeight.w600,
                             ),
                       ),

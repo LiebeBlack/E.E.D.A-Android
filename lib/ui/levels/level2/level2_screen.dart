@@ -211,7 +211,7 @@ class _Level2ScreenState extends ConsumerState<Level2Screen> {
       child: Column(
         children: [
           Icon(Icons.chat_bubble,
-              size: 80, color: IslaColors.palmGreen.withOpacity(0.5)),
+              size: 80, color: IslaColors.palmGreen.withValues(alpha: 0.5)),
           const SizedBox(height: 24),
           Text(step['title'] as String,
               style: Theme.of(context).textTheme.headlineSmall?.copyWith(
@@ -264,7 +264,7 @@ class _Level2ScreenState extends ConsumerState<Level2Screen> {
         borderRadius: BorderRadius.circular(20),
         child: DecoratedBox(
           decoration: BoxDecoration(
-            color: color.withOpacity(0.2),
+            color: color.withValues(alpha: 0.2),
             borderRadius: BorderRadius.circular(20),
             border: Border.all(color: color, width: 3),
           ),
@@ -314,7 +314,7 @@ class _Level2ScreenState extends ConsumerState<Level2Screen> {
       child: Column(
         children: [
           Icon(Icons.phone,
-              size: 80, color: IslaColors.palmGreen.withOpacity(0.5)),
+              size: 80, color: IslaColors.palmGreen.withValues(alpha: 0.5)),
           const SizedBox(height: 24),
           Text(step['title'] as String,
               style: Theme.of(context).textTheme.headlineSmall?.copyWith(
@@ -402,7 +402,7 @@ class _Level2ScreenState extends ConsumerState<Level2Screen> {
       child: Column(
         children: [
           Icon(Icons.photo_library,
-              size: 80, color: IslaColors.palmGreen.withOpacity(0.5)),
+              size: 80, color: IslaColors.palmGreen.withValues(alpha: 0.5)),
           const SizedBox(height: 24),
           Text(step['title'] as String,
               style: Theme.of(context).textTheme.headlineSmall?.copyWith(
@@ -439,7 +439,7 @@ class _Level2ScreenState extends ConsumerState<Level2Screen> {
       child: ListTile(
         leading: CircleAvatar(
           backgroundColor:
-              safe ? IslaColors.palmLight : IslaColors.warning.withOpacity(0.3),
+              safe ? IslaColors.palmLight : IslaColors.warning.withValues(alpha: 0.3),
           child: Icon(icon,
               color: safe ? IslaColors.palmDark : IslaColors.warning),
         ),
@@ -492,7 +492,7 @@ class _Level2ScreenState extends ConsumerState<Level2Screen> {
       child: Column(
         children: [
           Icon(Icons.quiz,
-              size: 80, color: IslaColors.palmGreen.withOpacity(0.5)),
+              size: 80, color: IslaColors.palmGreen.withValues(alpha: 0.5)),
           const SizedBox(height: 24),
           Text(step['title'] as String,
               style: Theme.of(context).textTheme.headlineSmall?.copyWith(

@@ -50,32 +50,19 @@ class LocalStorageService {
 
   /// Guardar configuración parental
   static Future<bool> saveParentalSettings(ParentalSettings settings) async {
-    final json = {
-      'dailyTimeLimitMinutes': settings.dailyTimeLimitMinutes,
-      'soundEnabled': settings.soundEnabled,
-      'musicEnabled': settings.musicEnabled,
-      'notificationsEnabled': settings.notificationsEnabled,
-      'allowedContacts': settings.allowedContacts,
-    };
-    return await _prefs.setString(_settingsKey, jsonEncode(json));
+    return await _prefs.setString(_settingsKey, jsonEncode(settings.toJson()));
   }
 
   /// Cargar configuración parental
   static ParentalSettings loadParentalSettings() {
     try {
       final jsonString = _prefs.getString(_settingsKey);
-      if (jsonString == null || jsonString.isEmpty)
+      if (jsonString == null || jsonString.isEmpty) {
         return const ParentalSettings();
+      }
 
       final json = jsonDecode(jsonString) as Map<String, dynamic>;
-      return ParentalSettings(
-        dailyTimeLimitMinutes: json['dailyTimeLimitMinutes'] as int? ?? 30,
-        soundEnabled: json['soundEnabled'] as bool? ?? true,
-        musicEnabled: json['musicEnabled'] as bool? ?? true,
-        notificationsEnabled: json['notificationsEnabled'] as bool? ?? true,
-        allowedContacts:
-            List<String>.from(json['allowedContacts'] as List? ?? []),
-      );
+      return ParentalSettings.fromJson(json);
     } catch (e) {
       // Manejar error de parsing
       return const ParentalSettings();

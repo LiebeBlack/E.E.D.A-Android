@@ -8,8 +8,8 @@ import '../../core/providers/app_providers.dart';
 import '../../core/theme/app_theme.dart';
 import '../widgets/badge_card.dart';
 import '../widgets/big_button.dart';
-import '../widgets/island_background.dart';
 import '../widgets/glass_container.dart';
+import '../widgets/island_background.dart';
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
@@ -22,7 +22,6 @@ class HomeScreen extends ConsumerWidget {
 
     return Scaffold(
       body: IslandBackground(
-        showDecorations: true,
         child: SafeArea(
           child: Stack(
             children: [
@@ -102,11 +101,11 @@ class HomeScreen extends ConsumerWidget {
   }
 
   Widget _buildDiscreteControls(BuildContext context) {
-    return Container(
+    return DecoratedBox(
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.2),
+        color: Colors.white.withValues(alpha: 0.2),
         shape: BoxShape.circle,
-        border: Border.all(color: Colors.white.withOpacity(0.3)),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.3)),
       ),
       child: IconButton(
         icon: const Icon(Icons.settings, color: IslaColors.oceanDark),
@@ -205,11 +204,11 @@ class HomeScreen extends ConsumerWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
-        color: IslaColors.sunYellow.withOpacity(0.8),
+        color: IslaColors.sunYellow.withValues(alpha: 0.8),
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
+            color: Colors.black.withValues(alpha: 0.1),
             blurRadius: 4,
             offset: const Offset(0, 2),
           ),
@@ -258,7 +257,7 @@ class HomeScreen extends ConsumerWidget {
         Text(
           'Descubre los secretos de tu teléfono como un explorador de Margarita',
           style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: IslaColors.oceanDark.withOpacity(0.8),
+                color: IslaColors.oceanDark.withValues(alpha: 0.8),
                 fontWeight: FontWeight.w600,
               ),
           textAlign: TextAlign.center,
@@ -304,7 +303,6 @@ class HomeScreen extends ConsumerWidget {
         backgroundColor: Colors.transparent,
         contentPadding: EdgeInsets.zero,
         content: GlassContainer(
-          borderRadius: 24,
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [

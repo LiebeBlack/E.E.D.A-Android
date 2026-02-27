@@ -157,7 +157,7 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
                   boxShadow: isSelected
                       ? [
                           BoxShadow(
-                            color: _avatarColors[index].withOpacity(0.5),
+                            color: _avatarColors[index].withValues(alpha: 0.5),
                             blurRadius: 12,
                             spreadRadius: 2,
                           ),
@@ -270,7 +270,7 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
                           style:
                               Theme.of(context).textTheme.bodySmall?.copyWith(
                                     color: isSelected
-                                        ? IslaColors.white.withOpacity(0.8)
+                                        ? IslaColors.white.withValues(alpha: 0.8)
                                         : IslaColors.grey,
                                   ),
                         ),

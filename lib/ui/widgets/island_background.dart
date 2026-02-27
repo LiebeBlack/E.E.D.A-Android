@@ -55,8 +55,8 @@ class IslandBackground extends StatelessWidget {
       decoration: BoxDecoration(
         gradient: RadialGradient(
           colors: [
-            IslaColors.sunYellow.withOpacity(0.6),
-            IslaColors.sunYellow.withOpacity(0.2),
+            IslaColors.sunYellow.withValues(alpha: 0.6),
+            IslaColors.sunYellow.withValues(alpha: 0.2),
             Colors.transparent,
           ],
           stops: const [0.3, 0.6, 1.0],
@@ -72,9 +72,9 @@ class IslandBackground extends StatelessWidget {
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            IslaColors.oceanLight.withOpacity(0.3),
-            IslaColors.oceanBlue.withOpacity(0.5),
-            IslaColors.oceanDark.withOpacity(0.6),
+            IslaColors.oceanLight.withValues(alpha: 0.3),
+            IslaColors.oceanBlue.withValues(alpha: 0.5),
+            IslaColors.oceanDark.withValues(alpha: 0.6),
           ],
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
@@ -95,7 +95,7 @@ class IslandBackground extends StatelessWidget {
     return Icon(
       Icons.park,
       size: 80,
-      color: IslaColors.palmGreen.withOpacity(0.3),
+      color: IslaColors.palmGreen.withValues(alpha: 0.3),
     );
   }
 }
@@ -105,7 +105,7 @@ class WavesPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = IslaColors.white.withOpacity(0.3)
+      ..color = IslaColors.white.withValues(alpha: 0.3)
       ..style = PaintingStyle.stroke
       ..strokeWidth = 3
       ..strokeCap = StrokeCap.round;
@@ -149,20 +149,20 @@ class IslandCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final cardColor = color ?? IslaColors.white;
 
-    Widget cardContent = Container(
+    final Widget cardContent = Container(
       padding: padding ?? const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: cardColor,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: IslaColors.oceanBlue.withOpacity(0.1),
+            color: IslaColors.oceanBlue.withValues(alpha: 0.1),
             blurRadius: 12,
             offset: const Offset(0, 6),
           ),
         ],
         border: Border.all(
-          color: IslaColors.sand.withOpacity(0.5),
+          color: IslaColors.sand.withValues(alpha: 0.5),
           width: 2,
         ),
       ),
@@ -170,10 +170,13 @@ class IslandCard extends StatelessWidget {
     );
 
     if (onTap != null) {
-      cardContent = InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(20),
-        child: cardContent,
+      return Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(20),
+          child: cardContent,
+        ),
       );
     }
 

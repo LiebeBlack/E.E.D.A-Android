@@ -40,49 +40,53 @@ class IslandProgressBar extends StatelessWidget {
           ),
           const SizedBox(height: 8),
         ],
-        Container(
-          height: height,
-          decoration: BoxDecoration(
-            color: IslaColors.greyLight,
-            borderRadius: BorderRadius.circular(height / 2),
-            border: Border.all(
-              color: IslaColors.grey,
-              width: 2,
-            ),
-          ),
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(height / 2),
-            child: Stack(
-              children: [
-                AnimatedContainer(
-                  duration: const Duration(milliseconds: 500),
-                  curve: Curves.easeInOut,
-                  width: percentage * MediaQuery.of(context).size.width,
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [
-                        color,
-                        ColorUtils.lighten(color, 0.2),
-                      ],
-                    ),
-                  ),
+        LayoutBuilder(
+          builder: (context, constraints) {
+            return Container(
+              height: height,
+              decoration: BoxDecoration(
+                color: IslaColors.greyLight,
+                borderRadius: BorderRadius.circular(height / 2),
+                border: Border.all(
+                  color: IslaColors.grey,
+                  width: 2,
                 ),
-                if (showPercentage)
-                  Center(
-                    child: Text(
-                      '${(percentage * 100).toInt()}%',
-                      style: TextStyle(
-                        color: percentage > 0.5
-                            ? IslaColors.white
-                            : IslaColors.greyDark,
-                        fontWeight: FontWeight.bold,
-                        fontSize: height * 0.5,
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(height / 2),
+                child: Stack(
+                  children: [
+                    AnimatedContainer(
+                      duration: const Duration(milliseconds: 500),
+                      curve: Curves.easeInOut,
+                      width: percentage * constraints.maxWidth,
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [
+                            color,
+                            ColorUtils.lighten(color, 0.2),
+                          ],
+                        ),
                       ),
                     ),
-                  ),
-              ],
-            ),
-          ),
+                    if (showPercentage)
+                      Center(
+                        child: Text(
+                          '${(percentage * 100).toInt()}%',
+                          style: TextStyle(
+                            color: percentage > 0.5
+                                ? IslaColors.white
+                                : IslaColors.greyDark,
+                            fontWeight: FontWeight.bold,
+                            fontSize: height * 0.5,
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+            );
+          },
         ),
       ],
     );
@@ -155,7 +159,7 @@ class CelebrationOverlay extends StatelessWidget {
     if (!isVisible) return const SizedBox.shrink();
 
     return ColoredBox(
-      color: Colors.black.withOpacity(0.3),
+      color: Colors.black.withValues(alpha: 0.3),
       child: Center(
         child: TweenAnimationBuilder<double>(
           tween: Tween(begin: 0, end: 1),
@@ -170,7 +174,7 @@ class CelebrationOverlay extends StatelessWidget {
                   borderRadius: BorderRadius.circular(24),
                   boxShadow: [
                     BoxShadow(
-                      color: IslaColors.sunYellow.withOpacity(0.5),
+                      color: IslaColors.sunYellow.withValues(alpha: 0.5),
                       blurRadius: 24,
                       spreadRadius: 8,
                     ),

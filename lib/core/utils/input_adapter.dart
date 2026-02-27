@@ -89,7 +89,7 @@ class _AdaptiveButtonState extends State<AdaptiveButton> {
             boxShadow: _isHovered || _isPressed
                 ? [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.2),
+                      color: Colors.black.withValues(alpha: 0.2),
                       blurRadius: 8,
                       offset: const Offset(0, 4),
                     ),
@@ -97,7 +97,7 @@ class _AdaptiveButtonState extends State<AdaptiveButton> {
                 : [],
           ),
           transform: _isPressed
-              ? (Matrix4.identity()..scale(0.98))
+              ? (Matrix4.identity()..scaleByVector3(Vector3(0.98, 0.98, 1.0)))
               : Matrix4.identity(),
           child: widget.child,
         ),

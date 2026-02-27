@@ -31,7 +31,7 @@ class BadgeCard extends StatelessWidget {
               gradient: LinearGradient(
                 colors: [
                   badge.color,
-                  badge.color.withOpacity(0.7),
+                  badge.color.withValues(alpha: 0.7),
                 ],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
@@ -40,7 +40,7 @@ class BadgeCard extends StatelessWidget {
               boxShadow: isEarned
                   ? [
                       BoxShadow(
-                        color: badge.color.withOpacity(0.4),
+                        color: badge.color.withValues(alpha: 0.4),
                         blurRadius: 12,
                         spreadRadius: 2,
                       ),
