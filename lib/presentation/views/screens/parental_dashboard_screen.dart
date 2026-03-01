@@ -1,31 +1,24 @@
 import 'dart:math';
-
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:isla_digital/core/theme/app_theme.dart';
-import 'package:isla_digital/domain/models/badge.dart';
-import 'package:isla_digital/domain/models/child_profile.dart';
-import 'package:isla_digital/domain/models/parental_settings.dart';
+import 'package:isla_digital/domain/models/models.dart';
 import 'package:isla_digital/presentation/providers/app_providers.dart';
-import 'package:isla_digital/presentation/widgets/badge_card.dart';
 import 'package:isla_digital/presentation/widgets/glass_container.dart';
 import 'package:isla_digital/presentation/widgets/island_background.dart';
 
-/// Dashboard de Control Parental con bloqueo matemático estándar 2026
 class ParentalDashboardScreen extends ConsumerStatefulWidget {
   const ParentalDashboardScreen({super.key});
 
   @override
-  ConsumerState<ParentalDashboardScreen> createState() =>
-      _ParentalDashboardScreenState();
+  ConsumerState<ParentalDashboardScreen> createState() => _ParentalDashboardScreenState();
 }
 
-class _ParentalDashboardScreenState
-    extends ConsumerState<ParentalDashboardScreen> {
+class _ParentalDashboardScreenState extends ConsumerState<ParentalDashboardScreen> {
   bool _isAuthenticated = false;
-  int _num1 = 0;
-  int _num2 = 0;
-  String _operation = '';
+  late int _num1, _num2;
+  late String _operation;
   final _answerController = TextEditingController();
 
   @override
@@ -34,304 +27,228 @@ class _ParentalDashboardScreenState
     _generateMathProblem();
   }
 
-  /// Genera un reto matemático simple pero efectivo para evitar acceso accidental de niños
-  void _generateMathProblem() {
-    final random = Random();
-    _num1 = random.nextInt(10) + 1;
-    _num2 = random.nextInt(10) + 1;
-
-    final operations = ['+', '-'];
-    _operation = operations[random.nextInt(operations.length)];
-
-    // Asegurar que el resultado no sea negativo para facilitar a los padres
-    if (_operation == '-' && _num1 < _num2) {
-      final temp = _num1;
-      _num1 = _num2;
-      _num2 = temp;
-    }
-  }
-
-  int _getCorrectAnswer() {
-    switch (_operation) {
-      case '+': return _num1 + _num2;
-      case '-': return _num1 - _num2;
-      default: return 0;
-    }
-  }
-
-  void _checkAnswer() {
-    final answer = int.tryParse(_answerController.text);
-    if (answer == _getCorrectAnswer()) {
-      setState(() => _isAuthenticated = true);
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Respuesta incorrecta. Intenta de nuevo.'),
-          backgroundColor: IslaColors.coralReef,
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
-      _answerController.clear();
-      _generateMathProblem();
-    }
-  }
-
   @override
   void dispose() {
     _answerController.dispose();
     super.dispose();
   }
 
+  void _generateMathProblem() {
+    final random = Random();
+    _num1 = random.nextInt(12) + 5; 
+    _num2 = random.nextInt(10) + 2;
+    _operation = random.nextBool() ? '+' : '-';
+
+    if (_operation == '-' && _num1 < _num2) {
+      final temp = _num1;
+      _num1 = _num2;
+      _num2 = temp;
+    }
+    setState(() {});
+  }
+
+  void _checkAnswer() {
+    final expected = _operation == '+' ? _num1 + _num2 : _num1 - _num2;
+    if (int.tryParse(_answerController.text) == expected) {
+      setState(() => _isAuthenticated = true);
+    } else {
+      _answerController.clear();
+      _generateMathProblem();
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Acceso denegado. Intenta de nuevo.'),
+          backgroundColor: Colors.redAccent,
+        ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final profile = ref.watch(currentProfileProvider);
     final settings = ref.watch(parentalSettingsProvider);
-    final size = MediaQuery.of(context).size;
-    final isSmallScreen = size.width <= 360;
-
+    
     return Scaffold(
-      // Evita que el teclado rompa el fondo de la isla
-      resizeToAvoidBottomInset: true,
+      resizeToAvoidBottomInset: true, 
       body: IslandBackground(
         child: SafeArea(
-          child: !_isAuthenticated
-              ? _buildAuthScreen(isSmallScreen)
-              : _buildDashboard(profile, settings, isSmallScreen),
+          child: AnimatedSwitcher(
+            duration: 400.ms,
+            child: !_isAuthenticated 
+              ? _buildAuthLock() 
+              : _buildMainDashboard(profile, settings),
+          ),
         ),
       ),
     );
   }
 
-  /// Pantalla de Bloqueo (Puerta de entrada para padres)
-  Widget _buildAuthScreen(bool isSmallScreen) {
+  // --- MÓDULO DE AUTENTICACIÓN ---
+  Widget _buildAuthLock() {
     return Center(
       child: SingleChildScrollView(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Image.asset(
-              'assets/icons/app_icon.png',
-              height: isSmallScreen ? 80 : 100,
-            ),
-            const SizedBox(height: 24),
-            Text(
-              'Acceso para Padres',
-              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                    color: IslaColors.oceanDark,
-                    fontWeight: FontWeight.w900,
-                  ),
-            ),
-            const SizedBox(height: 32),
-            GlassContainer(
-              padding: const EdgeInsets.all(24),
-              child: Column(
-                children: [
-                  Text(
-                    'Resuelve para entrar:',
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          color: IslaColors.oceanDark,
-                          fontWeight: FontWeight.bold,
-                        ),
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    '$_num1 $_operation $_num2 = ?',
-                    style: Theme.of(context).textTheme.displayMedium?.copyWith(
-                          color: IslaColors.oceanBlue,
-                          fontWeight: FontWeight.w900,
-                        ),
-                  ),
-                  const SizedBox(height: 24),
-                  TextField(
-                    controller: _answerController,
-                    keyboardType: TextInputType.number,
-                    textAlign: TextAlign.center,
-                    autofocus: true,
-                    style: const TextStyle(
-                      fontSize: 32,
-                      fontWeight: FontWeight.bold,
-                      color: IslaColors.oceanDark,
-                    ),
-                    decoration: InputDecoration(
-                      hintText: '?',
-                      filled: true,
-                      // ESTÁNDAR 2026: withValues para transparencia
-                      fillColor: Colors.white.withValues(alpha: 0.5),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(16),
-                        borderSide: BorderSide.none,
-                      ),
-                    ),
-                    onSubmitted: (_) => _checkAnswer(),
-                  ),
-                  const SizedBox(height: 24),
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      onPressed: _checkAnswer,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: IslaColors.oceanBlue,
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                      ),
-                      child: const Text(
-                        'VERIFICAR',
-                        style: TextStyle(fontWeight: FontWeight.w900, fontSize: 18),
-                      ),
-                    ),
-                  ),
-                ],
+        padding: const EdgeInsets.all(32),
+        child: GlassContainer(
+          child: Column(
+            children: [
+              const Icon(Icons.lock_person_rounded, size: 64, color: IslaColors.oceanBlue),
+              const SizedBox(height: 16),
+              const Text(
+                'SOLO ADULTOS', 
+                style: TextStyle(fontWeight: FontWeight.w900, fontSize: 20),
               ),
-            ),
-            const SizedBox(height: 24),
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text(
-                'VOLVER A LA ISLA',
-                style: TextStyle(
-                  color: IslaColors.oceanDark,
-                  fontWeight: FontWeight.bold,
+              const SizedBox(height: 8),
+              const Text('Resuelve para configurar la isla:', textAlign: TextAlign.center),
+              const SizedBox(height: 24),
+              Text(
+                '$_num1 $_operation $_num2 = ?', 
+                style: const TextStyle(
+                  fontSize: 40, 
+                  fontWeight: FontWeight.w900, 
+                  color: IslaColors.oceanBlue,
                 ),
               ),
-            ),
-          ],
+              const SizedBox(height: 24),
+              TextField(
+                controller: _answerController,
+                keyboardType: TextInputType.number,
+                textAlign: TextAlign.center,
+                style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
+                decoration: InputDecoration(
+                  hintText: 'Respuesta',
+                  filled: true,
+                  fillColor: Colors.white.withValues(alpha: 0.3),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(20), 
+                    borderSide: BorderSide.none,
+                  ),
+                ),
+                onSubmitted: (_) => _checkAnswer(),
+              ),
+              const SizedBox(height: 24),
+              ElevatedButton(
+                onPressed: _checkAnswer,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: IslaColors.oceanBlue,
+                  minimumSize: const Size(double.infinity, 56),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                ),
+                child: const Text(
+                  'VERIFICAR', 
+                  style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                ),
+              ),
+            ],
+          ),
         ),
-      ),
+      ).animate().fadeIn().scale(curve: Curves.easeOutBack),
     );
   }
 
-  /// Dashboard Principal (Visible solo tras autenticación)
-  Widget _buildDashboard(ChildProfile? profile, ParentalSettings settings, bool isSmallScreen) {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _buildDashboardHeader(),
-          const SizedBox(height: 24),
-          _buildChildStats(profile),
-          const SizedBox(height: 16),
-          _buildTimeLimitCard(settings),
-          const SizedBox(height: 16),
-          _buildSoundSettingsCard(settings),
-          const SizedBox(height: 16),
-          _buildBadgesCard(profile, isSmallScreen),
-          const SizedBox(height: 32),
-          _buildExitButton(),
-          const SizedBox(height: 24),
-        ],
-      ),
+  // --- MÓDULO DASHBOARD ---
+  Widget _buildMainDashboard(ChildProfile? profile, ParentalSettings settings) {
+    return ListView(
+      padding: const EdgeInsets.all(20),
+      children: [
+        _buildHeader(),
+        const SizedBox(height: 20),
+        if (profile != null) _buildQuickStats(profile),
+        const SizedBox(height: 20),
+        _buildSectionTitle('LÍMITES DE TIEMPO'),
+        _buildTimeSlider(settings),
+        const SizedBox(height: 20),
+        _buildSectionTitle('SONIDO Y MÚSICA'),
+        _buildSoundControls(settings),
+        const SizedBox(height: 30),
+        _buildDangerZone(),
+      ],
+    ).animate().slideY(begin: 0.1, end: 0);
+  }
+
+  Widget _buildHeader() {
+    return Row(
+      children: [
+        IconButton(
+          onPressed: () => Navigator.pop(context),
+          icon: const Icon(Icons.close_rounded, color: IslaColors.oceanDark),
+          style: IconButton.styleFrom(
+            backgroundColor: IslaColors.oceanBlue.withValues(alpha: 0.1),
+          ),
+        ),
+        const SizedBox(width: 16),
+        const Text(
+          'Configuración', 
+          style: TextStyle(fontSize: 24, fontWeight: FontWeight.w900),
+        ),
+      ],
     );
   }
 
-  Widget _buildDashboardHeader() {
+  Widget _buildQuickStats(ChildProfile profile) {
     return GlassContainer(
-      padding: const EdgeInsets.all(16),
-      borderRadius: 20,
+      padding: const EdgeInsets.all(20),
       child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
-          const CircleAvatar(
-            backgroundColor: IslaColors.oceanBlue,
-            child: Icon(Icons.settings, color: Colors.white),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  'Panel de Control',
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.w900, color: IslaColors.oceanDark),
-                ),
-                Text(
-                  'Configura la experiencia de tu explorador',
-                  style: TextStyle(fontSize: 12, color: IslaColors.oceanDark.withValues(alpha: 0.7)),
-                ),
-              ],
-            ),
-          ),
+          _statColumn('Nivel', profile.currentLevel.toString(), Icons.bolt_rounded),
+          _statColumn('Logros', profile.earnedBadges.length.toString(), Icons.emoji_events_rounded),
+          _statColumn('Minutos', profile.totalPlayTimeMinutes.toString(), Icons.history_toggle_off_rounded),
         ],
       ),
     );
   }
 
-  Widget _buildChildStats(ChildProfile? profile) {
-    if (profile == null) return const SizedBox.shrink();
+  Widget _statColumn(String label, String value, IconData icon) {
+    return Column(
+      children: [
+        Icon(icon, color: IslaColors.oceanBlue),
+        Text(value, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+        Text(label, style: const TextStyle(fontSize: 12, color: Colors.black54)),
+      ],
+    );
+  }
 
+  Widget _buildTimeSlider(ParentalSettings settings) {
     return GlassContainer(
-      borderRadius: 20,
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'Progreso de ${profile.name}',
-            style: const TextStyle(fontWeight: FontWeight.w900, color: IslaColors.oceanDark),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text('Límite Diario', style: TextStyle(fontWeight: FontWeight.bold)),
+              Text(
+                '${settings.dailyTimeLimitMinutes} min', 
+                style: const TextStyle(color: IslaColors.oceanBlue, fontWeight: FontWeight.bold),
+              ),
+            ],
           ),
-          const SizedBox(height: 16),
-          _buildStatRow(Icons.timer, 'Tiempo jugado', '${profile.totalPlayTimeMinutes} min'),
-          _buildStatRow(Icons.emoji_events, 'Insignias', '${profile.earnedBadges.length}'),
-          _buildStatRow(Icons.star, 'Nivel', '${profile.currentLevel}'),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildStatRow(IconData icon, String label, String value) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
-      child: Row(
-        children: [
-          Icon(icon, size: 18, color: IslaColors.oceanBlue),
-          const SizedBox(width: 8),
-          Text(label, style: const TextStyle(color: IslaColors.oceanDark)),
-          const Spacer(),
-          Text(value, style: const TextStyle(fontWeight: FontWeight.bold, color: IslaColors.oceanBlue)),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildTimeLimitCard(ParentalSettings settings) {
-    return GlassContainer(
-      borderRadius: 20,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text('Límite de Tiempo Diario', style: TextStyle(fontWeight: FontWeight.bold)),
           Slider(
             value: settings.dailyTimeLimitMinutes.toDouble(),
-            min: 15,
-            max: 120,
-            divisions: 7,
+            min: 15, max: 120, divisions: 7,
             activeColor: IslaColors.oceanBlue,
-            label: '${settings.dailyTimeLimitMinutes} min',
-            onChanged: (v) => ref.read(parentalSettingsProvider.notifier).updateTimeLimit(v.toInt()),
+            onChanged: (val) => ref.read(parentalSettingsProvider.notifier).updateTimeLimit(val.toInt()),
           ),
-          Center(child: Text('${settings.dailyTimeLimitMinutes} minutos diarios')),
         ],
       ),
     );
   }
 
-  Widget _buildSoundSettingsCard(ParentalSettings settings) {
+  Widget _buildSoundControls(ParentalSettings settings) {
     return GlassContainer(
-      borderRadius: 20,
+      padding: EdgeInsets.zero,
       child: Column(
         children: [
           SwitchListTile(
-            title: const Text('Efectos de Sonido'),
+            title: const Text('Efectos Especiales'),
+            secondary: const Icon(Icons.volume_up_rounded),
             value: settings.soundEnabled,
-            activeThumbColor: IslaColors.oceanBlue,
             onChanged: (_) => ref.read(parentalSettingsProvider.notifier).toggleSound(),
           ),
+          const Divider(height: 1),
           SwitchListTile(
             title: const Text('Música de Fondo'),
+            secondary: const Icon(Icons.music_note_rounded),
             value: settings.musicEnabled,
-            activeThumbColor: IslaColors.oceanBlue,
             onChanged: (_) => ref.read(parentalSettingsProvider.notifier).toggleMusic(),
           ),
         ],
@@ -339,42 +256,28 @@ class _ParentalDashboardScreenState
     );
   }
 
-  Widget _buildBadgesCard(ChildProfile? profile, bool isSmallScreen) {
-    final earnedIds = profile?.earnedBadges ?? [];
-    return GlassContainer(
-      borderRadius: 20,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text('Logros del Explorador', style: TextStyle(fontWeight: FontWeight.bold)),
-          const SizedBox(height: 12),
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children: IslaBadges.allBadges.map((badge) {
-              return BadgeCard(
-                badge: badge,
-                isEarned: earnedIds.contains(badge.id),
-                size: isSmallScreen ? 40 : 50,
-              );
-            }).toList(),
-          ),
-        ],
+  Widget _buildSectionTitle(String title) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 8, bottom: 8),
+      child: Text(
+        title, 
+        style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.black54),
       ),
     );
   }
 
-  Widget _buildExitButton() {
-    return SizedBox(
-      width: double.infinity,
-      child: OutlinedButton(
-        onPressed: () => Navigator.pop(context),
-        style: OutlinedButton.styleFrom(
-          side: const BorderSide(color: IslaColors.oceanBlue, width: 2),
-          padding: const EdgeInsets.all(16),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        ),
-        child: const Text('SALIR DEL PANEL', style: TextStyle(fontWeight: FontWeight.w900)),
+  Widget _buildDangerZone() {
+    return OutlinedButton.icon(
+      onPressed: () {
+        // Lógica para resetear progreso
+      },
+      icon: const Icon(Icons.delete_sweep_rounded),
+      label: const Text('BORRAR PROGRESO DEL PERFIL'),
+      style: OutlinedButton.styleFrom(
+        foregroundColor: Colors.redAccent,
+        side: const BorderSide(color: Colors.redAccent),
+        padding: const EdgeInsets.symmetric(vertical: 16),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       ),
     );
   }

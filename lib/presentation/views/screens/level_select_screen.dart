@@ -3,19 +3,20 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:isla_digital/core/theme/app_theme.dart';
 import 'package:isla_digital/presentation/providers/app_providers.dart';
+
+// FIX: Rutas corregidas según tu estructura de carpetas real
 import 'package:isla_digital/presentation/views/levels/level1/level1_screen.dart';
 import 'package:isla_digital/presentation/views/levels/level2/level2_screen.dart';
-import 'package:isla_digital/presentation/views/levels/level3/level3_screen.dart';
-import 'package:isla_digital/presentation/views/levels/level4/level4_screen.dart';
-import 'package:isla_digital/presentation/views/levels/level5/level5_screen.dart';
+
 import 'package:isla_digital/presentation/widgets/glass_container.dart';
 import 'package:isla_digital/presentation/widgets/island_background.dart';
 import 'package:isla_digital/presentation/widgets/progress_widgets.dart';
 
 class LevelSelectScreen extends ConsumerWidget {
+  // FIX: Constructor al inicio para cumplir con el linter
   const LevelSelectScreen({super.key});
 
-  static const List<Map<String, dynamic>> levels = [
+  static const List<Map<String, dynamic>> levelsData = [
     {
       'id': 'level_1',
       'title': 'BIENVENIDA',
@@ -55,29 +56,36 @@ class LevelSelectScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final profile = ref.watch(currentProfileProvider);
-    final currentLevelProgress = profile?.currentLevel ?? 1;
+    // FIX: Usamos currentLevel (entero) para comparar con el índice
+    final currentLevelUnlocked = ref.watch(currentProfileProvider.select((p) => p?.currentLevel ?? 1));
+    final levelProgressMap = ref.watch(currentProfileProvider.select((p) => p?.levelProgress ?? {}));
 
     return Scaffold(
+      extendBodyBehindAppBar: true,
       body: IslandBackground(
         child: SafeArea(
+          bottom: false,
           child: Column(
             children: [
               _buildHeader(context),
               Expanded(
                 child: ListView.builder(
-                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+                  padding: const EdgeInsets.fromLTRB(24, 8, 24, 100),
                   physics: const BouncingScrollPhysics(),
-                  itemCount: levels.length,
+                  itemCount: levelsData.length,
                   itemBuilder: (context, index) {
-                    final level = levels[index];
-                    final isUnlocked = (index + 1) <= currentLevelProgress;
-                    final progress = profile?.levelProgress[level['id']] ?? 0;
+                    final level = levelsData[index];
+                    final levelId = level['id'] as String;
+                    final isUnlocked = (index + 1) <= currentLevelUnlocked;
+                    final progress = levelProgressMap[levelId] ?? 0;
 
-                    return Padding(
-                      padding: const EdgeInsets.only(bottom: 20),
-                      child: _buildLevelItem(context, level, isUnlocked, progress),
-                    ).animate().fadeIn(delay: (index * 100).ms).slideX(begin: 0.1, end: 0);
+                    return _LevelListItem(
+                      index: index,
+                      level: level,
+                      isUnlocked: isUnlocked,
+                      progress: progress,
+                      onTap: () => _navigateToLevel(context, levelId),
+                    );
                   },
                 ),
               ),
@@ -90,117 +98,170 @@ class LevelSelectScreen extends ConsumerWidget {
 
   Widget _buildHeader(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.all(24),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Row(
         children: [
-          DecoratedBox(
-            decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.3),
-              shape: BoxShape.circle,
-            ),
-            child: IconButton(
-              icon: const Icon(Icons.arrow_back_ios_new_rounded, color: IslaColors.oceanDark),
-              onPressed: () => Navigator.pop(context),
-            ),
+          IconButton(
+            icon: const Icon(Icons.arrow_back_ios_new_rounded, color: IslaColors.oceanDark),
+            onPressed: () => Navigator.pop(context),
           ),
           const Expanded(
             child: Text(
-              'EL MAPA',
+              'MI MAPA',
               textAlign: TextAlign.center,
               style: TextStyle(
-                fontSize: 24,
+                fontSize: 28,
+                // FIX: w900 en lugar de black
                 fontWeight: FontWeight.w900,
                 color: IslaColors.oceanDark,
-                letterSpacing: 2,
+                letterSpacing: 1.5,
               ),
             ),
           ),
-          const SizedBox(width: 48), // Balance
+          const SizedBox(width: 48),
         ],
       ),
-    );
-  }
-
-  Widget _buildLevelItem(BuildContext context, Map<String, dynamic> level, bool isUnlocked, int progress) {
-    final color = level['color'] as Color;
-
-    return GestureDetector(
-      onTap: isUnlocked ? () => _navigateToLevel(context, level['id'] as String) : null,
-      child: GlassContainer(
-        padding: const EdgeInsets.all(16),
-        child: Row(
-          children: [
-            Container(
-              width: 64,
-              height: 64,
-              decoration: BoxDecoration(
-                color: isUnlocked ? color : IslaColors.charcoal.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(20),
-                boxShadow: isUnlocked ? [
-                  BoxShadow(color: color.withValues(alpha: 0.3), blurRadius: 10, offset: const Offset(0, 4)),
-                ] : [],
-              ),
-              child: Icon(
-                isUnlocked ? (level['icon'] as IconData) : Icons.lock_rounded,
-                color: isUnlocked ? Colors.white : IslaColors.charcoal.withValues(alpha: 0.3),
-                size: 32,
-              ),
-            ),
-            const SizedBox(width: 20),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    level['title'] as String,
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w900,
-                      color: isUnlocked ? IslaColors.oceanDark : IslaColors.charcoal.withValues(alpha: 0.3),
-                    ),
-                  ),
-                  Text(
-                    level['subtitle'] as String,
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w800,
-                      color: isUnlocked ? IslaColors.oceanDark.withValues(alpha: 0.5) : IslaColors.charcoal.withValues(alpha: 0.2),
-                    ),
-                  ),
-                  if (isUnlocked && progress > 0) ...[
-                    const SizedBox(height: 12),
-                    IslandProgressBar(
-                      progress: progress,
-                      height: 10,
-                      fillColor: color,
-                      showPercentage: false,
-                    ),
-                  ],
-                ],
-              ),
-            ),
-            if (isUnlocked && progress >= 100)
-              const Icon(Icons.stars_rounded, color: IslaColors.sunflower, size: 32)
-            else if (isUnlocked)
-              Icon(Icons.play_circle_filled_rounded, color: color.withValues(alpha: 0.8), size: 32),
-          ],
-        ),
-      ),
-    );
+    ).animate().fadeIn().slideY(begin: -0.2, end: 0);
   }
 
   void _navigateToLevel(BuildContext context, String levelId) {
-    final Map<String, Widget> levelScreens = {
-      'level_1': const Level1Screen(),
-      'level_2': const Level2Screen(),
-      'level_3': const Level3Screen(),
-      'level_4': const Level4Screen(),
-      'level_5': const Level5Screen(),
-    };
-
-    final screen = levelScreens[levelId];
-    if (screen != null) {
-      Navigator.push(context, MaterialPageRoute(builder: (_) => screen));
+    Widget screen;
+    switch (levelId) {
+      case 'level_1': screen = const Level1Screen(); break;
+      case 'level_2': screen = const Level2Screen(); break;
+      default: return;
     }
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => screen),
+    );
+  }
+}
+
+class _LevelListItem extends StatelessWidget {
+  // FIX: Constructor al inicio
+  const _LevelListItem({
+    required this.index,
+    required this.level,
+    required this.isUnlocked,
+    required this.progress,
+    required this.onTap,
+  });
+
+  final int index;
+  final Map<String, dynamic> level;
+  final bool isUnlocked;
+  final int progress;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final color = level['color'] as Color;
+    final bool isCompleted = progress >= 100;
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 20),
+      child: GestureDetector(
+        onTap: isUnlocked ? onTap : () {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: const Text('¡Sigue jugando para desbloquear este nivel!'),
+              backgroundColor: IslaColors.oceanDark,
+              behavior: SnackBarBehavior.floating,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            ),
+          );
+        },
+        child: GlassContainer(
+          padding: const EdgeInsets.all(16),
+          child: Opacity(
+            opacity: isUnlocked ? 1.0 : 0.5,
+            child: Row(
+              children: [
+                _LevelIcon(
+                  icon: level['icon'] as IconData,
+                  color: color,
+                  isUnlocked: isUnlocked,
+                ),
+                const SizedBox(width: 20),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        level['title'] as String,
+                        style: TextStyle(
+                          fontSize: 18,
+                          // FIX: w900 en lugar de black
+                          fontWeight: FontWeight.w900,
+                          color: isUnlocked ? IslaColors.oceanDark : Colors.grey[700],
+                        ),
+                      ),
+                      Text(
+                        level['subtitle'] as String,
+                        style: TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.bold,
+                          color: IslaColors.oceanDark.withValues(alpha: 0.6),
+                        ),
+                      ),
+                      if (isUnlocked && progress > 0 && !isCompleted) ...[
+                        const SizedBox(height: 12),
+                        IslandProgressBar(
+                          progress: progress,
+                          height: 8,
+                          fillColor: color,
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+                _buildStatusIndicator(isCompleted, color),
+              ],
+            ),
+          ),
+        ),
+      ),
+    ).animate().fadeIn(delay: (index * 80).ms).slideX(begin: 0.2, end: 0);
+  }
+
+  Widget _buildStatusIndicator(bool isCompleted, Color color) {
+    if (!isUnlocked) return const Icon(Icons.lock_outline_rounded, color: Colors.grey);
+    
+    return isCompleted
+        ? const Icon(Icons.check_circle_rounded, color: IslaColors.jungleGreen, size: 36)
+            .animate(onPlay: (c) => c.repeat())
+            .shimmer(duration: 2.seconds, color: Colors.white)
+        : Icon(Icons.play_circle_filled_rounded, color: color, size: 36);
+  }
+}
+
+class _LevelIcon extends StatelessWidget {
+  // FIX: Constructor al inicio
+  const _LevelIcon({required this.icon, required this.color, required this.isUnlocked});
+
+  final IconData icon;
+  final Color color;
+  final bool isUnlocked;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 60,
+      height: 60,
+      decoration: BoxDecoration(
+        color: isUnlocked ? color : Colors.grey[300],
+        borderRadius: BorderRadius.circular(18),
+        boxShadow: isUnlocked ? [
+          BoxShadow(color: color.withValues(alpha: 0.4), blurRadius: 8, offset: const Offset(0, 4))
+        ] : null,
+      ),
+      child: Icon(
+        isUnlocked ? icon : Icons.lock_rounded,
+        color: isUnlocked ? Colors.white : Colors.grey[600],
+        size: 30,
+      ),
+    );
   }
 }

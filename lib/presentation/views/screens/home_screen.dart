@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import 'package:isla_digital/core/theme/app_theme.dart';
-import 'package:isla_digital/domain/models/badge.dart';
-import 'package:isla_digital/domain/models/child_profile.dart';
 import 'package:isla_digital/presentation/providers/app_providers.dart';
-import 'package:isla_digital/presentation/widgets/badge_card.dart';
 import 'package:isla_digital/presentation/widgets/big_button.dart';
 import 'package:isla_digital/presentation/widgets/glass_container.dart';
 import 'package:isla_digital/presentation/widgets/island_background.dart';
@@ -16,35 +14,46 @@ class HomeScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final profile = ref.watch(currentProfileProvider);
-    final size = MediaQuery.of(context).size;
+    final profileName = ref.watch(currentProfileProvider.select((p) => p?.name ?? 'Explorador'));
+    final badgesCount = ref.watch(currentProfileProvider.select((p) => p?.earnedBadges.length ?? 0));
+    
+    final size = MediaQuery.sizeOf(context);
     final isSmallScreen = size.width <= 360;
 
     return Scaffold(
+      extendBody: true, 
       body: IslandBackground(
         child: SafeArea(
           child: Stack(
             children: [
-              Column(
-                children: [
-                   _buildTopBar(context, profile),
-                  Expanded(
-                    child: SingleChildScrollView(
-                      physics: const BouncingScrollPhysics(),
-                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+              CustomScrollView(
+                physics: const BouncingScrollPhysics(),
+                slivers: [
+                  SliverToBoxAdapter(
+                    child: _buildTopBar(context, profileName, badgesCount),
+                  ),
+                  
+                  SliverFillRemaining(
+                    hasScrollBody: false,
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 24),
                       child: Column(
                         children: [
-                          _buildWelcomeHero(context, isSmallScreen),
-                          const SizedBox(height: 32),
+                          const SizedBox(height: 20),
+                          _buildWelcomeHero(context),
+                          const SizedBox(height: 40),
                           _buildActionsGrid(context, ref),
-                          const SizedBox(height: 120), // Space for bottom chars
+                          const Spacer(),
+                          const SizedBox(height: 140), 
                         ],
                       ),
                     ),
                   ),
                 ],
               ),
+              
               _buildBottomCharacters(isSmallScreen),
+              
               Positioned(
                 top: 16,
                 right: 16,
@@ -57,19 +66,24 @@ class HomeScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildTopBar(BuildContext context, ChildProfile? profile) {
+  // --- COMPONENTES DE UI ---
+
+  Widget _buildTopBar(BuildContext context, String name, int badges) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(24, 16, 80, 8),
       child: GlassContainer(
         child: Row(
           children: [
-            Container(
-              padding: const EdgeInsets.all(8),
-              decoration: const BoxDecoration(
-                color: IslaColors.sunflower,
-                shape: BoxShape.circle,
+            Hero(
+              tag: 'profile_avatar',
+              child: Container(
+                padding: const EdgeInsets.all(8),
+                decoration: const BoxDecoration(
+                  color: IslaColors.sunflower,
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(Icons.face_retouching_natural_rounded, color: Colors.white, size: 24),
               ),
-              child: const Icon(Icons.face_retouching_natural_rounded, color: Colors.white, size: 24),
             ),
             const SizedBox(width: 12),
             Expanded(
@@ -77,28 +91,17 @@ class HomeScreen extends ConsumerWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
                 children: [
+                  // FIX: Uso de estilos definidos en IslaThemes (Paso 1)
+                  Text('¡HOLA!', style: IslaThemes.labelStyle),
                   Text(
-                    '¡HOLA!',
-                    style: TextStyle(
-                      fontSize: 10,
-                      fontWeight: FontWeight.w900,
-                      color: IslaColors.oceanDark.withValues(alpha: 0.5),
-                      letterSpacing: 1,
-                    ),
-                  ),
-                  Text(
-                    profile?.name.toUpperCase() ?? 'EXPLORADOR',
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w900,
-                      color: IslaColors.oceanDark,
-                    ),
+                    name.toUpperCase(),
+                    style: IslaThemes.titleMediumStyle,
                     overflow: TextOverflow.ellipsis,
                   ),
                 ],
               ),
             ),
-            _buildBadgePill(profile?.earnedBadges.length ?? 0),
+            _buildBadgePill(badges),
           ],
         ),
       ),
@@ -109,6 +112,7 @@ class HomeScreen extends ConsumerWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
+        // FIX: Cambiado .withOpacity por .withValues(alpha: ...)
         color: Colors.white.withValues(alpha: 0.5),
         borderRadius: BorderRadius.circular(20),
       ),
@@ -117,45 +121,24 @@ class HomeScreen extends ConsumerWidget {
         children: [
           const Icon(Icons.stars_rounded, color: IslaColors.sunflower, size: 18),
           const SizedBox(width: 6),
-          Text(
-            '$count',
-            style: const TextStyle(
-              fontWeight: FontWeight.w900,
-              color: IslaColors.oceanDark,
-              fontSize: 14,
-            ),
-          ),
+          // FIX: Uso de estilo badgeCounterStyle
+          Text('$count', style: IslaThemes.badgeCounterStyle),
         ],
       ),
     );
   }
 
-  Widget _buildWelcomeHero(BuildContext context, bool isSmallScreen) {
+  Widget _buildWelcomeHero(BuildContext context) {
     return Column(
       children: [
         const SafeLottie(
           path: 'assets/animations/ui/welcome_island.json',
-          backupIcon: Icons.beach_access_rounded,
-          size: 180,
+          size: 200,
         ),
         const SizedBox(height: 16),
-        Text(
-          'ISLA DIGITAL',
-          style: Theme.of(context).textTheme.displaySmall?.copyWith(
-            color: IslaColors.oceanDark,
-            fontWeight: FontWeight.w900,
-            letterSpacing: -1,
-          ),
-        ),
-        Text(
-          '¡TU AVENTURA COMIENZA AQUÍ!',
-          style: TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w800,
-            color: IslaColors.oceanDark.withValues(alpha: 0.5),
-            letterSpacing: 0.5,
-          ),
-        ),
+        // FIX: Uso de estilos display y subtitle
+        Text('ISLA DIGITAL', style: IslaThemes.displayStyle),
+        Text('¡TU AVENTURA COMIENZA AQUÍ!', style: IslaThemes.subtitleStyle),
       ],
     ).animate().scale(delay: 200.ms, curve: Curves.easeOutBack, duration: 800.ms);
   }
@@ -196,22 +179,21 @@ class HomeScreen extends ConsumerWidget {
   }
 
   Widget _buildBottomCharacters(bool isSmallScreen) {
-    return const Positioned(
-      bottom: -20,
+    return Positioned(
+      bottom: -10,
       left: 0,
       right: 0,
       child: IgnorePointer(
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.end,
           children: [
-            SafeLottie(
+            const SafeLottie(
               path: 'assets/animations/characters/giraffe_hello.json',
-              backupIcon: Icons.face_rounded,
             ),
             SafeLottie(
               path: 'assets/animations/characters/cat_wave.json',
-              backupIcon: Icons.pets_rounded,
-              size: 130,
+              size: isSmallScreen ? 110 : 140,
             ),
           ],
         ),
@@ -233,32 +215,32 @@ class HomeScreen extends ConsumerWidget {
     );
   }
 
+  // --- LÓGICA DE DIÁLOGOS ---
+
   void _showSettingsMenu(BuildContext context) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(32)),
         title: const Text('ZONA DE PADRES', textAlign: TextAlign.center, style: TextStyle(fontWeight: FontWeight.w900)),
-        content: const Text('Para entrar a los ajustes, necesitas permiso de un adulto.', textAlign: TextAlign.center),
+        content: const Text('¿Deseas entrar a la configuración parental?', textAlign: TextAlign.center),
+        actionsAlignment: MainAxisAlignment.center,
         actions: [
-          Row(
-            children: [
-              Expanded(
-                child: TextButton(
-                  onPressed: () => Navigator.pop(context),
-                  child: const Text('VOLVER'),
-                ),
-              ),
-              Expanded(
-                child: ElevatedButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                    Navigator.pushNamed(context, '/parental');
-                  },
-                  child: const Text('ENTRAR'),
-                ),
-              ),
-            ],
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('CANCELAR'),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: IslaColors.oceanBlue, 
+              foregroundColor: Colors.white,
+              minimumSize: const Size(100, 45), // Tamaño adaptado para diálogo
+            ),
+            onPressed: () {
+              Navigator.pop(context);
+              Navigator.pushNamed(context, '/parental');
+            },
+            child: const Text('ENTRAR'),
           ),
         ],
       ),
@@ -266,53 +248,56 @@ class HomeScreen extends ConsumerWidget {
   }
 
   void _showBadgesDialog(BuildContext context, WidgetRef ref) {
-    final profile = ref.read(currentProfileProvider);
-    final earnedIds = profile?.earnedBadges ?? [];
-
     showGeneralDialog(
       context: context,
       barrierDismissible: true,
-      barrierLabel: '',
-      pageBuilder: (p1, p2, p3) => Center(
-        child: Container(
-          margin: const EdgeInsets.all(32),
-          child: GlassContainer(
-            padding: const EdgeInsets.all(24),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Text(
-                  'TUS TROFEOS',
-                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.w900, color: IslaColors.oceanDark),
-                ),
-                const SizedBox(height: 24),
-                Flexible(
-                  child: GridView.builder(
-                    shrinkWrap: true,
-                    itemCount: IslaBadges.allBadges.length,
-                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 3,
-                      mainAxisSpacing: 16,
-                      crossAxisSpacing: 16,
+      barrierLabel: 'Badges',
+      transitionDuration: const Duration(milliseconds: 400),
+      pageBuilder: (context, anim1, anim2) => Center(
+        child: Material(
+          color: Colors.transparent,
+          child: Container(
+            margin: const EdgeInsets.all(24),
+            child: GlassContainer(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Text('TUS TROFEOS', 
+                    style: TextStyle(fontSize: 22, fontWeight: FontWeight.w900, color: IslaColors.oceanDark)),
+                  const SizedBox(height: 20),
+                  ConstrainedBox(
+                    constraints: BoxConstraints(maxHeight: MediaQuery.sizeOf(context).height * 0.4),
+                    child: GridView.builder(
+                      shrinkWrap: true,
+                      itemCount: 12, 
+                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 3,
+                        mainAxisSpacing: 12,
+                        crossAxisSpacing: 12,
+                      ),
+                      itemBuilder: (context, index) {
+                        return DecoratedBox(
+                          decoration: BoxDecoration(
+                            color: Colors.white.withValues(alpha: 0.24),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: const Icon(Icons.lock_outline, color: IslaColors.slate),
+                        );
+                      },
                     ),
-                    itemBuilder: (context, index) {
-                      final badge = IslaBadges.allBadges[index];
-                      final isEarned = earnedIds.contains(badge.id);
-                      return BadgeCard(badge: badge, isEarned: isEarned);
-                    },
                   ),
-                ),
-                const SizedBox(height: 24),
-                BigButton(
-                  icon: Icons.check_circle_rounded,
-                  label: '¡GENIAL!',
-                  color: IslaColors.jungleGreen,
-                  onPressed: () => Navigator.pop(context),
-                ),
-              ],
+                  const SizedBox(height: 24),
+                  BigButton(
+                    icon: Icons.check,
+                    label: '¡LISTO!',
+                    color: IslaColors.jungleGreen,
+                    onPressed: () => Navigator.pop(context),
+                  ),
+                ],
+              ),
             ),
           ),
-        ),
+        ).animate().scale(curve: Curves.elasticOut, duration: 600.ms),
       ),
     );
   }

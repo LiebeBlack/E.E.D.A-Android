@@ -1,5 +1,9 @@
-/// Modelo para la configuración parental y control de tiempo
+import 'package:flutter/foundation.dart';
+
+@immutable
 class ParentalSettings {
+
+  // 2. CONSTRUCTOR CONST (Movido arriba)
   const ParentalSettings({
     this.dailyTimeLimitMinutes = 30,
     this.soundEnabled = true,
@@ -9,20 +13,20 @@ class ParentalSettings {
     this.lastAccess,
   });
 
+  // 3. FACTORY CONSTRUCTOR (Movido arriba)
   factory ParentalSettings.fromJson(Map<String, dynamic> json) {
     return ParentalSettings(
-      dailyTimeLimitMinutes: json['dailyTimeLimitMinutes'] as int? ?? 30,
+      dailyTimeLimitMinutes: (json['dailyTimeLimitMinutes'] as num?)?.toInt() ?? 30,
       soundEnabled: json['soundEnabled'] as bool? ?? true,
       musicEnabled: json['musicEnabled'] as bool? ?? true,
       notificationsEnabled: json['notificationsEnabled'] as bool? ?? true,
       allowedContacts: List<String>.from(json['allowedContacts'] as List? ?? []),
-      // Manejo seguro de la fecha de último acceso
       lastAccess: json['lastAccess'] != null 
-          ? DateTime.tryParse(json['lastAccess'] as String) 
+          ? DateTime.tryParse(json['lastAccess'].toString()) 
           : null,
     );
   }
-
+  // 1. Propiedades Finales
   final int dailyTimeLimitMinutes;
   final bool soundEnabled;
   final bool musicEnabled;
@@ -30,27 +34,7 @@ class ParentalSettings {
   final List<String> allowedContacts;
   final DateTime? lastAccess;
 
-  /// Copia el objeto creando una nueva instancia (esencial para Riverpod)
-  ParentalSettings copyWith({
-    int? dailyTimeLimitMinutes,
-    bool? soundEnabled,
-    bool? musicEnabled,
-    bool? notificationsEnabled,
-    List<String>? allowedContacts,
-    DateTime? lastAccess,
-  }) {
-    return ParentalSettings(
-      dailyTimeLimitMinutes: dailyTimeLimitMinutes ?? this.dailyTimeLimitMinutes,
-      soundEnabled: soundEnabled ?? this.soundEnabled,
-      musicEnabled: musicEnabled ?? this.musicEnabled,
-      notificationsEnabled: notificationsEnabled ?? this.notificationsEnabled,
-      // Creamos una nueva lista para asegurar que Riverpod detecte el cambio
-      allowedContacts: allowedContacts ?? List<String>.from(this.allowedContacts),
-      lastAccess: lastAccess ?? this.lastAccess,
-    );
-  }
-
-  /// Serializa el objeto a un Map para persistencia en LocalStorage
+  // 4. MÉTODOS
   Map<String, dynamic> toJson() => {
         'dailyTimeLimitMinutes': dailyTimeLimitMinutes,
         'soundEnabled': soundEnabled,
@@ -59,4 +43,25 @@ class ParentalSettings {
         'allowedContacts': allowedContacts,
         'lastAccess': lastAccess?.toIso8601String(),
       };
+
+  ParentalSettings copyWith({
+    int? dailyTimeLimitMinutes,
+    bool? soundEnabled,
+    bool? musicEnabled,
+    bool? notificationsEnabled,
+    List<String>? allowedContacts,
+    ValueGetter<DateTime?>? lastAccess,
+  }) {
+    return ParentalSettings(
+      dailyTimeLimitMinutes: dailyTimeLimitMinutes ?? this.dailyTimeLimitMinutes,
+      soundEnabled: soundEnabled ?? this.soundEnabled,
+      musicEnabled: musicEnabled ?? this.musicEnabled,
+      notificationsEnabled: notificationsEnabled ?? this.notificationsEnabled,
+      allowedContacts: allowedContacts ?? List<String>.from(this.allowedContacts),
+      lastAccess: lastAccess != null ? lastAccess() : this.lastAccess,
+    );
+  }
+
+  @override
+  String toString() => 'ParentalSettings(limit: $dailyTimeLimitMinutes min, music: $musicEnabled)';
 }

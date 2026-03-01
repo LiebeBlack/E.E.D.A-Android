@@ -236,7 +236,6 @@ class _CalculatorWidgetState extends State<CalculatorWidget> {
       child: Column(
         children: [
           GlassContainer(
-            padding: const EdgeInsets.all(24),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [

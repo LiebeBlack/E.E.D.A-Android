@@ -1,20 +1,19 @@
 import 'dart:convert';
-
 import 'package:flutter/foundation.dart';
 import 'package:isla_digital/domain/models/models.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-/// Servicio de persistencia local usando SharedPreferences
+/// Servicio de persistencia local optimizado con tipado fuerte
 class LocalStorageService {
   static const String _profileKey = 'child_profile';
   static const String _settingsKey = 'parental_settings';
   static const String _badgesKey = 'earned_badges';
   static const String _playTimeKey = 'total_play_time';
   static const String _lastSessionKey = 'last_session';
+  static const String _levelProgressPrefix = 'progress_';
 
   static SharedPreferences? _prefs;
 
-  /// Inicializar el servicio. Se debe llamar en el main.dart
   static Future<void> initialize() async {
     if (_prefs != null) return;
     try {
@@ -26,10 +25,9 @@ class LocalStorageService {
     }
   }
 
-  /// Getter privado para asegurar que SharedPreferences esté listo
   static SharedPreferences get _p {
     if (_prefs == null) {
-      throw Exception('LocalStorageService no ha sido inicializado. Llama a initialize() primero.');
+      throw Exception('LocalStorageService no inicializado. Llama a initialize() primero.');
     }
     return _prefs!;
   }
@@ -37,24 +35,25 @@ class LocalStorageService {
   // --- PERFIL ---
 
   static Future<bool> saveProfile(ChildProfile profile) async {
-    final jsonString = jsonEncode(profile.toJson());
-    return await _p.setString(_profileKey, jsonString);
+    return await _p.setString(_profileKey, jsonEncode(profile.toJson()));
   }
 
   static ChildProfile? loadProfile() {
+    final jsonString = _p.getString(_profileKey);
+    if (jsonString == null || jsonString.isEmpty) return null;
+    
     try {
-      final jsonString = _p.getString(_profileKey);
-      if (jsonString == null || jsonString.isEmpty) return null;
-      return ChildProfile.fromJson(jsonDecode(jsonString) as Map<String, dynamic>);
+      // FIX: Cast explícito de dynamic a Map<String, dynamic>
+      final dynamic decoded = jsonDecode(jsonString);
+      final Map<String, dynamic> map = Map<String, dynamic>.from(decoded as Map);
+      return ChildProfile.fromJson(map);
     } catch (e) {
-      debugPrint('❌ Error al cargar perfil: $e');
+      debugPrint('❌ Error al deserializar perfil: $e');
       return null;
     }
   }
 
-  static Future<bool> deleteProfile() async {
-    return await _p.remove(_profileKey);
-  }
+  static Future<bool> deleteProfile() => _p.remove(_profileKey);
 
   // --- CONFIGURACIÓN PARENTAL ---
 
@@ -63,10 +62,14 @@ class LocalStorageService {
   }
 
   static ParentalSettings loadParentalSettings() {
+    final jsonString = _p.getString(_settingsKey);
+    if (jsonString == null) return const ParentalSettings();
+    
     try {
-      final jsonString = _p.getString(_settingsKey);
-      if (jsonString == null || jsonString.isEmpty) return const ParentalSettings();
-      return ParentalSettings.fromJson(jsonDecode(jsonString) as Map<String, dynamic>);
+      // FIX: Cast explícito para el constructor fromJson
+      final dynamic decoded = jsonDecode(jsonString);
+      final Map<String, dynamic> map = Map<String, dynamic>.from(decoded as Map);
+      return ParentalSettings.fromJson(map);
     } catch (e) {
       return const ParentalSettings();
     }
@@ -74,20 +77,18 @@ class LocalStorageService {
 
   // --- TIEMPO DE JUEGO Y SESIÓN ---
 
-  static Future<bool> savePlayTime(int minutes) async {
-    return await _p.setInt(_playTimeKey, minutes);
-  }
-
+  static Future<bool> savePlayTime(int minutes) => _p.setInt(_playTimeKey, minutes);
   static int loadPlayTime() => _p.getInt(_playTimeKey) ?? 0;
 
   static Future<int> addPlayTime(int minutes) async {
-    final updated = loadPlayTime() + minutes;
+    final current = loadPlayTime();
+    final updated = current + minutes;
     await savePlayTime(updated);
     return updated;
   }
 
-  static Future<bool> saveLastSession() async {
-    return await _p.setString(_lastSessionKey, DateTime.now().toIso8601String());
+  static Future<bool> saveLastSession() {
+    return _p.setString(_lastSessionKey, DateTime.now().toIso8601String());
   }
 
   static DateTime? loadLastSession() {
@@ -98,22 +99,25 @@ class LocalStorageService {
   static bool isNewDay() {
     final lastSession = loadLastSession();
     if (lastSession == null) return true;
+    
     final now = DateTime.now();
-    return lastSession.day != now.day || 
+    return lastSession.year != now.year || 
            lastSession.month != now.month || 
-           lastSession.year != now.year;
+           lastSession.day != now.day;
   }
 
   // --- PROGRESO E INSIGNIAS ---
 
-  static Future<bool> saveLevelProgress(String levelId, int progress) async {
-    return await _p.setInt('progress_$levelId', progress);
+  static Future<bool> saveLevelProgress(String levelId, int progress) {
+    return _p.setInt('$_levelProgressPrefix$levelId', progress);
   }
 
-  static int loadLevelProgress(String levelId) => _p.getInt('progress_$levelId') ?? 0;
+  static int loadLevelProgress(String levelId) {
+    return _p.getInt('$_levelProgressPrefix$levelId') ?? 0;
+  }
 
-  static Future<bool> saveEarnedBadges(List<String> badges) async {
-    return await _p.setStringList(_badgesKey, badges);
+  static Future<bool> saveEarnedBadges(List<String> badges) {
+    return _p.setStringList(_badgesKey, badges);
   }
 
   static List<String> loadEarnedBadges() => _p.getStringList(_badgesKey) ?? [];
@@ -121,22 +125,23 @@ class LocalStorageService {
   static Future<List<String>> addBadge(String badgeId) async {
     final badges = loadEarnedBadges();
     if (!badges.contains(badgeId)) {
-      badges.add(badgeId);
-      await saveEarnedBadges(badges);
+      final updatedBadges = List<String>.from(badges)..add(badgeId);
+      await saveEarnedBadges(updatedBadges);
+      return updatedBadges;
     }
     return badges;
   }
 
   // --- UTILIDADES ---
 
-  static Future<bool> clearAll() async => await _p.clear();
+  static Future<bool> clearAll() => _p.clear();
 
   static Map<String, dynamic> getStatsForParents() {
     return {
-      'profile': loadProfile()?.toJson(),
+      'profileName': loadProfile()?.name ?? 'Sin nombre',
       'totalPlayTimeMinutes': loadPlayTime(),
-      'earnedBadges': loadEarnedBadges(),
-      'lastSession': loadLastSession()?.toIso8601String(),
+      'badgesCount': loadEarnedBadges().length,
+      'lastActive': loadLastSession()?.toIso8601String() ?? 'Nunca',
       'isNewDay': isNewDay(),
     };
   }

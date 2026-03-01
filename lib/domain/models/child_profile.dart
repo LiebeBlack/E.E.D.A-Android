@@ -1,6 +1,9 @@
-/// Modelo de usuario/niño que usa la aplicación
+import 'package:flutter/foundation.dart';
+
+@immutable
 class ChildProfile {
-  // 1. Todos los campos deben ser 'final' para garantizar la inmutabilidad
+
+  // 2. CONSTRUCTOR PRINCIPAL (Movido arriba para cumplir con las reglas del linter)
   ChildProfile({
     required this.id,
     required this.name,
@@ -12,22 +15,24 @@ class ChildProfile {
     Map<String, int>? levelProgress,
     List<String>? earnedBadges,
   })  : createdAt = createdAt ?? DateTime.now(),
-        levelProgress = levelProgress ?? {},
-        earnedBadges = earnedBadges ?? [];
+        levelProgress = levelProgress ?? const {},
+        earnedBadges = earnedBadges ?? const [];
 
-  factory ChildProfile.fromJson(Map<String, dynamic> json) => ChildProfile(
-        id: json['id'] as String,
-        name: json['name'] as String,
-        age: json['age'] as int,
-        avatar: json['avatar'] as String? ?? 'default',
-        // Uso de tryParse para evitar crasheos si la fecha viene mal
-        createdAt: DateTime.tryParse(json['createdAt']?.toString() ?? '') ?? DateTime.now(),
-        totalPlayTimeMinutes: json['totalPlayTimeMinutes'] as int? ?? 0,
-        currentLevel: json['currentLevel'] as int? ?? 1,
-        levelProgress: Map<String, int>.from(json['levelProgress'] as Map? ?? {}),
-        earnedBadges: List<String>.from(json['earnedBadges'] as List? ?? []),
-      );
-
+  // 3. FACTORY CONSTRUCTOR (También debe ir antes de los métodos normales)
+  factory ChildProfile.fromJson(Map<String, dynamic> json) {
+    return ChildProfile(
+      id: json['id']?.toString() ?? '',
+      name: json['name']?.toString() ?? 'Explorador',
+      age: (json['age'] as num?)?.toInt() ?? 0,
+      avatar: json['avatar']?.toString() ?? 'default',
+      createdAt: DateTime.tryParse(json['createdAt']?.toString() ?? '') ?? DateTime.now(),
+      totalPlayTimeMinutes: (json['totalPlayTimeMinutes'] as num?)?.toInt() ?? 0,
+      currentLevel: (json['currentLevel'] as num?)?.toInt() ?? 1,
+      levelProgress: Map<String, int>.from(json['levelProgress'] as Map? ?? {}),
+      earnedBadges: List<String>.from(json['earnedBadges'] as List? ?? []),
+    );
+  }
+  // 1. Variables de instancia (Propiedades finales)
   final String id;
   final String name;
   final int age;
@@ -38,7 +43,7 @@ class ChildProfile {
   final Map<String, int> levelProgress;
   final List<String> earnedBadges;
 
-  // 3. Conversión a JSON consistente
+  // 4. MÉTODOS (toJson, copyWith, etc.)
   Map<String, dynamic> toJson() => {
         'id': id,
         'name': name,
@@ -51,8 +56,6 @@ class ChildProfile {
         'earnedBadges': earnedBadges,
       };
 
-  // 4. CopyWith: Esencial para Riverpod
-  // Permite "modificar" el objeto creando uno nuevo con los cambios
   ChildProfile copyWith({
     String? name,
     int? age,
@@ -61,17 +64,20 @@ class ChildProfile {
     int? currentLevel,
     Map<String, int>? levelProgress,
     List<String>? earnedBadges,
-  }) =>
-      ChildProfile(
-        id: id, // El ID nunca cambia
-        name: name ?? this.name,
-        age: age ?? this.age,
-        avatar: avatar ?? this.avatar,
-        createdAt: createdAt, // La fecha de creación es constante
-        totalPlayTimeMinutes: totalPlayTimeMinutes ?? this.totalPlayTimeMinutes,
-        currentLevel: currentLevel ?? this.currentLevel,
-        // Usamos Map/List.from para asegurar que se cree una nueva referencia en memoria
-        levelProgress: levelProgress ?? Map<String, int>.from(this.levelProgress),
-        earnedBadges: earnedBadges ?? List<String>.from(this.earnedBadges),
-      );
+  }) {
+    return ChildProfile(
+      id: id, 
+      name: name ?? this.name,
+      age: age ?? this.age,
+      avatar: avatar ?? this.avatar,
+      createdAt: createdAt,
+      totalPlayTimeMinutes: totalPlayTimeMinutes ?? this.totalPlayTimeMinutes,
+      currentLevel: currentLevel ?? this.currentLevel,
+      levelProgress: levelProgress ?? Map<String, int>.from(this.levelProgress),
+      earnedBadges: earnedBadges ?? List<String>.from(this.earnedBadges),
+    );
+  }
+
+  @override
+  String toString() => 'ChildProfile(name: $name, level: $currentLevel, badges: ${earnedBadges.length})';
 }

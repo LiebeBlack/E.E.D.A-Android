@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-// Importaciones de tu proyecto
 import 'package:isla_digital/core/services/services.dart';
 import 'package:isla_digital/core/theme/app_theme.dart';
 import 'package:isla_digital/core/utils/page_transitions.dart';
@@ -11,16 +10,22 @@ import 'package:isla_digital/presentation/views/screens/level_select_screen.dart
 import 'package:isla_digital/presentation/views/screens/parental_dashboard_screen.dart';
 import 'package:isla_digital/presentation/views/screens/profile_setup_screen.dart';
 import 'package:isla_digital/presentation/views/screens/showcase_screen.dart';
-import 'package:isla_digital/presentation/widgets/island_background.dart'; // Importante para el fondo global
+import 'package:isla_digital/presentation/widgets/island_background.dart';
 
 void main() async {
+  // 1. Asegurar inicialización de bindings
   WidgetsFlutterBinding.ensureInitialized();
 
+  // 2. Inicialización de servicios con manejo de errores más descriptivo
   try {
-    await LocalStorageService.initialize();
-    await BackgroundMusicService.initialize();
-  } catch (e) {
-    debugPrint('Error durante la inicialización: $e');
+    await Future.wait([
+      LocalStorageService.initialize(),
+      BackgroundMusicService.initialize(),
+    ]);
+  } catch (e, stackTrace) {
+    debugPrint('Error crítico en inicialización: $e');
+    debugPrint(stackTrace.toString());
+    // Aquí podrías añadir una lógica para mostrar una pantalla de error si falla algo vital
   }
 
   runApp(
@@ -33,26 +38,37 @@ void main() async {
 class IslaDigitalApp extends ConsumerWidget {
   const IslaDigitalApp({super.key});
 
+  // Centralizamos las rutas en constantes para evitar errores de escritura (Typo)
+  static const String routeHome = '/home';
+  static const String routeProfile = '/profile';
+  static const String routeLevels = '/levels';
+  static const String routeParental = '/parental';
+  static const String routeShowcase = '/showcase';
+
   static final Map<String, Widget Function()> _routes = {
-    '/home': () => const HomeScreen(),
-    '/profile': () => const ProfileSetupScreen(),
-    '/levels': () => const LevelSelectScreen(),
-    '/parental': () => const ParentalDashboardScreen(),
-    '/showcase': () => const ShowcaseScreen(),
+    routeHome: () => const HomeScreen(),
+    routeProfile: () => const ProfileSetupScreen(),
+    routeLevels: () => const LevelSelectScreen(),
+    routeParental: () => const ParentalDashboardScreen(),
+    routeShowcase: () => const ShowcaseScreen(),
   };
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    // Escuchamos el estado del perfil
     final profile = ref.watch(currentProfileProvider);
 
     return MaterialApp(
       title: 'Isla Digital',
       debugShowCheckedModeBanner: false,
       theme: IslaThemes.lightTheme,
-      initialRoute: profile == null ? '/profile' : '/home',
+      // Lógica de redirección inicial más clara
+      initialRoute: profile == null ? routeProfile : routeHome,
       
+      // Optimizamos el Builder para el fondo global
       builder: (context, child) {
         return Scaffold(
+          resizeToAvoidBottomInset: false, // Evita que el teclado mueva el fondo
           body: Stack(
             children: [
               const IslandBackground(), 
@@ -67,9 +83,12 @@ class IslaDigitalApp extends ConsumerWidget {
         if (builder != null) {
           return FadeSlideRoute(page: builder());
         }
+        
+        // Pantalla de error 404 estéticamente acorde al tema
         return MaterialPageRoute(
-          builder: (_) => const Scaffold(
-            body: Center(child: Text('Ruta no encontrada')),
+          builder: (_) => Scaffold(
+            appBar: AppBar(title: const Text('Error')),
+            body: const Center(child: Text('La página solicitada no existe.')),
           ),
         );
       },

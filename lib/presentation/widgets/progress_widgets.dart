@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:isla_digital/core/theme/app_theme.dart';
 import 'package:isla_digital/core/utils/color_utils.dart';
 
-/// Barra de progreso visual animada para niños
-/// Diseño colorido con feedback visual claro
+/// Barra de progreso estilo "Isla" con gradientes y reflejos
 class IslandProgressBar extends StatelessWidget {
   const IslandProgressBar({
     super.key,
@@ -14,6 +14,7 @@ class IslandProgressBar extends StatelessWidget {
     this.showPercentage = true,
     this.label,
   });
+
   final int progress;
   final int maxProgress;
   final Color? fillColor;
@@ -25,65 +26,81 @@ class IslandProgressBar extends StatelessWidget {
   Widget build(BuildContext context) {
     final clampedProgress = progress.clamp(0, maxProgress);
     final percentage = clampedProgress / maxProgress;
-    final color = fillColor ?? IslaColors.oceanBlue;
+    final baseColor = fillColor ?? IslaColors.oceanBlue;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
       children: [
-        if (label != null) ...[
-          Text(
-            label!,
-            style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                  color: IslaColors.oceanDark,
-                  fontWeight: FontWeight.w600,
-                ),
+        if (label != null)
+          Padding(
+            padding: const EdgeInsets.only(left: 4, bottom: 6),
+            child: Text(
+              label!.toUpperCase(),
+              style: const TextStyle(
+                color: IslaColors.oceanDark,
+                fontWeight: FontWeight.w900,
+                fontSize: 12,
+                letterSpacing: 1.2,
+              ),
+            ),
           ),
-          const SizedBox(height: 8),
-        ],
         LayoutBuilder(
           builder: (context, constraints) {
             return Container(
               height: height,
+              width: double.infinity,
               decoration: BoxDecoration(
-                color: IslaColors.greyLight,
+                color: IslaColors.mist,
                 borderRadius: BorderRadius.circular(height / 2),
-                border: Border.all(
-                  color: IslaColors.grey,
-                  width: 2,
-                ),
+                // FIX: Eliminado 'inset: true' para usar sombras estándar y evitar error
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.1),
+                    blurRadius: 2,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
               ),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(height / 2),
-                child: Stack(
-                  children: [
-                    AnimatedContainer(
-                      duration: const Duration(milliseconds: 500),
-                      curve: Curves.easeInOut,
-                      width: percentage * constraints.maxWidth,
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: [
-                            color,
-                            ColorUtils.lighten(color, 0.2),
-                          ],
+              child: Stack(
+                children: [
+                  // Capa de Progreso Animada
+                  AnimatedContainer(
+                    duration: 600.ms,
+                    curve: Curves.elasticOut,
+                    width: (percentage * constraints.maxWidth).clamp(0, constraints.maxWidth),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(height / 2),
+                      gradient: LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        colors: [
+                          baseColor,
+                          ColorUtils.lighten(baseColor, 0.15),
+                        ],
+                      ),
+                    ),
+                  ).animate(target: percentage).shimmer(
+                        duration: 2.seconds,
+                        color: Colors.white.withValues(alpha: 0.3),
+                      ),
+                  
+                  // Texto de porcentaje
+                  if (showPercentage)
+                    Align(
+                      child: Text(
+                        '${(percentage * 100).toInt()}%',
+                        style: TextStyle(
+                          color: percentage > 0.5 ? Colors.white : IslaColors.oceanDark,
+                          fontWeight: FontWeight.w900, // FIX: Cambiado de .black a .w900
+                          fontSize: height * 0.55,
+                          shadows: percentage > 0.5 ? [
+                            const Shadow(blurRadius: 2, color: Colors.black26)
+                          ] : null,
                         ),
                       ),
                     ),
-                    if (showPercentage)
-                      Center(
-                        child: Text(
-                          '${(percentage * 100).toInt()}%',
-                          style: TextStyle(
-                            color: percentage > 0.5
-                                ? IslaColors.white
-                                : IslaColors.charcoal,
-                            fontWeight: FontWeight.bold,
-                            fontSize: height * 0.5,
-                          ),
-                        ),
-                      ),
-                  ],
-                ),
+                ],
               ),
             );
           },
@@ -93,117 +110,55 @@ class IslandProgressBar extends StatelessWidget {
   }
 }
 
-/// Indicador de pasos/progreso con puntos
+/// Indicador de pasos con iconos de éxito
 class StepIndicator extends StatelessWidget {
   const StepIndicator({
     super.key,
     required this.currentStep,
     required this.totalSteps,
     this.activeColor,
-    this.inactiveColor,
   });
+
   final int currentStep;
   final int totalSteps;
   final Color? activeColor;
-  final Color? inactiveColor;
 
   @override
   Widget build(BuildContext context) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: List.generate(totalSteps, (index) {
-        final isActive = index <= currentStep;
-        return Container(
-          width: 12,
-          height: 12,
-          margin: const EdgeInsets.symmetric(horizontal: 5),
+        final isCompleted = index < currentStep;
+        final isCurrent = index == currentStep;
+        final color = activeColor ?? IslaColors.jungleGreen;
+
+        return AnimatedContainer(
+          duration: 300.ms,
+          width: isCurrent ? 32 : 24,
+          height: 24,
+          margin: const EdgeInsets.symmetric(horizontal: 4),
           decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: isActive
-                ? (activeColor ?? IslaColors.jungleGreen)
-                : (inactiveColor ?? IslaColors.mist),
+            color: isCompleted ? color : (isCurrent ? color.withValues(alpha: 0.2) : IslaColors.mist),
+            borderRadius: BorderRadius.circular(12),
             border: Border.all(
-              color: isActive
-                  ? (activeColor ?? IslaColors.jungleGreen)
-                  : IslaColors.grey,
+              color: isCurrent || isCompleted ? color : IslaColors.grey,
               width: 2,
             ),
           ),
-          child: isActive
-              ? const Icon(
-                  Icons.check,
-                  size: 10,
-                  color: IslaColors.white,
-                )
-              : null,
-        );
+          child: Center(
+            child: isCompleted
+                ? const Icon(Icons.check_rounded, size: 16, color: Colors.white)
+                : Text(
+                    '${index + 1}',
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                      color: isCurrent ? color : (isCompleted ? Colors.white : IslaColors.grey),
+                    ),
+                  ),
+          ),
+        ).animate(target: isCurrent ? 1 : 0).scale(begin: const Offset(1, 1), end: const Offset(1.1, 1.1));
       }),
-    );
-  }
-}
-
-/// Widget de celebración con confeti (placeholder para integración con confetti package)
-class CelebrationOverlay extends StatelessWidget {
-  const CelebrationOverlay({
-    super.key,
-    required this.isVisible,
-    this.message,
-    this.onComplete,
-  });
-  final bool isVisible;
-  final String? message;
-  final VoidCallback? onComplete;
-
-  @override
-  Widget build(BuildContext context) {
-    if (!isVisible) return const SizedBox.shrink();
-
-    return ColoredBox(
-      color: Colors.black.withValues(alpha: 0.3),
-      child: Center(
-        child: TweenAnimationBuilder<double>(
-          tween: Tween(begin: 0, end: 1),
-          duration: const Duration(milliseconds: 500),
-          builder: (context, value, child) {
-            return Transform.scale(
-              scale: value,
-              child: Container(
-                padding: const EdgeInsets.all(32),
-                decoration: BoxDecoration(
-                  color: IslaColors.white,
-                  borderRadius: BorderRadius.circular(24),
-                  boxShadow: [
-                    BoxShadow(
-                      color: IslaColors.sunflower.withValues(alpha: 0.5),
-                      blurRadius: 24,
-                      spreadRadius: 8,
-                    ),
-                  ],
-                ),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Icon(
-                      Icons.star,
-                      size: 64,
-                      color: IslaColors.sunflower,
-                    ),
-                    const SizedBox(height: 16),
-                    Text(
-                      message ?? '¡Excelente!',
-                      style:
-                          Theme.of(context).textTheme.headlineMedium?.copyWith(
-                                color: IslaColors.oceanBlue,
-                                fontWeight: FontWeight.bold,
-                              ),
-                    ),
-                  ],
-                ),
-              ),
-            );
-          },
-        ),
-      ),
     );
   }
 }

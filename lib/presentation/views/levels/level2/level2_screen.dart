@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:isla_digital/core/theme/app_theme.dart';
-import 'package:isla_digital/domain/models/badge.dart';
+// FIX: Importar modelos para IslaBadges
 import 'package:isla_digital/presentation/providers/app_providers.dart';
 import 'package:isla_digital/presentation/widgets/big_button.dart';
 import 'package:isla_digital/presentation/widgets/glass_container.dart';
@@ -75,16 +75,15 @@ class _Level2ScreenState extends ConsumerState<Level2Screen> {
       }
     });
 
+    // Guardar progreso en el estado global
     ref.read(currentProfileProvider.notifier).addProgress('level_2', points);
   }
 
   void _completeLevel() {
     _confettiController.play();
     
-    final badge = IslaBadges.getById('comunicador_seguro');
-    if (badge != null) {
-      ref.read(currentProfileProvider.notifier).addBadge(badge.id);
-    }
+    // FIX: Uso correcto del sistema de insignias definido en el Paso 4
+    ref.read(currentProfileProvider.notifier).addBadge('comunicador_seguro');
     ref.read(currentProfileProvider.notifier).unlockLevel(3);
 
     showDialog(
@@ -96,17 +95,13 @@ class _Level2ScreenState extends ConsumerState<Level2Screen> {
         title: Text(
           '¡COMUNICADOR MAESTRO!',
           textAlign: TextAlign.center,
-          style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-            fontWeight: FontWeight.w900,
-            color: IslaColors.oceanDark,
-          ),
+          style: IslaThemes.titleMediumStyle.copyWith(color: IslaColors.oceanDark),
         ),
         content: const Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             SafeLottie(
               path: 'assets/animations/success/trophy.json',
-              backupIcon: Icons.emoji_events_rounded,
             ),
             SizedBox(height: 16),
             Text('¡Ganaste la Medalla de Conexión!', textAlign: TextAlign.center),
@@ -116,8 +111,8 @@ class _Level2ScreenState extends ConsumerState<Level2Screen> {
           Center(
             child: ElevatedButton(
               onPressed: () {
-                Navigator.pop(context);
-                Navigator.pop(context);
+                Navigator.pop(context); // Cerrar diálogo
+                Navigator.pop(context); // Volver al mapa
               },
               child: const Text('VOLVER AL MAPA'),
             ),
@@ -182,10 +177,7 @@ class _Level2ScreenState extends ConsumerState<Level2Screen> {
           const Spacer(),
           Text(
             'CONECTADOS',
-            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-              color: IslaColors.oceanDark,
-              fontWeight: FontWeight.w900,
-            ),
+            style: IslaThemes.titleMediumStyle.copyWith(color: IslaColors.oceanDark),
           ),
           const Spacer(),
           const SizedBox(width: 48),
@@ -209,7 +201,7 @@ class _Level2ScreenState extends ConsumerState<Level2Screen> {
   }
 
   Widget _buildSafeChatStep(Map<String, dynamic> step) {
-    final contacts = [
+    final List<Map<String, dynamic>> contacts = [
       {'name': 'Mamá', 'icon': Icons.face_3_rounded, 'safe': true, 'color': IslaColors.sunsetPink},
       {'name': 'Papá', 'icon': Icons.face_rounded, 'safe': true, 'color': IslaColors.oceanBlue},
       {'name': 'Abuelo', 'icon': Icons.face_6_rounded, 'safe': true, 'color': IslaColors.jungleGreen},
@@ -222,7 +214,7 @@ class _Level2ScreenState extends ConsumerState<Level2Screen> {
         children: [
           Text(
             step['instruction'] as String,
-            style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800),
+            style: IslaThemes.subtitleStyle,
             textAlign: TextAlign.center,
           ).animate().fadeIn(),
           const SizedBox(height: 32),
@@ -275,10 +267,7 @@ class _Level2ScreenState extends ConsumerState<Level2Screen> {
             const SizedBox(height: 12),
             Text(
               name,
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.w900,
-                color: IslaColors.charcoal,
-              ),
+              style: IslaThemes.labelStyle.copyWith(color: IslaColors.charcoal),
             ),
           ],
         ),
@@ -287,7 +276,7 @@ class _Level2ScreenState extends ConsumerState<Level2Screen> {
   }
 
   Widget _buildEmergencyCallStep(Map<String, dynamic> step) {
-    final emergencies = [
+    final List<Map<String, dynamic>> emergencies = [
       {'icon': Icons.local_hospital_rounded, 'label': 'Médico', 'color': IslaColors.coralReef},
       {'icon': Icons.local_police_rounded, 'label': 'Policía', 'color': IslaColors.oceanBlue},
       {'icon': Icons.fire_truck_rounded, 'label': 'BOMBEROS', 'color': IslaColors.tropicOrange},
@@ -299,7 +288,7 @@ class _Level2ScreenState extends ConsumerState<Level2Screen> {
         children: [
           Text(
             step['instruction'] as String,
-            style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800),
+            style: IslaThemes.subtitleStyle,
           ).animate().fadeIn(),
           const SizedBox(height: 32),
           Expanded(
@@ -327,7 +316,7 @@ class _Level2ScreenState extends ConsumerState<Level2Screen> {
       context: context,
       builder: (context) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-        title: Text('¿Llamar a $service?'),
+        title: Text('¿Llamar a $service?', style: const TextStyle(fontWeight: FontWeight.w900)),
         content: const Text('Solo llamamos en emergencias reales. ¡Muy bien por saber a quién acudir!'),
         actions: [
           Center(
@@ -345,10 +334,10 @@ class _Level2ScreenState extends ConsumerState<Level2Screen> {
   }
 
   Widget _buildPhotoShareStep(Map<String, dynamic> step) {
-    final photos = [
-      {'icon': Icons.pets_rounded, 'label': 'Mi Perrito', 'safe': true},
-      {'icon': Icons.toys_rounded, 'label': 'Mi Avión', 'safe': true},
-      {'icon': Icons.house_rounded, 'label': 'Mi Dirección', 'safe': false},
+    final List<Map<String, dynamic>> photos = [
+      {'label': 'Mi Perrito', 'icon': Icons.pets_rounded, 'safe': true},
+      {'label': 'Mi Avión', 'icon': Icons.toys_rounded, 'safe': true},
+      {'label': 'Mi Dirección', 'icon': Icons.house_rounded, 'safe': false},
     ];
 
     return Padding(
@@ -357,7 +346,7 @@ class _Level2ScreenState extends ConsumerState<Level2Screen> {
         children: [
           Text(
             step['instruction'] as String,
-            style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800),
+            style: IslaThemes.subtitleStyle,
           ).animate().fadeIn(),
           const SizedBox(height: 32),
           Expanded(
@@ -374,7 +363,7 @@ class _Level2ScreenState extends ConsumerState<Level2Screen> {
                   photo['label']! as String,
                   photo['icon']! as IconData,
                   photo['safe']! as bool,
-                  photo['safe']! as bool ? IslaColors.jungleGreen : IslaColors.charcoal,
+                  (photo['safe']! as bool) ? IslaColors.jungleGreen : IslaColors.charcoal,
                 ).animate().fadeIn(delay: (index * 100).ms);
               },
             ),

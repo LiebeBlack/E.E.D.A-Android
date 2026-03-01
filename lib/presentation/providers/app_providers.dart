@@ -5,22 +5,16 @@ import 'package:isla_digital/domain/models/models.dart';
 
 // --- PROFILE PROVIDER ---
 
-/// Provider para el perfil del niño actual
-final currentProfileProvider =
-    StateNotifierProvider<ProfileNotifier, ChildProfile?>((ref) {
-  return ProfileNotifier()..loadSavedProfile();
-});
-
-/// Notifier que maneja el estado del perfil con persistencia
 class ProfileNotifier extends StateNotifier<ChildProfile?> {
-  ProfileNotifier() : super(null);
-
-  void loadSavedProfile() {
-    final savedProfile = LocalStorageService.loadProfile();
-    if (savedProfile != null) {
-      state = savedProfile;
-    }
+  ProfileNotifier() : super(null) {
+    _loadSavedProfile();
   }
+
+  void _loadSavedProfile() {
+    state = LocalStorageService.loadProfile();
+  }
+
+  // --- MÉTODOS DE ACCIÓN ---
 
   Future<void> createProfile(String name, int age, {String avatar = 'default'}) async {
     final profile = ChildProfile(
@@ -29,59 +23,50 @@ class ProfileNotifier extends StateNotifier<ChildProfile?> {
       age: age,
       avatar: avatar,
     );
-    state = profile;
-    await LocalStorageService.saveProfile(profile);
+    await _updateAndSave(profile);
   }
 
-  Future<void> _updateAndSave(ChildProfile updated) async {
-    state = updated;
-    await LocalStorageService.saveProfile(updated);
+  /// FIX: Agregado el método que los niveles están reclamando
+  Future<void> unlockLevel(int levelNumber) async {
+    if (state == null) return;
+    
+    // Solo actualizamos si el nivel a desbloquear es mayor al actual
+    if (levelNumber > state!.currentLevel) {
+      final updatedProfile = state!.copyWith(currentLevel: levelNumber);
+      await _updateAndSave(updatedProfile);
+      debugPrint('🎉 ¡Nivel $levelNumber desbloqueado!');
+    }
   }
 
   Future<void> updateProfile({String? name, int? age, String? avatar}) async {
     if (state == null) return;
-    final updated = state!.copyWith(
-      name: name ?? state!.name,
-      age: age ?? state!.age,
-      avatar: avatar ?? state!.avatar,
-    );
-    await _updateAndSave(updated);
+    await _updateAndSave(state!.copyWith(
+      name: name,
+      age: age,
+      avatar: avatar,
+    ));
   }
 
   Future<void> addProgress(String levelId, int points) async {
     if (state == null) return;
     final newProgress = Map<String, int>.from(state!.levelProgress);
-    final currentPoints = newProgress[levelId] ?? 0;
-    newProgress[levelId] = currentPoints + points;
+    newProgress[levelId] = (newProgress[levelId] ?? 0) + points;
 
-    final updated = state!.copyWith(levelProgress: newProgress);
-    await _updateAndSave(updated);
+    await _updateAndSave(state!.copyWith(levelProgress: newProgress));
     await LocalStorageService.saveLevelProgress(levelId, newProgress[levelId]!);
-  }
-
-  Future<void> unlockLevel(int level) async {
-    if (state != null && level > state!.currentLevel) {
-      final updated = state!.copyWith(currentLevel: level);
-      await _updateAndSave(updated);
-    }
   }
 
   Future<void> addBadge(String badgeId) async {
     if (state == null || state!.earnedBadges.contains(badgeId)) return;
     
-    final newBadges = List<String>.from(state!.earnedBadges)..add(badgeId);
-    final updated = state!.copyWith(earnedBadges: newBadges);
-    await _updateAndSave(updated);
+    final newBadges = [...state!.earnedBadges, badgeId];
+    await _updateAndSave(state!.copyWith(earnedBadges: newBadges));
     await LocalStorageService.addBadge(badgeId);
   }
 
-  Future<void> addPlayTime(int minutes) async {
-    if (state == null) return;
-    final updated = state!.copyWith(
-      totalPlayTimeMinutes: state!.totalPlayTimeMinutes + minutes,
-    );
-    await _updateAndSave(updated);
-    await LocalStorageService.addPlayTime(minutes);
+  Future<void> _updateAndSave(ChildProfile profile) async {
+    state = profile;
+    await LocalStorageService.saveProfile(profile);
   }
 
   Future<void> clear() async {
@@ -90,72 +75,48 @@ class ProfileNotifier extends StateNotifier<ChildProfile?> {
   }
 }
 
-// --- PARENTAL SETTINGS PROVIDER ---
-
-final parentalSettingsProvider =
-    StateNotifierProvider<ParentalSettingsNotifier, ParentalSettings>((ref) {
-  return ParentalSettingsNotifier()..loadSavedSettings();
+final currentProfileProvider = StateNotifierProvider<ProfileNotifier, ChildProfile?>((ref) {
+  return ProfileNotifier();
 });
 
+// --- PARENTAL SETTINGS PROVIDER ---
+
 class ParentalSettingsNotifier extends StateNotifier<ParentalSettings> {
-  ParentalSettingsNotifier() : super(const ParentalSettings());
+  ParentalSettingsNotifier() : super(LocalStorageService.loadParentalSettings());
 
-  void loadSavedSettings() {
-    final savedSettings = LocalStorageService.loadParentalSettings();
-    state = savedSettings;
-  }
-
-  Future<void> _saveSettings(ParentalSettings updated) async {
+  Future<void> _update(ParentalSettings updated) async {
     state = updated;
     await LocalStorageService.saveParentalSettings(updated);
   }
 
-  Future<void> updateTimeLimit(int minutes) async {
-    await _saveSettings(state.copyWith(dailyTimeLimitMinutes: minutes));
-  }
-
-  Future<void> toggleSound() async {
-    await _saveSettings(state.copyWith(soundEnabled: !state.soundEnabled));
-  }
-
-  Future<void> toggleMusic() async {
-    await _saveSettings(state.copyWith(musicEnabled: !state.musicEnabled));
-  }
-
-  Future<void> addAllowedContact(String contact) async {
-    final newContacts = List<String>.from(state.allowedContacts)..add(contact);
-    await _saveSettings(state.copyWith(allowedContacts: newContacts));
-  }
-
-  Future<void> removeAllowedContact(String contact) async {
-    final newContacts = List<String>.from(state.allowedContacts)..remove(contact);
-    await _saveSettings(state.copyWith(allowedContacts: newContacts));
-  }
+  Future<void> updateTimeLimit(int minutes) => _update(state.copyWith(dailyTimeLimitMinutes: minutes));
+  Future<void> toggleSound() => _update(state.copyWith(soundEnabled: !state.soundEnabled));
+  Future<void> toggleMusic() => _update(state.copyWith(musicEnabled: !state.musicEnabled));
+  Future<void> updateContacts(List<String> contacts) => _update(state.copyWith(allowedContacts: contacts));
 }
 
-// --- APP STATE PROVIDER ---
-
-final appStateProvider = StateNotifierProvider<AppStateNotifier, AppState>((ref) {
-  return AppStateNotifier();
+final parentalSettingsProvider = StateNotifierProvider<ParentalSettingsNotifier, ParentalSettings>((ref) {
+  return ParentalSettingsNotifier();
 });
+
+// --- APP UI STATE PROVIDER ---
 
 @immutable
 class AppState {
+
+  // 2. CONSTRUCTOR (Movido aquí para corregir sort_constructors_first)
   const AppState({
     this.isLoading = false,
     this.currentRoute,
     this.showCelebration = false,
   });
-
+  // 1. Propiedades
   final bool isLoading;
   final String? currentRoute;
   final bool showCelebration;
 
-  AppState copyWith({
-    bool? isLoading,
-    String? currentRoute,
-    bool? showCelebration,
-  }) {
+  // 3. Métodos
+  AppState copyWith({bool? isLoading, String? currentRoute, bool? showCelebration}) {
     return AppState(
       isLoading: isLoading ?? this.isLoading,
       currentRoute: currentRoute ?? this.currentRoute,
@@ -168,8 +129,7 @@ class AppStateNotifier extends StateNotifier<AppState> {
   AppStateNotifier() : super(const AppState());
 
   void setLoading(bool loading) => state = state.copyWith(isLoading: loading);
-  void setRoute(String route) => state = state.copyWith(currentRoute: route);
-
+  
   void triggerCelebration() {
     state = state.copyWith(showCelebration: true);
     Future.delayed(const Duration(seconds: 3), () {
@@ -178,18 +138,11 @@ class AppStateNotifier extends StateNotifier<AppState> {
   }
 }
 
+final appStateProvider = StateNotifierProvider<AppStateNotifier, AppState>((ref) => AppStateNotifier());
+
 // --- LEVEL PROGRESS PROVIDER ---
 
-final levelProgressProvider =
-    StateNotifierProvider.family<LevelProgressNotifier, int, String>(
-  (ref, levelId) => LevelProgressNotifier(levelId),
-);
-
-class LevelProgressNotifier extends StateNotifier<int> {
-  LevelProgressNotifier(this.levelId) : super(0);
-  final String levelId;
-
-  void addPoints(int points) => state = (state + points).clamp(0, 100);
-  void setProgress(int progress) => state = progress.clamp(0, 100);
-  void reset() => state = 0;
-}
+final levelProgressProvider = StateProvider.family<int, String>((ref, levelId) {
+  final profile = ref.watch(currentProfileProvider);
+  return profile?.levelProgress[levelId] ?? 0;
+});

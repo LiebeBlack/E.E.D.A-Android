@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:isla_digital/core/theme/app_theme.dart';
+import 'package:isla_digital/presentation/providers/app_providers.dart'; // FIX: Importado para acceder a los providers
 import 'package:isla_digital/presentation/widgets/glass_container.dart';
 import 'package:isla_digital/presentation/widgets/island_background.dart';
 import 'package:isla_digital/presentation/widgets/progress_widgets.dart';
@@ -24,7 +25,6 @@ class _Level1ScreenState extends ConsumerState<Level1Screen> {
     {
       'title': '¡Hola, Amiguito!',
       'instruction': 'Toca el botón brillante para despertar la isla',
-      'type': 'power',
       'icon': Icons.power_settings_new,
       'lottie': 'assets/animations/ui/power.json',
       'color': IslaColors.oceanBlue,
@@ -32,7 +32,6 @@ class _Level1ScreenState extends ConsumerState<Level1Screen> {
     {
       'title': '¡Abre el Tesoro!',
       'instruction': 'Desliza hacia arriba como una ola saltarina',
-      'type': 'swipe',
       'icon': Icons.expand_less,
       'lottie': 'assets/animations/ui/swipe_up.json',
       'color': IslaColors.sunflower,
@@ -40,7 +39,6 @@ class _Level1ScreenState extends ConsumerState<Level1Screen> {
     {
       'title': '¡Cuida tu Isla!',
       'instruction': 'Toca el escudo para proteger tu tesoro digital',
-      'type': 'care',
       'icon': Icons.security,
       'lottie': 'assets/animations/ui/shield.json',
       'color': IslaColors.jungleGreen,
@@ -68,8 +66,18 @@ class _Level1ScreenState extends ConsumerState<Level1Screen> {
         curve: Curves.easeOutBack,
       );
     } else {
-      _showFinalCelebration();
+      _finishLevel();
     }
+  }
+
+  /// FIX: Lógica para desbloquear el siguiente nivel y mostrar celebración
+  void _finishLevel() {
+    // Desbloqueamos el Nivel 2 en el perfil del usuario
+    ref.read(currentProfileProvider.notifier).unlockLevel(2);
+    // Añadimos una insignia por completar el primer nivel
+    ref.read(currentProfileProvider.notifier).addBadge('explorer_level_1');
+    
+    _showFinalCelebration();
   }
 
   void _showFinalCelebration() {
@@ -83,25 +91,19 @@ class _Level1ScreenState extends ConsumerState<Level1Screen> {
         title: Text(
           '¡ERES UN SUPERHÉROE!',
           textAlign: TextAlign.center,
-          style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-            fontWeight: FontWeight.w900,
-            color: IslaColors.oceanDark,
-          ),
+          style: IslaThemes.titleMediumStyle.copyWith(color: IslaColors.oceanDark),
         ),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             const SafeLottie(
               path: 'assets/animations/success/pearl.json',
-              backupIcon: Icons.stars,
             ),
             const SizedBox(height: 16),
             Text(
               '¡Ganaste la Perla de Sabiduría!',
               textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                fontWeight: FontWeight.w700,
-              ),
+              style: IslaThemes.subtitleStyle,
             ),
           ],
         ),
@@ -122,6 +124,9 @@ class _Level1ScreenState extends ConsumerState<Level1Screen> {
 
   @override
   Widget build(BuildContext context) {
+    // Validamos que el índice no se pase por si acaso
+    final safeStep = currentStep.clamp(0, steps.length - 1);
+    
     return Scaffold(
       body: Stack(
         alignment: Alignment.center,
@@ -130,14 +135,14 @@ class _Level1ScreenState extends ConsumerState<Level1Screen> {
             child: SafeArea(
               child: Column(
                 children: [
-                  _buildHeader(),
+                  _buildHeader(safeStep),
                   const SizedBox(height: 8),
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 40),
                     child: StepIndicator(
-                      currentStep: currentStep,
+                      currentStep: safeStep,
                       totalSteps: steps.length,
-                      activeColor: steps[currentStep]['color'] as Color,
+                      activeColor: steps[safeStep]['color'] as Color,
                     ),
                   ),
                   const SizedBox(height: 16),
@@ -156,14 +161,19 @@ class _Level1ScreenState extends ConsumerState<Level1Screen> {
           ConfettiWidget(
             confettiController: _confettiController,
             blastDirectionality: BlastDirectionality.explosive,
-            colors: const [IslaColors.oceanBlue, IslaColors.sunflower, IslaColors.jungleGreen, IslaColors.sunsetPink],
+            colors: const [
+              IslaColors.oceanBlue, 
+              IslaColors.sunflower, 
+              IslaColors.jungleGreen, 
+              IslaColors.sunsetPink
+            ],
           ),
         ],
       ),
     );
   }
 
-  Widget _buildHeader() {
+  Widget _buildHeader(int step) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
       child: Row(
@@ -174,11 +184,9 @@ class _Level1ScreenState extends ConsumerState<Level1Screen> {
           ),
           const Spacer(),
           Text(
-            'PASO ${currentStep + 1} DE ${steps.length}',
-            style: Theme.of(context).textTheme.labelLarge?.copyWith(
+            'PASO ${step + 1} DE ${steps.length}',
+            style: IslaThemes.labelStyle.copyWith(
               color: IslaColors.charcoal.withValues(alpha: 0.5),
-              fontWeight: FontWeight.w800,
-              letterSpacing: 2,
             ),
           ),
           const Spacer(),
@@ -198,10 +206,7 @@ class _Level1ScreenState extends ConsumerState<Level1Screen> {
         children: [
           Text(
             step['title'] as String,
-            style: Theme.of(context).textTheme.displaySmall?.copyWith(
-              color: IslaColors.oceanDark,
-              fontWeight: FontWeight.w900,
-            ),
+            style: IslaThemes.displayStyle.copyWith(color: IslaColors.oceanDark),
             textAlign: TextAlign.center,
           ).animate().fadeIn().scale(curve: Curves.easeOutBack),
           
@@ -219,7 +224,7 @@ class _Level1ScreenState extends ConsumerState<Level1Screen> {
                     shape: BoxShape.circle,
                     color: color.withValues(alpha: 0.1),
                   ),
-                ).animate(onPlay: (controller) => controller.repeat(reverse: true))
+                ).animate(onPlay: (c) => c.repeat(reverse: true))
                  .scale(begin: const Offset(1, 1), end: const Offset(1.1, 1.1), duration: 2.seconds),
                  
                 SafeLottie(
@@ -234,14 +239,10 @@ class _Level1ScreenState extends ConsumerState<Level1Screen> {
           const SizedBox(height: 50),
           
           GlassContainer(
-            padding: const EdgeInsets.all(24),
             child: Text(
               step['instruction'] as String,
               textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                color: IslaColors.charcoal,
-                fontWeight: FontWeight.w700,
-              ),
+              style: IslaThemes.subtitleStyle.copyWith(color: IslaColors.charcoal),
             ),
           ).animate().fadeIn(delay: 600.ms).slideY(begin: 0.2, end: 0),
         ],
