@@ -1,6 +1,6 @@
 # 🏝️ Isla Digital: EdTech para el Futuro Insular
 
-![Banner de Isla Digital](https://raw.githubusercontent.com/tu-usuario/tu-repo/main/assets/readme_banner.png) > **Transformando el tiempo de pantalla en aprendizaje constructivo.** > Una plataforma educativa diseñada para niños de 3 a 9 años, fusionando pedagogía moderna con la identidad cultural de Nueva Esparta.
+![Banner de Isla Digital](https://raw.githubusercontent.com/LiebeBlack/I.S.D.I/refs/heads/main/assets/images/Picsart_26-03-03_02-28-31-521.png) > **Transformando el tiempo de pantalla en aprendizaje constructivo.** > Una plataforma educativa diseñada para niños de 3 a 9 años, fusionando pedagogía moderna con la identidad cultural de Nueva Esparta.
 
 [![Flutter Version](https://img.shields.io/badge/Flutter-%3E%3D%203.0.0-02569B?logo=flutter&style=for-the-badge)](https://flutter.dev)
 [![Dart Version](https://img.shields.io/badge/Dart-%3E%3D%203.0.0-0175C2?logo=dart&style=for-the-badge)](https://dart.dev)
