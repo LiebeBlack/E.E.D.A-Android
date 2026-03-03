@@ -4,7 +4,6 @@
 
 [![Flutter Version](https://img.shields.io/badge/Flutter-3.29.0-6A1B9A?logo=flutter&logoColor=white&style=for-the-badge)](https://flutter.dev)
 [![Dart Version](https://img.shields.io/badge/Dart-3.7.0-6A1B9A?logo=dart&logoColor=white&style=for-the-badge)](https://dart.dev)
-[![Platform](https://img.shields.io/badge/Platform-Android-6A1B9A?logo=android&logoColor=white&style=for-the-badge)](#compilación)
 [![License](https://img.shields.io/badge/License-GPL--3.0-6A1B9A?logo=gnu&logoColor=white&style=for-the-badge)](LICENSE)
 ---
 
@@ -24,3 +23,4 @@
 ## 🏗️ Arquitectura del Sistema
 
 El proyecto implementa **Clean Architecture**, separando las preocupaciones para facilitar el testing y la escalabilidad a largo plazo.
+[![Platform](https://img.shields.io/badge/Platform-Android-6A1B9A?logo=android&logoColor=white&style=for-the-badge)](#compilación) 
