@@ -30,7 +30,7 @@ class SafeLottie extends StatelessWidget {
         path,
         fit: fit,
         repeat: repeat,
-        frameRate: FrameRate.composition, 
+        frameRate: FrameRate.composition,
         errorBuilder: (context, error, stackTrace) {
           return _InternalBounceFallback(
             icon: backupIcon,
@@ -45,7 +45,7 @@ class SafeLottie extends StatelessWidget {
 /// Widget privado para el efecto de rebote infinito en caso de error
 class _InternalBounceFallback extends StatelessWidget {
   const _InternalBounceFallback({
-    required this.icon, 
+    required this.icon,
     required this.size,
   });
 
@@ -60,14 +60,14 @@ class _InternalBounceFallback extends StatelessWidget {
         size: size * 0.6,
         color: IslaColors.oceanBlue.withValues(alpha: 0.5),
       )
-      .animate(onPlay: (controller) => controller.repeat(reverse: true))
-      .scale(
-        begin: const Offset(0.8, 0.8),
-        end: const Offset(1.1, 1.1),
-        duration: 1000.ms,
-        curve: Curves.easeInOutBack,
-      )
-      .fadeIn(duration: 500.ms),
+          .animate(onPlay: (controller) => controller.repeat(reverse: true))
+          .scale(
+            begin: const Offset(0.8, 0.8),
+            end: const Offset(1.1, 1.1),
+            duration: 1000.ms,
+            curve: Curves.easeInOutBack,
+          )
+          .fadeIn(duration: 500.ms),
     );
   }
 }

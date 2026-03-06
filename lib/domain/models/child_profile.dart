@@ -2,7 +2,6 @@ import 'package:flutter/foundation.dart';
 
 @immutable
 class ChildProfile {
-
   // 2. CONSTRUCTOR PRINCIPAL (Movido arriba para cumplir con las reglas del linter)
   ChildProfile({
     required this.id,
@@ -25,8 +24,10 @@ class ChildProfile {
       name: json['name']?.toString() ?? 'Explorador',
       age: (json['age'] as num?)?.toInt() ?? 0,
       avatar: json['avatar']?.toString() ?? 'default',
-      createdAt: DateTime.tryParse(json['createdAt']?.toString() ?? '') ?? DateTime.now(),
-      totalPlayTimeMinutes: (json['totalPlayTimeMinutes'] as num?)?.toInt() ?? 0,
+      createdAt: DateTime.tryParse(json['createdAt']?.toString() ?? '') ??
+          DateTime.now(),
+      totalPlayTimeMinutes:
+          (json['totalPlayTimeMinutes'] as num?)?.toInt() ?? 0,
       currentLevel: (json['currentLevel'] as num?)?.toInt() ?? 1,
       levelProgress: Map<String, int>.from(json['levelProgress'] as Map? ?? {}),
       earnedBadges: List<String>.from(json['earnedBadges'] as List? ?? []),
@@ -66,7 +67,7 @@ class ChildProfile {
     List<String>? earnedBadges,
   }) {
     return ChildProfile(
-      id: id, 
+      id: id,
       name: name ?? this.name,
       age: age ?? this.age,
       avatar: avatar ?? this.avatar,
@@ -79,5 +80,6 @@ class ChildProfile {
   }
 
   @override
-  String toString() => 'ChildProfile(name: $name, level: $currentLevel, badges: ${earnedBadges.length})';
+  String toString() =>
+      'ChildProfile(name: $name, level: $currentLevel, badges: ${earnedBadges.length})';
 }

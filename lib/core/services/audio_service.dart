@@ -3,7 +3,7 @@ import 'package:flutter/foundation.dart';
 
 class BackgroundMusicService {
   static final AudioPlayer _player = AudioPlayer();
-  
+
   // Variables de estado interno
   static bool _isPlaying = false;
   static bool _isMuted = false;
@@ -14,10 +14,10 @@ class BackgroundMusicService {
     try {
       // Configuramos el modo de liberación para que la música se repita infinitamente
       await _player.setReleaseMode(ReleaseMode.loop);
-      
+
       // Es buena práctica precargar el archivo para evitar delay la primera vez
       await _player.setSource(AssetSource('audio/music/01.mp3'));
-      
+
       debugPrint('🎵 BackgroundMusicService inicializado correctamente');
     } catch (e) {
       debugPrint('❌ Error initializing background music: $e');
@@ -72,7 +72,7 @@ class BackgroundMusicService {
     _isMuted = mute;
     try {
       await _player.setVolume(mute ? 0 : _currentVolume);
-      
+
       // Si quitamos el silencio y no estaba sonando, la reanudamos
       if (!mute && !_isPlaying) {
         await resumeMusic();

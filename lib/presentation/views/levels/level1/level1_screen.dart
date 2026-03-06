@@ -48,7 +48,8 @@ class _Level1ScreenState extends ConsumerState<Level1Screen> {
   @override
   void initState() {
     super.initState();
-    _confettiController = ConfettiController(duration: const Duration(seconds: 3));
+    _confettiController =
+        ConfettiController(duration: const Duration(seconds: 3));
   }
 
   @override
@@ -73,10 +74,10 @@ class _Level1ScreenState extends ConsumerState<Level1Screen> {
   /// FIX: Lógica para desbloquear el siguiente nivel y mostrar celebración
   void _finishLevel() {
     // Desbloqueamos el Nivel 2 en el perfil del usuario
-    final notifier = ref.read(currentProfileProvider.notifier) as ProfileNotifier;
+    final notifier = ref.read(currentProfileProvider.notifier);
     notifier.unlockLevel(2);
-    notifier.addBadge('explorer_level_1');
-    
+    notifier.addBadge('primer_encuentro');
+
     _showFinalCelebration();
   }
 
@@ -91,7 +92,8 @@ class _Level1ScreenState extends ConsumerState<Level1Screen> {
         title: Text(
           '¡ERES UN SUPERHÉROE!',
           textAlign: TextAlign.center,
-          style: IslaThemes.titleMediumStyle.copyWith(color: IslaColors.oceanDark),
+          style:
+              IslaThemes.titleMediumStyle.copyWith(color: IslaColors.oceanDark),
         ),
         content: Column(
           mainAxisSize: MainAxisSize.min,
@@ -111,8 +113,8 @@ class _Level1ScreenState extends ConsumerState<Level1Screen> {
           Center(
             child: ElevatedButton(
               onPressed: () {
-                Navigator.pop(context); 
-                Navigator.pop(context); 
+                Navigator.pop(context);
+                Navigator.pop(context);
               },
               child: const Text('VOLVER AL MAPA'),
             ).animate().shimmer(delay: 500.ms, duration: 1500.ms),
@@ -126,7 +128,7 @@ class _Level1ScreenState extends ConsumerState<Level1Screen> {
   Widget build(BuildContext context) {
     // Validamos que el índice no se pase por si acaso
     final safeStep = currentStep.clamp(0, steps.length - 1);
-    
+
     return Scaffold(
       body: Stack(
         alignment: Alignment.center,
@@ -162,9 +164,9 @@ class _Level1ScreenState extends ConsumerState<Level1Screen> {
             confettiController: _confettiController,
             blastDirectionality: BlastDirectionality.explosive,
             colors: const [
-              IslaColors.oceanBlue, 
-              IslaColors.sunflower, 
-              IslaColors.jungleGreen, 
+              IslaColors.oceanBlue,
+              IslaColors.sunflower,
+              IslaColors.jungleGreen,
               IslaColors.sunsetPink
             ],
           ),
@@ -179,7 +181,8 @@ class _Level1ScreenState extends ConsumerState<Level1Screen> {
       child: Row(
         children: [
           IconButton(
-            icon: const Icon(Icons.close_rounded, color: IslaColors.oceanDark, size: 32),
+            icon: const Icon(Icons.close_rounded,
+                color: IslaColors.oceanDark, size: 32),
             onPressed: () => Navigator.pop(context),
           ),
           const Spacer(),
@@ -198,7 +201,7 @@ class _Level1ScreenState extends ConsumerState<Level1Screen> {
 
   Widget _buildStep(Map<String, dynamic> step) {
     final color = step['color'] as Color;
-    
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
       child: Column(
@@ -206,12 +209,11 @@ class _Level1ScreenState extends ConsumerState<Level1Screen> {
         children: [
           Text(
             step['title'] as String,
-            style: IslaThemes.displayStyle.copyWith(color: IslaColors.oceanDark),
+            style:
+                IslaThemes.displayStyle.copyWith(color: IslaColors.oceanDark),
             textAlign: TextAlign.center,
           ).animate().fadeIn().scale(curve: Curves.easeOutBack),
-          
           const SizedBox(height: 40),
-          
           GestureDetector(
             onTap: _onStepCompleted,
             child: Stack(
@@ -224,9 +226,10 @@ class _Level1ScreenState extends ConsumerState<Level1Screen> {
                     shape: BoxShape.circle,
                     color: color.withValues(alpha: 0.1),
                   ),
-                ).animate(onPlay: (c) => c.repeat(reverse: true))
-                 .scale(begin: const Offset(1, 1), end: const Offset(1.1, 1.1), duration: 2.seconds),
-                 
+                ).animate(onPlay: (c) => c.repeat(reverse: true)).scale(
+                    begin: const Offset(1, 1),
+                    end: const Offset(1.1, 1.1),
+                    duration: 2.seconds),
                 SafeLottie(
                   path: step['lottie'] as String,
                   backupIcon: step['icon'] as IconData,
@@ -235,14 +238,13 @@ class _Level1ScreenState extends ConsumerState<Level1Screen> {
               ],
             ),
           ).animate().fadeIn(delay: 300.ms).moveY(begin: 20, end: 0),
-          
           const SizedBox(height: 50),
-          
           GlassContainer(
             child: Text(
               step['instruction'] as String,
               textAlign: TextAlign.center,
-              style: IslaThemes.subtitleStyle.copyWith(color: IslaColors.charcoal),
+              style:
+                  IslaThemes.subtitleStyle.copyWith(color: IslaColors.charcoal),
             ),
           ).animate().fadeIn(delay: 600.ms).slideY(begin: 0.2, end: 0),
         ],

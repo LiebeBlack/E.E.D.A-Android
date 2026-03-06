@@ -51,7 +51,8 @@ class _Level2ScreenState extends ConsumerState<Level2Screen> {
   @override
   void initState() {
     super.initState();
-    _confettiController = ConfettiController(duration: const Duration(seconds: 3));
+    _confettiController =
+        ConfettiController(duration: const Duration(seconds: 3));
   }
 
   @override
@@ -76,14 +77,14 @@ class _Level2ScreenState extends ConsumerState<Level2Screen> {
     });
 
     // Guardar progreso en el estado global
-    (ref.read(currentProfileProvider.notifier) as ProfileNotifier).addProgress('level_2', points);
+    ref.read(currentProfileProvider.notifier).addProgress('level_2', points);
   }
 
   void _completeLevel() {
     _confettiController.play();
-    
+
     // FIX: Uso correcto del sistema de insignias definido en el Paso 4
-    final notifier = ref.read(currentProfileProvider.notifier) as ProfileNotifier;
+    final notifier = ref.read(currentProfileProvider.notifier);
     notifier.addBadge('comunicador_seguro');
     notifier.unlockLevel(3);
 
@@ -96,7 +97,8 @@ class _Level2ScreenState extends ConsumerState<Level2Screen> {
         title: Text(
           '¡COMUNICADOR MAESTRO!',
           textAlign: TextAlign.center,
-          style: IslaThemes.titleMediumStyle.copyWith(color: IslaColors.oceanDark),
+          style:
+              IslaThemes.titleMediumStyle.copyWith(color: IslaColors.oceanDark),
         ),
         content: const Column(
           mainAxisSize: MainAxisSize.min,
@@ -105,7 +107,8 @@ class _Level2ScreenState extends ConsumerState<Level2Screen> {
               path: 'assets/animations/success/trophy.json',
             ),
             SizedBox(height: 16),
-            Text('¡Ganaste la Medalla de Conexión!', textAlign: TextAlign.center),
+            Text('¡Ganaste la Medalla de Conexión!',
+                textAlign: TextAlign.center),
           ],
         ),
         actions: [
@@ -149,7 +152,8 @@ class _Level2ScreenState extends ConsumerState<Level2Screen> {
                       controller: _pageController,
                       physics: const NeverScrollableScrollPhysics(),
                       itemCount: steps.length,
-                      itemBuilder: (context, index) => _buildStepContent(steps[index]),
+                      itemBuilder: (context, index) =>
+                          _buildStepContent(steps[index]),
                     ),
                   ),
                 ],
@@ -159,7 +163,12 @@ class _Level2ScreenState extends ConsumerState<Level2Screen> {
           ConfettiWidget(
             confettiController: _confettiController,
             blastDirectionality: BlastDirectionality.explosive,
-            colors: const [IslaColors.oceanBlue, IslaColors.sunflower, IslaColors.jungleGreen, IslaColors.sunsetPink],
+            colors: const [
+              IslaColors.oceanBlue,
+              IslaColors.sunflower,
+              IslaColors.jungleGreen,
+              IslaColors.sunsetPink
+            ],
           ),
         ],
       ),
@@ -172,13 +181,15 @@ class _Level2ScreenState extends ConsumerState<Level2Screen> {
       child: Row(
         children: [
           IconButton(
-            icon: const Icon(Icons.close_rounded, color: IslaColors.oceanDark, size: 32),
+            icon: const Icon(Icons.close_rounded,
+                color: IslaColors.oceanDark, size: 32),
             onPressed: () => Navigator.pop(context),
           ),
           const Spacer(),
           Text(
             'CONECTADOS',
-            style: IslaThemes.titleMediumStyle.copyWith(color: IslaColors.oceanDark),
+            style: IslaThemes.titleMediumStyle
+                .copyWith(color: IslaColors.oceanDark),
           ),
           const Spacer(),
           const SizedBox(width: 48),
@@ -203,10 +214,30 @@ class _Level2ScreenState extends ConsumerState<Level2Screen> {
 
   Widget _buildSafeChatStep(Map<String, dynamic> step) {
     final List<Map<String, dynamic>> contacts = [
-      {'name': 'Mamá', 'icon': Icons.face_3_rounded, 'safe': true, 'color': IslaColors.sunsetPink},
-      {'name': 'Papá', 'icon': Icons.face_rounded, 'safe': true, 'color': IslaColors.oceanBlue},
-      {'name': 'Abuelo', 'icon': Icons.face_6_rounded, 'safe': true, 'color': IslaColors.jungleGreen},
-      {'name': 'Desconocido', 'icon': Icons.help_outline_rounded, 'safe': false, 'color': IslaColors.slate},
+      {
+        'name': 'Mamá',
+        'icon': Icons.face_3_rounded,
+        'safe': true,
+        'color': IslaColors.sunsetPink
+      },
+      {
+        'name': 'Papá',
+        'icon': Icons.face_rounded,
+        'safe': true,
+        'color': IslaColors.oceanBlue
+      },
+      {
+        'name': 'Abuelo',
+        'icon': Icons.face_6_rounded,
+        'safe': true,
+        'color': IslaColors.jungleGreen
+      },
+      {
+        'name': 'Desconocido',
+        'icon': Icons.help_outline_rounded,
+        'safe': false,
+        'color': IslaColors.slate
+      },
     ];
 
     return Padding(
@@ -234,7 +265,9 @@ class _Level2ScreenState extends ConsumerState<Level2Screen> {
                   contact['icon']! as IconData,
                   contact['safe']! as bool,
                   contact['color']! as Color,
-                ).animate().scale(delay: (index * 100).ms, curve: Curves.easeOutBack);
+                )
+                    .animate()
+                    .scale(delay: (index * 100).ms, curve: Curves.easeOutBack);
               },
             ),
           ),
@@ -254,7 +287,8 @@ class _Level2ScreenState extends ConsumerState<Level2Screen> {
               content: const Text('¡Cuidado! No hablamos con extraños.'),
               backgroundColor: IslaColors.coralReef,
               behavior: SnackBarBehavior.floating,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16)),
             ),
           );
         }
@@ -278,9 +312,21 @@ class _Level2ScreenState extends ConsumerState<Level2Screen> {
 
   Widget _buildEmergencyCallStep(Map<String, dynamic> step) {
     final List<Map<String, dynamic>> emergencies = [
-      {'icon': Icons.local_hospital_rounded, 'label': 'Médico', 'color': IslaColors.coralReef},
-      {'icon': Icons.local_police_rounded, 'label': 'Policía', 'color': IslaColors.oceanBlue},
-      {'icon': Icons.fire_truck_rounded, 'label': 'BOMBEROS', 'color': IslaColors.tropicOrange},
+      {
+        'icon': Icons.local_hospital_rounded,
+        'label': 'Médico',
+        'color': IslaColors.coralReef
+      },
+      {
+        'icon': Icons.local_police_rounded,
+        'label': 'Policía',
+        'color': IslaColors.oceanBlue
+      },
+      {
+        'icon': Icons.fire_truck_rounded,
+        'label': 'BOMBEROS',
+        'color': IslaColors.tropicOrange
+      },
     ];
 
     return Padding(
@@ -317,8 +363,10 @@ class _Level2ScreenState extends ConsumerState<Level2Screen> {
       context: context,
       builder: (context) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-        title: Text('¿Llamar a $service?', style: const TextStyle(fontWeight: FontWeight.w900)),
-        content: const Text('Solo llamamos en emergencias reales. ¡Muy bien por saber a quién acudir!'),
+        title: Text('¿Llamar a $service?',
+            style: const TextStyle(fontWeight: FontWeight.w900)),
+        content: const Text(
+            'Solo llamamos en emergencias reales. ¡Muy bien por saber a quién acudir!'),
         actions: [
           Center(
             child: ElevatedButton(
@@ -364,7 +412,9 @@ class _Level2ScreenState extends ConsumerState<Level2Screen> {
                   photo['label']! as String,
                   photo['icon']! as IconData,
                   photo['safe']! as bool,
-                  (photo['safe']! as bool) ? IslaColors.jungleGreen : IslaColors.charcoal,
+                  (photo['safe']! as bool)
+                      ? IslaColors.jungleGreen
+                      : IslaColors.charcoal,
                 ).animate().fadeIn(delay: (index * 100).ms);
               },
             ),

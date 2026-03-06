@@ -18,7 +18,8 @@ class BadgeCard extends StatefulWidget {
   State<BadgeCard> createState() => _BadgeCardState();
 }
 
-class _BadgeCardState extends State<BadgeCard> with SingleTickerProviderStateMixin {
+class _BadgeCardState extends State<BadgeCard>
+    with SingleTickerProviderStateMixin {
   late AnimationController _controller;
 
   @override
@@ -28,7 +29,7 @@ class _BadgeCardState extends State<BadgeCard> with SingleTickerProviderStateMix
       duration: const Duration(milliseconds: 1500),
       vsync: this,
     );
-    
+
     // Si ya la ganó, hacemos que la insignia tenga un pequeño "latido" constante
     if (widget.isEarned) {
       _controller.repeat(reverse: true);
@@ -45,8 +46,9 @@ class _BadgeCardState extends State<BadgeCard> with SingleTickerProviderStateMix
   Widget build(BuildContext context) {
     // Usamos ColorFiltered para que las insignias bloqueadas se vean en gris
     return ScaleTransition(
-      scale: widget.isEarned 
-          ? Tween<double>(begin: 1, end: 1.05).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut))
+      scale: widget.isEarned
+          ? Tween<double>(begin: 1, end: 1.05).animate(
+              CurvedAnimation(parent: _controller, curve: Curves.easeInOut))
           : const AlwaysStoppedAnimation(1),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -64,16 +66,33 @@ class _BadgeCardState extends State<BadgeCard> with SingleTickerProviderStateMix
                     color: widget.badge.color.withValues(alpha: 0.2),
                   ),
                 ),
-              
+
               // Cuerpo de la Insignia
               ColorFiltered(
                 colorFilter: widget.isEarned
-                    ? const ColorFilter.mode(Colors.transparent, BlendMode.multiply)
+                    ? const ColorFilter.mode(
+                        Colors.transparent, BlendMode.multiply)
                     : const ColorFilter.matrix(<double>[
-                        0.2126, 0.7152, 0.0722, 0, 0,
-                        0.2126, 0.7152, 0.0722, 0, 0,
-                        0.2126, 0.7152, 0.0722, 0, 0,
-                        0,      0,      0,      1, 0,
+                        0.2126,
+                        0.7152,
+                        0.0722,
+                        0,
+                        0,
+                        0.2126,
+                        0.7152,
+                        0.0722,
+                        0,
+                        0,
+                        0.2126,
+                        0.7152,
+                        0.0722,
+                        0,
+                        0,
+                        0,
+                        0,
+                        0,
+                        1,
+                        0,
                       ]),
                 child: Container(
                   width: widget.size,
@@ -98,7 +117,9 @@ class _BadgeCardState extends State<BadgeCard> with SingleTickerProviderStateMix
                           ]
                         : null,
                     border: Border.all(
-                      color: widget.isEarned ? IslaColors.sunflower : Colors.grey.shade400,
+                      color: widget.isEarned
+                          ? IslaColors.sunflower
+                          : Colors.grey.shade400,
                       width: widget.isEarned ? 4 : 2,
                     ),
                   ),
@@ -109,7 +130,7 @@ class _BadgeCardState extends State<BadgeCard> with SingleTickerProviderStateMix
                   ),
                 ),
               ),
-              
+
               // Candado pequeño si no está ganada
               if (!widget.isEarned)
                 Positioned(
@@ -117,8 +138,10 @@ class _BadgeCardState extends State<BadgeCard> with SingleTickerProviderStateMix
                   right: 0,
                   child: Container(
                     padding: const EdgeInsets.all(4),
-                    decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle),
-                    child: Icon(Icons.lock, size: widget.size * 0.25, color: Colors.grey),
+                    decoration: const BoxDecoration(
+                        color: Colors.white, shape: BoxShape.circle),
+                    child: Icon(Icons.lock,
+                        size: widget.size * 0.25, color: Colors.grey),
                   ),
                 ),
             ],

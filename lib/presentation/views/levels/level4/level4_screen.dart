@@ -27,7 +27,8 @@ class _Level4ScreenState extends ConsumerState<Level4Screen> {
   @override
   void initState() {
     super.initState();
-    _confettiController = ConfettiController(duration: const Duration(seconds: 3));
+    _confettiController =
+        ConfettiController(duration: const Duration(seconds: 3));
   }
 
   @override
@@ -43,14 +44,14 @@ class _Level4ScreenState extends ConsumerState<Level4Screen> {
         _completeLevel();
       }
     });
-    (ref.read(currentProfileProvider.notifier) as ProfileNotifier).addProgress('level_4', points);
+    ref.read(currentProfileProvider.notifier).addProgress('level_4', points);
   }
 
   void _completeLevel() {
     _confettiController.play();
     final badge = IslaBadges.getById('calculador_frutas');
     if (badge != null) {
-      final notifier = ref.read(currentProfileProvider.notifier) as ProfileNotifier;
+      final notifier = ref.read(currentProfileProvider.notifier);
       notifier.addBadge(badge.id);
       notifier.unlockLevel(5);
     }
@@ -128,7 +129,12 @@ class _Level4ScreenState extends ConsumerState<Level4Screen> {
           ConfettiWidget(
             confettiController: _confettiController,
             blastDirectionality: BlastDirectionality.explosive,
-            colors: const [IslaColors.oceanBlue, IslaColors.sunflower, IslaColors.jungleGreen, IslaColors.sunsetPink],
+            colors: const [
+              IslaColors.oceanBlue,
+              IslaColors.sunflower,
+              IslaColors.jungleGreen,
+              IslaColors.sunsetPink
+            ],
           ),
         ],
       ),
@@ -141,16 +147,17 @@ class _Level4ScreenState extends ConsumerState<Level4Screen> {
       child: Row(
         children: [
           IconButton(
-            icon: const Icon(Icons.close_rounded, color: IslaColors.oceanDark, size: 32),
+            icon: const Icon(Icons.close_rounded,
+                color: IslaColors.oceanDark, size: 32),
             onPressed: () => Navigator.pop(context),
           ),
           const Spacer(),
           Text(
             'SÚPER TAREAS',
             style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-              color: IslaColors.oceanDark,
-              fontWeight: FontWeight.w900,
-            ),
+                  color: IslaColors.oceanDark,
+                  fontWeight: FontWeight.w900,
+                ),
           ),
           const Spacer(),
           const SizedBox(width: 48),
@@ -179,15 +186,23 @@ class _Level4ScreenState extends ConsumerState<Level4Screen> {
                 decoration: BoxDecoration(
                   color: isSelected ? IslaColors.oceanBlue : Colors.transparent,
                   borderRadius: BorderRadius.circular(18),
-                  boxShadow: isSelected ? [
-                    BoxShadow(color: IslaColors.oceanBlue.withValues(alpha: 0.3), blurRadius: 8, offset: const Offset(0, 4))
-                  ] : null,
+                  boxShadow: isSelected
+                      ? [
+                          BoxShadow(
+                              color:
+                                  IslaColors.oceanBlue.withValues(alpha: 0.3),
+                              blurRadius: 8,
+                              offset: const Offset(0, 4))
+                        ]
+                      : null,
                 ),
                 child: Text(
                   tabs[index],
                   textAlign: TextAlign.center,
                   style: TextStyle(
-                    color: isSelected ? Colors.white : IslaColors.charcoal.withValues(alpha: 0.5),
+                    color: isSelected
+                        ? Colors.white
+                        : IslaColors.charcoal.withValues(alpha: 0.5),
                     fontWeight: FontWeight.w900,
                   ),
                 ),
@@ -240,17 +255,23 @@ class _CalculatorWidgetState extends State<CalculatorWidget> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                _buildNumberVisual(num1, Icons.auto_awesome_rounded, IslaColors.sunflower),
+                _buildNumberVisual(
+                    num1, Icons.auto_awesome_rounded, IslaColors.sunflower),
                 const Padding(
                   padding: EdgeInsets.symmetric(horizontal: 20),
-                  child: Text('+', style: TextStyle(fontSize: 40, fontWeight: FontWeight.w900)),
+                  child: Text('+',
+                      style:
+                          TextStyle(fontSize: 40, fontWeight: FontWeight.w900)),
                 ),
-                _buildNumberVisual(num2, Icons.auto_awesome_rounded, IslaColors.oceanBlue),
+                _buildNumberVisual(
+                    num2, Icons.auto_awesome_rounded, IslaColors.oceanBlue),
               ],
             ),
           ).animate().fadeIn().scale(),
           const SizedBox(height: 40),
-          const Text('¿CUÁNTOS HAY EN TOTAL?', style: TextStyle(fontWeight: FontWeight.w900, letterSpacing: 1.5)),
+          const Text('¿CUÁNTOS HAY EN TOTAL?',
+              style:
+                  TextStyle(fontWeight: FontWeight.w900, letterSpacing: 1.5)),
           const SizedBox(height: 24),
           Wrap(
             spacing: 16,
@@ -266,7 +287,9 @@ class _CalculatorWidgetState extends State<CalculatorWidget> {
                   child: GlassContainer(
                     padding: EdgeInsets.zero,
                     child: Center(
-                      child: Text('$val', style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w900)),
+                      child: Text('$val',
+                          style: const TextStyle(
+                              fontSize: 24, fontWeight: FontWeight.w900)),
                     ),
                   ),
                 ),
@@ -283,10 +306,12 @@ class _CalculatorWidgetState extends State<CalculatorWidget> {
       children: [
         Wrap(
           spacing: 4,
-          children: List.generate(count, (_) => Icon(icon, color: color, size: 24)),
+          children:
+              List.generate(count, (_) => Icon(icon, color: color, size: 24)),
         ),
         const SizedBox(height: 8),
-        Text('$count', style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w900)),
+        Text('$count',
+            style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w900)),
       ],
     );
   }
@@ -297,9 +322,24 @@ class CalendarWidget extends StatelessWidget {
   final Function(int) onProgress;
 
   final List<Map<String, dynamic>> events = const [
-    {'day': '15', 'month': 'FEB', 'title': 'Fiesta del Mar', 'icon': Icons.waves_rounded},
-    {'day': '25', 'month': 'MAR', 'title': 'Día del Pescador', 'icon': Icons.set_meal_rounded},
-    {'day': '08', 'month': 'MAY', 'title': 'Festival del Sol', 'icon': Icons.wb_sunny_rounded},
+    {
+      'day': '15',
+      'month': 'FEB',
+      'title': 'Fiesta del Mar',
+      'icon': Icons.waves_rounded
+    },
+    {
+      'day': '25',
+      'month': 'MAR',
+      'title': 'Día del Pescador',
+      'icon': Icons.set_meal_rounded
+    },
+    {
+      'day': '08',
+      'month': 'MAY',
+      'title': 'Festival del Sol',
+      'icon': Icons.wb_sunny_rounded
+    },
   ];
 
   @override
@@ -312,7 +352,8 @@ class CalendarWidget extends StatelessWidget {
         return GestureDetector(
           onTap: () {
             onProgress(10);
-            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('¡Evento aprendido!')));
+            ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('¡Evento aprendido!')));
           },
           child: Padding(
             padding: const EdgeInsets.only(bottom: 16),
@@ -323,17 +364,26 @@ class CalendarWidget extends StatelessWidget {
                   Container(
                     width: 60,
                     height: 60,
-                    decoration: BoxDecoration(color: IslaColors.coralReef.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(12)),
+                    decoration: BoxDecoration(
+                        color: IslaColors.coralReef.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(12)),
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Text(e['day']! as String, style: const TextStyle(fontWeight: FontWeight.w900, color: IslaColors.coralReef)),
-                        Text(e['month']! as String, style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w700)),
+                        Text(e['day']! as String,
+                            style: const TextStyle(
+                                fontWeight: FontWeight.w900,
+                                color: IslaColors.coralReef)),
+                        Text(e['month']! as String,
+                            style: const TextStyle(
+                                fontSize: 10, fontWeight: FontWeight.w700)),
                       ],
                     ),
                   ),
                   const SizedBox(width: 16),
-                  Expanded(child: Text(e['title']! as String, style: const TextStyle(fontWeight: FontWeight.w800))),
+                  Expanded(
+                      child: Text(e['title']! as String,
+                          style: const TextStyle(fontWeight: FontWeight.w800))),
                   Icon(e['icon']! as IconData, color: IslaColors.coralReef),
                 ],
               ),
@@ -364,7 +414,8 @@ class _CameraMissionWidgetState extends State<CameraMissionWidget> {
   Widget build(BuildContext context) {
     return GridView.builder(
       padding: const EdgeInsets.all(24),
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2, crossAxisSpacing: 16, mainAxisSpacing: 16),
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 2, crossAxisSpacing: 16, mainAxisSpacing: 16),
       itemCount: missions.length,
       itemBuilder: (context, index) {
         final m = missions[index];
@@ -377,9 +428,17 @@ class _CameraMissionWidgetState extends State<CameraMissionWidget> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon((m['done'] as bool) ? Icons.check_circle_rounded : (m['icon'] as IconData), size: 48, color: (m['done'] as bool) ? IslaColors.jungleGreen : IslaColors.coralReef),
+                Icon(
+                    (m['done'] as bool)
+                        ? Icons.check_circle_rounded
+                        : (m['icon'] as IconData),
+                    size: 48,
+                    color: (m['done'] as bool)
+                        ? IslaColors.jungleGreen
+                        : IslaColors.coralReef),
                 const SizedBox(height: 12),
-                Text(m['target'] as String, style: const TextStyle(fontWeight: FontWeight.w800)),
+                Text(m['target'] as String,
+                    style: const TextStyle(fontWeight: FontWeight.w800)),
               ],
             ),
           ),

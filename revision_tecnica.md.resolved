@@ -1,0 +1,4127 @@
+# Revisión Técnica Completa — Isla Digital v0.4.0
+
+> [!IMPORTANT]
+> **Resultado: `flutter analyze lib/` → No issues found!** ✅
+> Todos los archivos fueron revisados línea por línea. Solo se modificaron los que tenían problemas.
+
+---
+
+## 🔴 Objetivo Primario: Orientación Vertical Obligatoria
+
+### 1. [lib/main.dart](file:///home/l/Desktop/v0.4.0/lib/main.dart) — Capa Dart
+
+**Error**: La orientación estaba forzando **landscape** en vez de portrait:
+```diff
+-  SystemChrome.setPreferredOrientations([
+-    DeviceOrientation.landscapeLeft,
+-    DeviceOrientation.landscapeRight,
+-  ]);
++  await SystemChrome.setPreferredOrientations([
++    DeviceOrientation.portraitUp,
++    DeviceOrientation.portraitDown,
++  ]);
+```
+
+**Porqué era un error**: La app está diseñada con layouts 100% verticales (ScrollViews, Columns, etc.). Forzar landscape rompería toda la interfaz.
+
+**Mejora adicional**: `setPreferredOrientations` ahora se ejecuta con `await` **antes** de `runApp()`, garantizando que el OS bloquee la orientación antes del primer frame.
+
+```diff:main.dart
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+// Imports de dominio/core
+import 'package:isla_digital/core/services/services.dart';
+import 'package:isla_digital/core/theme/app_theme.dart';
+import 'package:isla_digital/core/utils/page_transitions.dart';
+import 'package:isla_digital/presentation/providers/app_providers.dart';
+
+// Imports de vistas
+import 'package:isla_digital/presentation/views/screens/home_screen.dart';
+import 'package:isla_digital/presentation/views/screens/level_select_screen.dart';
+import 'package:isla_digital/presentation/views/screens/parental_dashboard_screen.dart';
+import 'package:isla_digital/presentation/views/screens/profile_setup_screen.dart';
+import 'package:isla_digital/presentation/views/screens/showcase_screen.dart';
+import 'package:isla_digital/presentation/widgets/island_background.dart';
+
+void main() async {
+  // 1. Garantizar que los canales de plataforma estén listos
+  WidgetsFlutterBinding.ensureInitialized();
+  
+  // 2. Configuración estética y de hardware
+  _configureSystemUI();
+
+  // 3. Inicialización de servicios
+  try {
+    await Future.wait([
+      LocalStorageService.initialize(),
+      BackgroundMusicService.initialize(),
+    ]);
+  } catch (e, stackTrace) {
+    debugPrint('Critical Initialization Error: $e\n$stackTrace');
+  }
+
+  runApp(
+    const ProviderScope(
+      child: IslaDigitalApp(),
+    ),
+  );
+}
+
+void _configureSystemUI() {
+  SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
+    statusBarColor: Colors.transparent,
+    statusBarIconBrightness: Brightness.dark,
+    systemNavigationBarColor: Colors.transparent,
+    systemNavigationBarDividerColor: Colors.transparent,
+    systemNavigationBarIconBrightness: Brightness.dark,
+  ));
+
+  SystemChrome.setPreferredOrientations([
+    DeviceOrientation.landscapeLeft,
+    DeviceOrientation.landscapeRight,
+  ]);
+}
+
+class IslaDigitalApp extends ConsumerWidget {
+  const IslaDigitalApp({super.key});
+
+  static const String routeHome = '/home';
+  static const String routeProfile = '/profile';
+  static const String routeLevels = '/levels';
+  static const String routeParental = '/parental';
+  static const String routeShowcase = '/showcase';
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    // Escuchamos el estado del perfil para decidir la ruta inicial
+    final profile = ref.watch(currentProfileProvider);
+
+    return MaterialApp(
+      title: 'Isla Digital',
+      debugShowCheckedModeBanner: false,
+      theme: IslaThemes.lightTheme,
+      
+      // Si no hay perfil, enviamos a registro. Si hay, a la Home.
+      initialRoute: profile == null ? routeProfile : routeHome,
+      
+      builder: (context, child) {
+        return Scaffold(
+          resizeToAvoidBottomInset: false,
+          body: Stack(
+            children: [
+              const IslandBackground(), 
+              if (child != null) child,
+            ],
+          ),
+        );
+      },
+      onGenerateRoute: _onGenerateRoute,
+    );
+  }
+
+  /// Manejador de rutas con transiciones.
+  Route<dynamic>? _onGenerateRoute(RouteSettings settings) {
+    // Definimos qué widget corresponde a cada ruta
+    Widget getScreen() {
+      switch (settings.name) {
+        case routeHome:
+          return const HomeScreen();
+        case routeProfile:
+          return const ProfileSetupScreen();
+        case routeLevels:
+          return const LevelSelectScreen();
+        case routeParental:
+          return const ParentalDashboardScreen();
+        case routeShowcase:
+          return const ShowcaseScreen();
+        default:
+          return _errorWidget();
+      }
+    }
+
+    // Retornamos la transición personalizada pasando el Widget directamente
+    return FadeSlideRoute(page: getScreen());
+  }
+
+  Widget _errorWidget() {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Error')),
+      body: const Center(child: Text('La página solicitada no existe.')),
+    );
+  }
+
+  Route<dynamic> _errorRoute() {
+    return MaterialPageRoute(builder: (_) => _errorWidget());
+  }
+}
+===
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+// Imports de dominio/core
+import 'package:isla_digital/core/services/services.dart';
+import 'package:isla_digital/core/theme/app_theme.dart';
+import 'package:isla_digital/core/utils/page_transitions.dart';
+import 'package:isla_digital/presentation/providers/app_providers.dart';
+
+// Imports de vistas
+import 'package:isla_digital/presentation/views/screens/home_screen.dart';
+import 'package:isla_digital/presentation/views/screens/level_select_screen.dart';
+import 'package:isla_digital/presentation/views/screens/parental_dashboard_screen.dart';
+import 'package:isla_digital/presentation/views/screens/profile_setup_screen.dart';
+import 'package:isla_digital/presentation/views/screens/showcase_screen.dart';
+import 'package:isla_digital/presentation/widgets/island_background.dart';
+
+void main() async {
+  // 1. Garantizar que los canales de plataforma estén listos
+  WidgetsFlutterBinding.ensureInitialized();
+  
+  // 2. Forzar orientación vertical ANTES de cualquier renderizado
+  await SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+    DeviceOrientation.portraitDown,
+  ]);
+
+  // 3. Configuración estética del sistema
+  _configureSystemUI();
+
+  // 4. Inicialización de servicios
+  try {
+    await Future.wait([
+      LocalStorageService.initialize(),
+      BackgroundMusicService.initialize(),
+    ]);
+  } catch (e, stackTrace) {
+    debugPrint('Critical Initialization Error: $e\n$stackTrace');
+  }
+
+  runApp(
+    const ProviderScope(
+      child: IslaDigitalApp(),
+    ),
+  );
+}
+
+void _configureSystemUI() {
+  SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
+    statusBarColor: Colors.transparent,
+    statusBarIconBrightness: Brightness.dark,
+    systemNavigationBarColor: Colors.transparent,
+    systemNavigationBarDividerColor: Colors.transparent,
+    systemNavigationBarIconBrightness: Brightness.dark,
+  ));
+}
+
+class IslaDigitalApp extends ConsumerWidget {
+  const IslaDigitalApp({super.key});
+
+  static const String routeHome = '/home';
+  static const String routeProfile = '/profile';
+  static const String routeLevels = '/levels';
+  static const String routeParental = '/parental';
+  static const String routeShowcase = '/showcase';
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    // Escuchamos el estado del perfil para decidir la ruta inicial
+    final profile = ref.watch(currentProfileProvider);
+
+    return MaterialApp(
+      title: 'Isla Digital',
+      debugShowCheckedModeBanner: false,
+      theme: IslaThemes.lightTheme,
+      
+      // Si no hay perfil, enviamos a registro. Si hay, a la Home.
+      initialRoute: profile == null ? routeProfile : routeHome,
+      
+      builder: (context, child) {
+        return Scaffold(
+          resizeToAvoidBottomInset: false,
+          body: Stack(
+            children: [
+              const IslandBackground(), 
+              if (child != null) child,
+            ],
+          ),
+        );
+      },
+      onGenerateRoute: _onGenerateRoute,
+    );
+  }
+
+  /// Manejador de rutas con transiciones.
+  Route<dynamic>? _onGenerateRoute(RouteSettings settings) {
+    // Definimos qué widget corresponde a cada ruta
+    Widget getScreen() {
+      switch (settings.name) {
+        case routeHome:
+          return const HomeScreen();
+        case routeProfile:
+          return const ProfileSetupScreen();
+        case routeLevels:
+          return const LevelSelectScreen();
+        case routeParental:
+          return const ParentalDashboardScreen();
+        case routeShowcase:
+          return const ShowcaseScreen();
+        default:
+          return _errorWidget();
+      }
+    }
+
+    // Retornamos la transición personalizada pasando el Widget directamente
+    return FadeSlideRoute(page: getScreen());
+  }
+
+  Widget _errorWidget() {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Error')),
+      body: const Center(child: Text('La página solicitada no existe.')),
+    );
+  }
+
+}
+```
+
+### 2. [android/app/src/main/AndroidManifest.xml](file:///home/l/Desktop/v0.4.0/android/app/src/main/AndroidManifest.xml) — Capa Android
+
+**Error**: Faltaba `android:screenOrientation="portrait"` en la Activity principal.
+
+```diff
+ <activity
+     android:name=".MainActivity"
++    android:screenOrientation="portrait"
+     ...>
+```
+
+**Porqué era un error**: Sin esta capa de defensa, si el `SystemChrome` de Dart falla por alguna razón (race condition al iniciar, error de plataforma), Android permitiría la rotación.
+
+```diff:AndroidManifest.xml
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <application
+        android:label="Isla Digital"
+        android:name="${applicationName}"
+        android:icon="@mipmap/launcher_icon">
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:launchMode="singleTop"
+            android:taskAffinity=""
+            android:theme="@style/LaunchTheme"
+            android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode"
+            android:hardwareAccelerated="true"
+            android:windowSoftInputMode="adjustResize">
+            <!-- Specifies an Android theme to apply to this Activity as soon as
+                 the Android process has started. This theme is visible to the user
+                 while the Flutter UI initializes. After that, this theme continues
+                 to determine the Window background behind the Flutter UI. -->
+            <meta-data
+              android:name="io.flutter.embedding.android.NormalTheme"
+              android:resource="@style/NormalTheme"
+              />
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </activity>
+        <!-- Don't delete the meta-data below.
+             This is used by the Flutter tool to generate GeneratedPluginRegistrant.java -->
+        <meta-data
+            android:name="flutterEmbedding"
+            android:value="2" />
+    </application>
+    <!-- Required to query activities that can process text, see:
+         https://developer.android.com/training/package-visibility and
+         https://developer.android.com/reference/android/content/Intent#ACTION_PROCESS_TEXT.
+
+         In particular, this is used by the Flutter engine in io.flutter.plugin.text.ProcessTextPlugin. -->
+    <queries>
+        <intent>
+            <action android:name="android.intent.action.PROCESS_TEXT"/>
+            <data android:mimeType="text/plain"/>
+        </intent>
+    </queries>
+</manifest>
+===
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <application
+        android:label="Isla Digital"
+        android:name="${applicationName}"
+        android:icon="@mipmap/launcher_icon">
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:launchMode="singleTop"
+            android:taskAffinity=""
+            android:theme="@style/LaunchTheme"
+            android:screenOrientation="portrait"
+            android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode"
+            android:hardwareAccelerated="true"
+            android:windowSoftInputMode="adjustResize">
+            <!-- Specifies an Android theme to apply to this Activity as soon as
+                 the Android process has started. This theme is visible to the user
+                 while the Flutter UI initializes. After that, this theme continues
+                 to determine the Window background behind the Flutter UI. -->
+            <meta-data
+              android:name="io.flutter.embedding.android.NormalTheme"
+              android:resource="@style/NormalTheme"
+              />
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </activity>
+        <!-- Don't delete the meta-data below.
+             This is used by the Flutter tool to generate GeneratedPluginRegistrant.java -->
+        <meta-data
+            android:name="flutterEmbedding"
+            android:value="2" />
+    </application>
+    <!-- Required to query activities that can process text, see:
+         https://developer.android.com/training/package-visibility and
+         https://developer.android.com/reference/android/content/Intent#ACTION_PROCESS_TEXT.
+
+         In particular, this is used by the Flutter engine in io.flutter.plugin.text.ProcessTextPlugin. -->
+    <queries>
+        <intent>
+            <action android:name="android.intent.action.PROCESS_TEXT"/>
+            <data android:mimeType="text/plain"/>
+        </intent>
+    </queries>
+</manifest>
+```
+
+### 3. UI/Layout — No se encontraron problemas
+
+- El único uso de `MediaQuery.sizeOf()` en [home_screen.dart](file:///home/l/Desktop/v0.4.0/lib/presentation/views/screens/home_screen.dart) (línea 24-25) verifica `size.height < 400` para ajustar tamaño de personajes. Esto es correcto: funciona en portrait y no intenta adaptar a landscape.
+- El único `LayoutBuilder` en [progress_widgets.dart](file:///home/l/Desktop/v0.4.0/lib/presentation/widgets/progress_widgets.dart) (línea 48) se usa para obtener `constraints.maxWidth` del contenedor padre para la barra de progreso. Correcto, no depende de orientación.
+- No se encontraron `OrientationBuilder`, `OrientationMode`, ni lógica de detección de landscape en ningún archivo.
+
+---
+
+## 🟡 Objetivo Secundario: Limpieza de Errores y Optimización
+
+### 4. [lib/main.dart](file:///home/l/Desktop/v0.4.0/lib/main.dart) — Código muerto eliminado
+
+**Error**: El método `_errorRoute()` (línea 126-128) nunca era llamado — [_onGenerateRoute](file:///home/l/Desktop/v0.4.0/lib/main.dart#96-119) usa directamente [_errorWidget()](file:///home/l/Desktop/v0.4.0/lib/main.dart#120-126).
+
+```diff
+-  Route<dynamic> _errorRoute() {
+-    return MaterialPageRoute(builder: (_) => _errorWidget());
+-  }
+```
+
+### 5. Niveles 1-4 — Casts redundantes con `as ProfileNotifier`
+
+| Archivo | Línea | Cambio |
+|---------|-------|--------|
+| [level1_screen.dart](file:///home/l/Desktop/v0.4.0/lib/presentation/views/levels/level1/level1_screen.dart) | 76 | `ref.read(...) as ProfileNotifier` → `ref.read(...)` |
+| [level2_screen.dart](file:///home/l/Desktop/v0.4.0/lib/presentation/views/levels/level2/level2_screen.dart) | 79, 86 | Igual |
+| [level3_screen.dart](file:///home/l/Desktop/v0.4.0/lib/presentation/views/levels/level3/level3_screen.dart) | 80, 109 | Igual |
+| [level4_screen.dart](file:///home/l/Desktop/v0.4.0/lib/presentation/views/levels/level4/level4_screen.dart) | 46, 53 | Igual |
+
+**Porqué era un error**: `currentProfileProvider` ya está tipado como `NotifierProvider<ProfileNotifier, ChildProfile?>`. El `ref.read(...notifier)` devuelve [ProfileNotifier](file:///home/l/Desktop/v0.4.0/lib/presentation/providers/app_providers.dart#11-77) directamente. El cast `as ProfileNotifier` es redundante y arriesgado — si la jerarquía de tipos cambia, generaría un `TypeError` en runtime en vez de un error de compilación.
+
+```diff:level1_screen.dart
+import 'package:confetti/confetti.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:isla_digital/core/theme/app_theme.dart';
+import 'package:isla_digital/presentation/providers/app_providers.dart'; // FIX: Importado para acceder a los providers
+import 'package:isla_digital/presentation/widgets/glass_container.dart';
+import 'package:isla_digital/presentation/widgets/island_background.dart';
+import 'package:isla_digital/presentation/widgets/progress_widgets.dart';
+import 'package:isla_digital/presentation/widgets/safe_lottie.dart';
+
+class Level1Screen extends ConsumerStatefulWidget {
+  const Level1Screen({super.key});
+
+  @override
+  ConsumerState<Level1Screen> createState() => _Level1ScreenState();
+}
+
+class _Level1ScreenState extends ConsumerState<Level1Screen> {
+  int currentStep = 0;
+  late ConfettiController _confettiController;
+  final PageController _pageController = PageController();
+
+  final List<Map<String, dynamic>> steps = [
+    {
+      'title': '¡Hola, Amiguito!',
+      'instruction': 'Toca el botón brillante para despertar la isla',
+      'icon': Icons.power_settings_new,
+      'lottie': 'assets/animations/ui/power.json',
+      'color': IslaColors.oceanBlue,
+    },
+    {
+      'title': '¡Abre el Tesoro!',
+      'instruction': 'Desliza hacia arriba como una ola saltarina',
+      'icon': Icons.expand_less,
+      'lottie': 'assets/animations/ui/swipe_up.json',
+      'color': IslaColors.sunflower,
+    },
+    {
+      'title': '¡Cuida tu Isla!',
+      'instruction': 'Toca el escudo para proteger tu tesoro digital',
+      'icon': Icons.security,
+      'lottie': 'assets/animations/ui/shield.json',
+      'color': IslaColors.jungleGreen,
+    },
+  ];
+
+  @override
+  void initState() {
+    super.initState();
+    _confettiController = ConfettiController(duration: const Duration(seconds: 3));
+  }
+
+  @override
+  void dispose() {
+    _confettiController.dispose();
+    _pageController.dispose();
+    super.dispose();
+  }
+
+  void _onStepCompleted() {
+    if (currentStep < steps.length - 1) {
+      setState(() => currentStep++);
+      _pageController.nextPage(
+        duration: const Duration(milliseconds: 600),
+        curve: Curves.easeOutBack,
+      );
+    } else {
+      _finishLevel();
+    }
+  }
+
+  /// FIX: Lógica para desbloquear el siguiente nivel y mostrar celebración
+  void _finishLevel() {
+    // Desbloqueamos el Nivel 2 en el perfil del usuario
+    final notifier = ref.read(currentProfileProvider.notifier) as ProfileNotifier;
+    notifier.unlockLevel(2);
+    notifier.addBadge('explorer_level_1');
+    
+    _showFinalCelebration();
+  }
+
+  void _showFinalCelebration() {
+    _confettiController.play();
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => AlertDialog(
+        backgroundColor: Colors.white.withValues(alpha: 0.95),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(32)),
+        title: Text(
+          '¡ERES UN SUPERHÉROE!',
+          textAlign: TextAlign.center,
+          style: IslaThemes.titleMediumStyle.copyWith(color: IslaColors.oceanDark),
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const SafeLottie(
+              path: 'assets/animations/success/pearl.json',
+            ),
+            const SizedBox(height: 16),
+            Text(
+              '¡Ganaste la Perla de Sabiduría!',
+              textAlign: TextAlign.center,
+              style: IslaThemes.subtitleStyle,
+            ),
+          ],
+        ),
+        actions: [
+          Center(
+            child: ElevatedButton(
+              onPressed: () {
+                Navigator.pop(context); 
+                Navigator.pop(context); 
+              },
+              child: const Text('VOLVER AL MAPA'),
+            ).animate().shimmer(delay: 500.ms, duration: 1500.ms),
+          )
+        ],
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    // Validamos que el índice no se pase por si acaso
+    final safeStep = currentStep.clamp(0, steps.length - 1);
+    
+    return Scaffold(
+      body: Stack(
+        alignment: Alignment.center,
+        children: [
+          IslandBackground(
+            child: SafeArea(
+              child: Column(
+                children: [
+                  _buildHeader(safeStep),
+                  const SizedBox(height: 8),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 40),
+                    child: StepIndicator(
+                      currentStep: safeStep,
+                      totalSteps: steps.length,
+                      activeColor: steps[safeStep]['color'] as Color,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Expanded(
+                    child: PageView.builder(
+                      controller: _pageController,
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemCount: steps.length,
+                      itemBuilder: (context, index) => _buildStep(steps[index]),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          ConfettiWidget(
+            confettiController: _confettiController,
+            blastDirectionality: BlastDirectionality.explosive,
+            colors: const [
+              IslaColors.oceanBlue, 
+              IslaColors.sunflower, 
+              IslaColors.jungleGreen, 
+              IslaColors.sunsetPink
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildHeader(int step) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+      child: Row(
+        children: [
+          IconButton(
+            icon: const Icon(Icons.close_rounded, color: IslaColors.oceanDark, size: 32),
+            onPressed: () => Navigator.pop(context),
+          ),
+          const Spacer(),
+          Text(
+            'PASO ${step + 1} DE ${steps.length}',
+            style: IslaThemes.labelStyle.copyWith(
+              color: IslaColors.charcoal.withValues(alpha: 0.5),
+            ),
+          ),
+          const Spacer(),
+          const SizedBox(width: 48),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStep(Map<String, dynamic> step) {
+    final color = step['color'] as Color;
+    
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(
+            step['title'] as String,
+            style: IslaThemes.displayStyle.copyWith(color: IslaColors.oceanDark),
+            textAlign: TextAlign.center,
+          ).animate().fadeIn().scale(curve: Curves.easeOutBack),
+          
+          const SizedBox(height: 40),
+          
+          GestureDetector(
+            onTap: _onStepCompleted,
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                Container(
+                  width: 200,
+                  height: 200,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: color.withValues(alpha: 0.1),
+                  ),
+                ).animate(onPlay: (c) => c.repeat(reverse: true))
+                 .scale(begin: const Offset(1, 1), end: const Offset(1.1, 1.1), duration: 2.seconds),
+                 
+                SafeLottie(
+                  path: step['lottie'] as String,
+                  backupIcon: step['icon'] as IconData,
+                  size: 160,
+                ),
+              ],
+            ),
+          ).animate().fadeIn(delay: 300.ms).moveY(begin: 20, end: 0),
+          
+          const SizedBox(height: 50),
+          
+          GlassContainer(
+            child: Text(
+              step['instruction'] as String,
+              textAlign: TextAlign.center,
+              style: IslaThemes.subtitleStyle.copyWith(color: IslaColors.charcoal),
+            ),
+          ).animate().fadeIn(delay: 600.ms).slideY(begin: 0.2, end: 0),
+        ],
+      ),
+    );
+  }
+}
+===
+import 'package:confetti/confetti.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:isla_digital/core/theme/app_theme.dart';
+import 'package:isla_digital/presentation/providers/app_providers.dart'; // FIX: Importado para acceder a los providers
+import 'package:isla_digital/presentation/widgets/glass_container.dart';
+import 'package:isla_digital/presentation/widgets/island_background.dart';
+import 'package:isla_digital/presentation/widgets/progress_widgets.dart';
+import 'package:isla_digital/presentation/widgets/safe_lottie.dart';
+
+class Level1Screen extends ConsumerStatefulWidget {
+  const Level1Screen({super.key});
+
+  @override
+  ConsumerState<Level1Screen> createState() => _Level1ScreenState();
+}
+
+class _Level1ScreenState extends ConsumerState<Level1Screen> {
+  int currentStep = 0;
+  late ConfettiController _confettiController;
+  final PageController _pageController = PageController();
+
+  final List<Map<String, dynamic>> steps = [
+    {
+      'title': '¡Hola, Amiguito!',
+      'instruction': 'Toca el botón brillante para despertar la isla',
+      'icon': Icons.power_settings_new,
+      'lottie': 'assets/animations/ui/power.json',
+      'color': IslaColors.oceanBlue,
+    },
+    {
+      'title': '¡Abre el Tesoro!',
+      'instruction': 'Desliza hacia arriba como una ola saltarina',
+      'icon': Icons.expand_less,
+      'lottie': 'assets/animations/ui/swipe_up.json',
+      'color': IslaColors.sunflower,
+    },
+    {
+      'title': '¡Cuida tu Isla!',
+      'instruction': 'Toca el escudo para proteger tu tesoro digital',
+      'icon': Icons.security,
+      'lottie': 'assets/animations/ui/shield.json',
+      'color': IslaColors.jungleGreen,
+    },
+  ];
+
+  @override
+  void initState() {
+    super.initState();
+    _confettiController = ConfettiController(duration: const Duration(seconds: 3));
+  }
+
+  @override
+  void dispose() {
+    _confettiController.dispose();
+    _pageController.dispose();
+    super.dispose();
+  }
+
+  void _onStepCompleted() {
+    if (currentStep < steps.length - 1) {
+      setState(() => currentStep++);
+      _pageController.nextPage(
+        duration: const Duration(milliseconds: 600),
+        curve: Curves.easeOutBack,
+      );
+    } else {
+      _finishLevel();
+    }
+  }
+
+  /// FIX: Lógica para desbloquear el siguiente nivel y mostrar celebración
+  void _finishLevel() {
+    // Desbloqueamos el Nivel 2 en el perfil del usuario
+    final notifier = ref.read(currentProfileProvider.notifier);
+    notifier.unlockLevel(2);
+    notifier.addBadge('primer_encuentro');
+    
+    _showFinalCelebration();
+  }
+
+  void _showFinalCelebration() {
+    _confettiController.play();
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => AlertDialog(
+        backgroundColor: Colors.white.withValues(alpha: 0.95),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(32)),
+        title: Text(
+          '¡ERES UN SUPERHÉROE!',
+          textAlign: TextAlign.center,
+          style: IslaThemes.titleMediumStyle.copyWith(color: IslaColors.oceanDark),
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const SafeLottie(
+              path: 'assets/animations/success/pearl.json',
+            ),
+            const SizedBox(height: 16),
+            Text(
+              '¡Ganaste la Perla de Sabiduría!',
+              textAlign: TextAlign.center,
+              style: IslaThemes.subtitleStyle,
+            ),
+          ],
+        ),
+        actions: [
+          Center(
+            child: ElevatedButton(
+              onPressed: () {
+                Navigator.pop(context); 
+                Navigator.pop(context); 
+              },
+              child: const Text('VOLVER AL MAPA'),
+            ).animate().shimmer(delay: 500.ms, duration: 1500.ms),
+          )
+        ],
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    // Validamos que el índice no se pase por si acaso
+    final safeStep = currentStep.clamp(0, steps.length - 1);
+    
+    return Scaffold(
+      body: Stack(
+        alignment: Alignment.center,
+        children: [
+          IslandBackground(
+            child: SafeArea(
+              child: Column(
+                children: [
+                  _buildHeader(safeStep),
+                  const SizedBox(height: 8),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 40),
+                    child: StepIndicator(
+                      currentStep: safeStep,
+                      totalSteps: steps.length,
+                      activeColor: steps[safeStep]['color'] as Color,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Expanded(
+                    child: PageView.builder(
+                      controller: _pageController,
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemCount: steps.length,
+                      itemBuilder: (context, index) => _buildStep(steps[index]),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          ConfettiWidget(
+            confettiController: _confettiController,
+            blastDirectionality: BlastDirectionality.explosive,
+            colors: const [
+              IslaColors.oceanBlue, 
+              IslaColors.sunflower, 
+              IslaColors.jungleGreen, 
+              IslaColors.sunsetPink
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildHeader(int step) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+      child: Row(
+        children: [
+          IconButton(
+            icon: const Icon(Icons.close_rounded, color: IslaColors.oceanDark, size: 32),
+            onPressed: () => Navigator.pop(context),
+          ),
+          const Spacer(),
+          Text(
+            'PASO ${step + 1} DE ${steps.length}',
+            style: IslaThemes.labelStyle.copyWith(
+              color: IslaColors.charcoal.withValues(alpha: 0.5),
+            ),
+          ),
+          const Spacer(),
+          const SizedBox(width: 48),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStep(Map<String, dynamic> step) {
+    final color = step['color'] as Color;
+    
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(
+            step['title'] as String,
+            style: IslaThemes.displayStyle.copyWith(color: IslaColors.oceanDark),
+            textAlign: TextAlign.center,
+          ).animate().fadeIn().scale(curve: Curves.easeOutBack),
+          
+          const SizedBox(height: 40),
+          
+          GestureDetector(
+            onTap: _onStepCompleted,
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                Container(
+                  width: 200,
+                  height: 200,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: color.withValues(alpha: 0.1),
+                  ),
+                ).animate(onPlay: (c) => c.repeat(reverse: true))
+                 .scale(begin: const Offset(1, 1), end: const Offset(1.1, 1.1), duration: 2.seconds),
+                 
+                SafeLottie(
+                  path: step['lottie'] as String,
+                  backupIcon: step['icon'] as IconData,
+                  size: 160,
+                ),
+              ],
+            ),
+          ).animate().fadeIn(delay: 300.ms).moveY(begin: 20, end: 0),
+          
+          const SizedBox(height: 50),
+          
+          GlassContainer(
+            child: Text(
+              step['instruction'] as String,
+              textAlign: TextAlign.center,
+              style: IslaThemes.subtitleStyle.copyWith(color: IslaColors.charcoal),
+            ),
+          ).animate().fadeIn(delay: 600.ms).slideY(begin: 0.2, end: 0),
+        ],
+      ),
+    );
+  }
+}
+```
+```diff:level2_screen.dart
+import 'package:confetti/confetti.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:isla_digital/core/theme/app_theme.dart';
+// FIX: Importar modelos para IslaBadges
+import 'package:isla_digital/presentation/providers/app_providers.dart';
+import 'package:isla_digital/presentation/widgets/big_button.dart';
+import 'package:isla_digital/presentation/widgets/glass_container.dart';
+import 'package:isla_digital/presentation/widgets/island_background.dart';
+import 'package:isla_digital/presentation/widgets/progress_widgets.dart';
+import 'package:isla_digital/presentation/widgets/safe_lottie.dart';
+
+class Level2Screen extends ConsumerStatefulWidget {
+  const Level2Screen({super.key});
+
+  @override
+  ConsumerState<Level2Screen> createState() => _Level2ScreenState();
+}
+
+class _Level2ScreenState extends ConsumerState<Level2Screen> {
+  int currentStep = 0;
+  int totalProgress = 0;
+  late ConfettiController _confettiController;
+  final PageController _pageController = PageController();
+
+  final List<Map<String, dynamic>> steps = [
+    {
+      'title': 'Chat Seguro',
+      'instruction': '¿Con quién es seguro hablar?',
+      'type': 'safe_chat',
+      'icon': Icons.chat_bubble_rounded,
+      'color': IslaColors.oceanBlue,
+    },
+    {
+      'title': 'Llamada de Héroe',
+      'instruction': '¿Cuándo pedimos ayuda?',
+      'type': 'emergency_call',
+      'icon': Icons.phone_rounded,
+      'color': IslaColors.coralReef,
+    },
+    {
+      'title': 'Tus Fotos',
+      'instruction': '¿Qué es seguro compartir?',
+      'type': 'photo_share',
+      'icon': Icons.photo_library_rounded,
+      'color': IslaColors.sunflower,
+    },
+  ];
+
+  @override
+  void initState() {
+    super.initState();
+    _confettiController = ConfettiController(duration: const Duration(seconds: 3));
+  }
+
+  @override
+  void dispose() {
+    _confettiController.dispose();
+    _pageController.dispose();
+    super.dispose();
+  }
+
+  void _completeStep(int points) {
+    setState(() {
+      totalProgress += points;
+      if (currentStep < steps.length - 1) {
+        currentStep++;
+        _pageController.nextPage(
+          duration: const Duration(milliseconds: 600),
+          curve: Curves.easeOutBack,
+        );
+      } else {
+        _completeLevel();
+      }
+    });
+
+    // Guardar progreso en el estado global
+    (ref.read(currentProfileProvider.notifier) as ProfileNotifier).addProgress('level_2', points);
+  }
+
+  void _completeLevel() {
+    _confettiController.play();
+    
+    // FIX: Uso correcto del sistema de insignias definido en el Paso 4
+    final notifier = ref.read(currentProfileProvider.notifier) as ProfileNotifier;
+    notifier.addBadge('comunicador_seguro');
+    notifier.unlockLevel(3);
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => AlertDialog(
+        backgroundColor: Colors.white.withValues(alpha: 0.95),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(32)),
+        title: Text(
+          '¡COMUNICADOR MAESTRO!',
+          textAlign: TextAlign.center,
+          style: IslaThemes.titleMediumStyle.copyWith(color: IslaColors.oceanDark),
+        ),
+        content: const Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            SafeLottie(
+              path: 'assets/animations/success/trophy.json',
+            ),
+            SizedBox(height: 16),
+            Text('¡Ganaste la Medalla de Conexión!', textAlign: TextAlign.center),
+          ],
+        ),
+        actions: [
+          Center(
+            child: ElevatedButton(
+              onPressed: () {
+                Navigator.pop(context); // Cerrar diálogo
+                Navigator.pop(context); // Volver al mapa
+              },
+              child: const Text('VOLVER AL MAPA'),
+            ),
+          )
+        ],
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Stack(
+        alignment: Alignment.center,
+        children: [
+          IslandBackground(
+            child: SafeArea(
+              child: Column(
+                children: [
+                  _buildHeader(),
+                  const SizedBox(height: 8),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 40),
+                    child: StepIndicator(
+                      currentStep: currentStep,
+                      totalSteps: steps.length,
+                      activeColor: steps[currentStep]['color'] as Color,
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  Expanded(
+                    child: PageView.builder(
+                      controller: _pageController,
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemCount: steps.length,
+                      itemBuilder: (context, index) => _buildStepContent(steps[index]),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          ConfettiWidget(
+            confettiController: _confettiController,
+            blastDirectionality: BlastDirectionality.explosive,
+            colors: const [IslaColors.oceanBlue, IslaColors.sunflower, IslaColors.jungleGreen, IslaColors.sunsetPink],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildHeader() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+      child: Row(
+        children: [
+          IconButton(
+            icon: const Icon(Icons.close_rounded, color: IslaColors.oceanDark, size: 32),
+            onPressed: () => Navigator.pop(context),
+          ),
+          const Spacer(),
+          Text(
+            'CONECTADOS',
+            style: IslaThemes.titleMediumStyle.copyWith(color: IslaColors.oceanDark),
+          ),
+          const Spacer(),
+          const SizedBox(width: 48),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStepContent(Map<String, dynamic> step) {
+    final type = step['type'] as String;
+    switch (type) {
+      case 'safe_chat':
+        return _buildSafeChatStep(step);
+      case 'emergency_call':
+        return _buildEmergencyCallStep(step);
+      case 'photo_share':
+        return _buildPhotoShareStep(step);
+      default:
+        return const SizedBox.shrink();
+    }
+  }
+
+  Widget _buildSafeChatStep(Map<String, dynamic> step) {
+    final List<Map<String, dynamic>> contacts = [
+      {'name': 'Mamá', 'icon': Icons.face_3_rounded, 'safe': true, 'color': IslaColors.sunsetPink},
+      {'name': 'Papá', 'icon': Icons.face_rounded, 'safe': true, 'color': IslaColors.oceanBlue},
+      {'name': 'Abuelo', 'icon': Icons.face_6_rounded, 'safe': true, 'color': IslaColors.jungleGreen},
+      {'name': 'Desconocido', 'icon': Icons.help_outline_rounded, 'safe': false, 'color': IslaColors.slate},
+    ];
+
+    return Padding(
+      padding: const EdgeInsets.all(24),
+      child: Column(
+        children: [
+          Text(
+            step['instruction'] as String,
+            style: IslaThemes.subtitleStyle,
+            textAlign: TextAlign.center,
+          ).animate().fadeIn(),
+          const SizedBox(height: 32),
+          Expanded(
+            child: GridView.builder(
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2,
+                crossAxisSpacing: 16,
+                mainAxisSpacing: 16,
+              ),
+              itemCount: contacts.length,
+              itemBuilder: (context, index) {
+                final contact = contacts[index];
+                return _buildContactCard(
+                  contact['name']! as String,
+                  contact['icon']! as IconData,
+                  contact['safe']! as bool,
+                  contact['color']! as Color,
+                ).animate().scale(delay: (index * 100).ms, curve: Curves.easeOutBack);
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildContactCard(String name, IconData icon, bool safe, Color color) {
+    return GestureDetector(
+      onTap: () {
+        if (safe) {
+          _completeStep(33);
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: const Text('¡Cuidado! No hablamos con extraños.'),
+              backgroundColor: IslaColors.coralReef,
+              behavior: SnackBarBehavior.floating,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+            ),
+          );
+        }
+      },
+      child: GlassContainer(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(icon, size: 48, color: color),
+            const SizedBox(height: 12),
+            Text(
+              name,
+              style: IslaThemes.labelStyle.copyWith(color: IslaColors.charcoal),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildEmergencyCallStep(Map<String, dynamic> step) {
+    final List<Map<String, dynamic>> emergencies = [
+      {'icon': Icons.local_hospital_rounded, 'label': 'Médico', 'color': IslaColors.coralReef},
+      {'icon': Icons.local_police_rounded, 'label': 'Policía', 'color': IslaColors.oceanBlue},
+      {'icon': Icons.fire_truck_rounded, 'label': 'BOMBEROS', 'color': IslaColors.tropicOrange},
+    ];
+
+    return Padding(
+      padding: const EdgeInsets.all(24),
+      child: Column(
+        children: [
+          Text(
+            step['instruction'] as String,
+            style: IslaThemes.subtitleStyle,
+          ).animate().fadeIn(),
+          const SizedBox(height: 32),
+          Expanded(
+            child: ListView.separated(
+              itemCount: emergencies.length,
+              separatorBuilder: (_, __) => const SizedBox(height: 16),
+              itemBuilder: (context, index) {
+                final e = emergencies[index];
+                return BigButton(
+                  icon: e['icon']! as IconData,
+                  label: e['label']! as String,
+                  color: e['color']! as Color,
+                  onPressed: () => _showEmergencyDialog(e['label']! as String),
+                ).animate().slideX(begin: 0.2, delay: (index * 100).ms);
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showEmergencyDialog(String service) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+        title: Text('¿Llamar a $service?', style: const TextStyle(fontWeight: FontWeight.w900)),
+        content: const Text('Solo llamamos en emergencias reales. ¡Muy bien por saber a quién acudir!'),
+        actions: [
+          Center(
+            child: ElevatedButton(
+              onPressed: () {
+                Navigator.pop(context);
+                _completeStep(33);
+              },
+              child: const Text('¡ENTENDIDO!'),
+            ),
+          )
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPhotoShareStep(Map<String, dynamic> step) {
+    final List<Map<String, dynamic>> photos = [
+      {'label': 'Mi Perrito', 'icon': Icons.pets_rounded, 'safe': true},
+      {'label': 'Mi Avión', 'icon': Icons.toys_rounded, 'safe': true},
+      {'label': 'Mi Dirección', 'icon': Icons.house_rounded, 'safe': false},
+    ];
+
+    return Padding(
+      padding: const EdgeInsets.all(24),
+      child: Column(
+        children: [
+          Text(
+            step['instruction'] as String,
+            style: IslaThemes.subtitleStyle,
+          ).animate().fadeIn(),
+          const SizedBox(height: 32),
+          Expanded(
+            child: GridView.builder(
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2,
+                crossAxisSpacing: 16,
+                mainAxisSpacing: 16,
+              ),
+              itemCount: photos.length,
+              itemBuilder: (context, index) {
+                final photo = photos[index];
+                return _buildContactCard(
+                  photo['label']! as String,
+                  photo['icon']! as IconData,
+                  photo['safe']! as bool,
+                  (photo['safe']! as bool) ? IslaColors.jungleGreen : IslaColors.charcoal,
+                ).animate().fadeIn(delay: (index * 100).ms);
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+===
+import 'package:confetti/confetti.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:isla_digital/core/theme/app_theme.dart';
+// FIX: Importar modelos para IslaBadges
+import 'package:isla_digital/presentation/providers/app_providers.dart';
+import 'package:isla_digital/presentation/widgets/big_button.dart';
+import 'package:isla_digital/presentation/widgets/glass_container.dart';
+import 'package:isla_digital/presentation/widgets/island_background.dart';
+import 'package:isla_digital/presentation/widgets/progress_widgets.dart';
+import 'package:isla_digital/presentation/widgets/safe_lottie.dart';
+
+class Level2Screen extends ConsumerStatefulWidget {
+  const Level2Screen({super.key});
+
+  @override
+  ConsumerState<Level2Screen> createState() => _Level2ScreenState();
+}
+
+class _Level2ScreenState extends ConsumerState<Level2Screen> {
+  int currentStep = 0;
+  int totalProgress = 0;
+  late ConfettiController _confettiController;
+  final PageController _pageController = PageController();
+
+  final List<Map<String, dynamic>> steps = [
+    {
+      'title': 'Chat Seguro',
+      'instruction': '¿Con quién es seguro hablar?',
+      'type': 'safe_chat',
+      'icon': Icons.chat_bubble_rounded,
+      'color': IslaColors.oceanBlue,
+    },
+    {
+      'title': 'Llamada de Héroe',
+      'instruction': '¿Cuándo pedimos ayuda?',
+      'type': 'emergency_call',
+      'icon': Icons.phone_rounded,
+      'color': IslaColors.coralReef,
+    },
+    {
+      'title': 'Tus Fotos',
+      'instruction': '¿Qué es seguro compartir?',
+      'type': 'photo_share',
+      'icon': Icons.photo_library_rounded,
+      'color': IslaColors.sunflower,
+    },
+  ];
+
+  @override
+  void initState() {
+    super.initState();
+    _confettiController = ConfettiController(duration: const Duration(seconds: 3));
+  }
+
+  @override
+  void dispose() {
+    _confettiController.dispose();
+    _pageController.dispose();
+    super.dispose();
+  }
+
+  void _completeStep(int points) {
+    setState(() {
+      totalProgress += points;
+      if (currentStep < steps.length - 1) {
+        currentStep++;
+        _pageController.nextPage(
+          duration: const Duration(milliseconds: 600),
+          curve: Curves.easeOutBack,
+        );
+      } else {
+        _completeLevel();
+      }
+    });
+
+    // Guardar progreso en el estado global
+    ref.read(currentProfileProvider.notifier).addProgress('level_2', points);
+  }
+
+  void _completeLevel() {
+    _confettiController.play();
+    
+    // FIX: Uso correcto del sistema de insignias definido en el Paso 4
+    final notifier = ref.read(currentProfileProvider.notifier);
+    notifier.addBadge('comunicador_seguro');
+    notifier.unlockLevel(3);
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => AlertDialog(
+        backgroundColor: Colors.white.withValues(alpha: 0.95),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(32)),
+        title: Text(
+          '¡COMUNICADOR MAESTRO!',
+          textAlign: TextAlign.center,
+          style: IslaThemes.titleMediumStyle.copyWith(color: IslaColors.oceanDark),
+        ),
+        content: const Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            SafeLottie(
+              path: 'assets/animations/success/trophy.json',
+            ),
+            SizedBox(height: 16),
+            Text('¡Ganaste la Medalla de Conexión!', textAlign: TextAlign.center),
+          ],
+        ),
+        actions: [
+          Center(
+            child: ElevatedButton(
+              onPressed: () {
+                Navigator.pop(context); // Cerrar diálogo
+                Navigator.pop(context); // Volver al mapa
+              },
+              child: const Text('VOLVER AL MAPA'),
+            ),
+          )
+        ],
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Stack(
+        alignment: Alignment.center,
+        children: [
+          IslandBackground(
+            child: SafeArea(
+              child: Column(
+                children: [
+                  _buildHeader(),
+                  const SizedBox(height: 8),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 40),
+                    child: StepIndicator(
+                      currentStep: currentStep,
+                      totalSteps: steps.length,
+                      activeColor: steps[currentStep]['color'] as Color,
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  Expanded(
+                    child: PageView.builder(
+                      controller: _pageController,
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemCount: steps.length,
+                      itemBuilder: (context, index) => _buildStepContent(steps[index]),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          ConfettiWidget(
+            confettiController: _confettiController,
+            blastDirectionality: BlastDirectionality.explosive,
+            colors: const [IslaColors.oceanBlue, IslaColors.sunflower, IslaColors.jungleGreen, IslaColors.sunsetPink],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildHeader() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+      child: Row(
+        children: [
+          IconButton(
+            icon: const Icon(Icons.close_rounded, color: IslaColors.oceanDark, size: 32),
+            onPressed: () => Navigator.pop(context),
+          ),
+          const Spacer(),
+          Text(
+            'CONECTADOS',
+            style: IslaThemes.titleMediumStyle.copyWith(color: IslaColors.oceanDark),
+          ),
+          const Spacer(),
+          const SizedBox(width: 48),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStepContent(Map<String, dynamic> step) {
+    final type = step['type'] as String;
+    switch (type) {
+      case 'safe_chat':
+        return _buildSafeChatStep(step);
+      case 'emergency_call':
+        return _buildEmergencyCallStep(step);
+      case 'photo_share':
+        return _buildPhotoShareStep(step);
+      default:
+        return const SizedBox.shrink();
+    }
+  }
+
+  Widget _buildSafeChatStep(Map<String, dynamic> step) {
+    final List<Map<String, dynamic>> contacts = [
+      {'name': 'Mamá', 'icon': Icons.face_3_rounded, 'safe': true, 'color': IslaColors.sunsetPink},
+      {'name': 'Papá', 'icon': Icons.face_rounded, 'safe': true, 'color': IslaColors.oceanBlue},
+      {'name': 'Abuelo', 'icon': Icons.face_6_rounded, 'safe': true, 'color': IslaColors.jungleGreen},
+      {'name': 'Desconocido', 'icon': Icons.help_outline_rounded, 'safe': false, 'color': IslaColors.slate},
+    ];
+
+    return Padding(
+      padding: const EdgeInsets.all(24),
+      child: Column(
+        children: [
+          Text(
+            step['instruction'] as String,
+            style: IslaThemes.subtitleStyle,
+            textAlign: TextAlign.center,
+          ).animate().fadeIn(),
+          const SizedBox(height: 32),
+          Expanded(
+            child: GridView.builder(
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2,
+                crossAxisSpacing: 16,
+                mainAxisSpacing: 16,
+              ),
+              itemCount: contacts.length,
+              itemBuilder: (context, index) {
+                final contact = contacts[index];
+                return _buildContactCard(
+                  contact['name']! as String,
+                  contact['icon']! as IconData,
+                  contact['safe']! as bool,
+                  contact['color']! as Color,
+                ).animate().scale(delay: (index * 100).ms, curve: Curves.easeOutBack);
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildContactCard(String name, IconData icon, bool safe, Color color) {
+    return GestureDetector(
+      onTap: () {
+        if (safe) {
+          _completeStep(33);
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: const Text('¡Cuidado! No hablamos con extraños.'),
+              backgroundColor: IslaColors.coralReef,
+              behavior: SnackBarBehavior.floating,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+            ),
+          );
+        }
+      },
+      child: GlassContainer(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(icon, size: 48, color: color),
+            const SizedBox(height: 12),
+            Text(
+              name,
+              style: IslaThemes.labelStyle.copyWith(color: IslaColors.charcoal),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildEmergencyCallStep(Map<String, dynamic> step) {
+    final List<Map<String, dynamic>> emergencies = [
+      {'icon': Icons.local_hospital_rounded, 'label': 'Médico', 'color': IslaColors.coralReef},
+      {'icon': Icons.local_police_rounded, 'label': 'Policía', 'color': IslaColors.oceanBlue},
+      {'icon': Icons.fire_truck_rounded, 'label': 'BOMBEROS', 'color': IslaColors.tropicOrange},
+    ];
+
+    return Padding(
+      padding: const EdgeInsets.all(24),
+      child: Column(
+        children: [
+          Text(
+            step['instruction'] as String,
+            style: IslaThemes.subtitleStyle,
+          ).animate().fadeIn(),
+          const SizedBox(height: 32),
+          Expanded(
+            child: ListView.separated(
+              itemCount: emergencies.length,
+              separatorBuilder: (_, __) => const SizedBox(height: 16),
+              itemBuilder: (context, index) {
+                final e = emergencies[index];
+                return BigButton(
+                  icon: e['icon']! as IconData,
+                  label: e['label']! as String,
+                  color: e['color']! as Color,
+                  onPressed: () => _showEmergencyDialog(e['label']! as String),
+                ).animate().slideX(begin: 0.2, delay: (index * 100).ms);
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showEmergencyDialog(String service) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+        title: Text('¿Llamar a $service?', style: const TextStyle(fontWeight: FontWeight.w900)),
+        content: const Text('Solo llamamos en emergencias reales. ¡Muy bien por saber a quién acudir!'),
+        actions: [
+          Center(
+            child: ElevatedButton(
+              onPressed: () {
+                Navigator.pop(context);
+                _completeStep(33);
+              },
+              child: const Text('¡ENTENDIDO!'),
+            ),
+          )
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPhotoShareStep(Map<String, dynamic> step) {
+    final List<Map<String, dynamic>> photos = [
+      {'label': 'Mi Perrito', 'icon': Icons.pets_rounded, 'safe': true},
+      {'label': 'Mi Avión', 'icon': Icons.toys_rounded, 'safe': true},
+      {'label': 'Mi Dirección', 'icon': Icons.house_rounded, 'safe': false},
+    ];
+
+    return Padding(
+      padding: const EdgeInsets.all(24),
+      child: Column(
+        children: [
+          Text(
+            step['instruction'] as String,
+            style: IslaThemes.subtitleStyle,
+          ).animate().fadeIn(),
+          const SizedBox(height: 32),
+          Expanded(
+            child: GridView.builder(
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2,
+                crossAxisSpacing: 16,
+                mainAxisSpacing: 16,
+              ),
+              itemCount: photos.length,
+              itemBuilder: (context, index) {
+                final photo = photos[index];
+                return _buildContactCard(
+                  photo['label']! as String,
+                  photo['icon']! as IconData,
+                  photo['safe']! as bool,
+                  (photo['safe']! as bool) ? IslaColors.jungleGreen : IslaColors.charcoal,
+                ).animate().fadeIn(delay: (index * 100).ms);
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+```
+```diff:level3_screen.dart
+import 'package:confetti/confetti.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:isla_digital/core/theme/app_theme.dart';
+import 'package:isla_digital/domain/models/badge.dart';
+import 'package:isla_digital/presentation/providers/app_providers.dart';
+import 'package:isla_digital/presentation/widgets/glass_container.dart';
+import 'package:isla_digital/presentation/widgets/island_background.dart';
+import 'package:isla_digital/presentation/widgets/progress_widgets.dart';
+import 'package:isla_digital/presentation/widgets/safe_lottie.dart';
+
+class Level3Screen extends ConsumerStatefulWidget {
+  const Level3Screen({super.key});
+
+  @override
+  ConsumerState<Level3Screen> createState() => _Level3ScreenState();
+}
+
+class _Level3ScreenState extends ConsumerState<Level3Screen> {
+  int currentStep = 0;
+  int score = 0;
+  late ConfettiController _confettiController;
+  final PageController _pageController = PageController();
+
+  final List<Map<String, dynamic>> rounds = [
+    {
+      'scenario': '¡Quiero ver gatitos graciosos!',
+      'websites': [
+        {'name': 'GatitosBuenos.com', 'icon': Icons.pets_rounded, 'safe': true},
+        {'name': 'PremiosGratis.xyz', 'icon': Icons.warning_rounded, 'safe': false},
+        {'name': 'VideosDeAnimales.edu', 'icon': Icons.video_library_rounded, 'safe': true},
+      ],
+    },
+    {
+      'scenario': 'Busco dibujos para colorear',
+      'websites': [
+        {'name': 'DibujosLindos.app', 'icon': Icons.brush_rounded, 'safe': true},
+        {'name': 'DescargaVirus.net', 'icon': Icons.download_rounded, 'safe': false},
+        {'name': 'MundoColor.org', 'icon': Icons.palette_rounded, 'safe': true},
+      ],
+    },
+    {
+      'scenario': 'Quiero jugar un ratito',
+      'websites': [
+        {'name': 'IslaDeJuegos.gob', 'icon': Icons.sports_esports_rounded, 'safe': true},
+        {'name': 'GanaDineroPronto', 'icon': Icons.monetization_on_rounded, 'safe': false},
+        {'name': 'DiversionSegura.com', 'icon': Icons.celebration_rounded, 'safe': true},
+      ],
+    },
+  ];
+
+  @override
+  void initState() {
+    super.initState();
+    _confettiController = ConfettiController(duration: const Duration(seconds: 3));
+  }
+
+  @override
+  void dispose() {
+    _confettiController.dispose();
+    _pageController.dispose();
+    super.dispose();
+  }
+
+  void _selectSite(bool isSafe, String name) {
+    if (isSafe) {
+      setState(() {
+        score += 50;
+        if (currentStep < rounds.length - 1) {
+          currentStep++;
+          _pageController.nextPage(
+            duration: const Duration(milliseconds: 600),
+            curve: Curves.easeOutBack,
+          );
+        } else {
+          _completeLevel();
+        }
+      });
+      (ref.read(currentProfileProvider.notifier) as ProfileNotifier).addProgress('level_3', 50);
+    } else {
+      _showDangerDialog(name);
+    }
+  }
+
+  void _showDangerDialog(String name) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+        title: const Text('¡DETENTE, DETECTIVE!'),
+        content: Text('$name parece una trampa. Los sitios con nombres extraños o premios falsos pueden ser peligrosos.'),
+        actions: [
+          Center(
+            child: ElevatedButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('¡ENTENDIDO!'),
+            ),
+          )
+        ],
+      ),
+    );
+  }
+
+  void _completeLevel() {
+    _confettiController.play();
+    final badge = IslaBadges.getById('detective_seguro');
+    if (badge != null) {
+      final notifier = ref.read(currentProfileProvider.notifier) as ProfileNotifier;
+      notifier.addBadge(badge.id);
+      notifier.unlockLevel(4);
+    }
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => AlertDialog(
+        backgroundColor: Colors.white.withValues(alpha: 0.95),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(32)),
+        title: const Text('¡SÚPER DETECTIVE!', textAlign: TextAlign.center),
+        content: const Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            SafeLottie(
+              path: 'assets/animations/success/detective.json',
+              backupIcon: Icons.search_rounded,
+            ),
+            SizedBox(height: 16),
+            Text('¡Identificaste todos los peligros!'),
+          ],
+        ),
+        actions: [
+          Center(
+            child: ElevatedButton(
+              onPressed: () {
+                Navigator.pop(context);
+                Navigator.pop(context);
+              },
+              child: const Text('VOLVER AL MAPA'),
+            ),
+          )
+        ],
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Stack(
+        alignment: Alignment.center,
+        children: [
+          IslandBackground(
+            child: SafeArea(
+              child: Column(
+                children: [
+                  _buildHeader(),
+                  const SizedBox(height: 8),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 40),
+                    child: StepIndicator(
+                      currentStep: currentStep,
+                      totalSteps: rounds.length,
+                      activeColor: IslaColors.royalPurple,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Expanded(
+                    child: PageView.builder(
+                      controller: _pageController,
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemCount: rounds.length,
+                      itemBuilder: (context, index) => _buildGameContent(rounds[index]),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          ConfettiWidget(
+            confettiController: _confettiController,
+            blastDirectionality: BlastDirectionality.explosive,
+            colors: const [IslaColors.oceanBlue, IslaColors.sunflower, IslaColors.jungleGreen, IslaColors.sunsetPink],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildHeader() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+      child: Row(
+        children: [
+          IconButton(
+            icon: const Icon(Icons.close_rounded, color: IslaColors.oceanDark, size: 32),
+            onPressed: () => Navigator.pop(context),
+          ),
+          const Spacer(),
+          Text(
+            'DETECTIVE',
+            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+              color: IslaColors.oceanDark,
+              fontWeight: FontWeight.w900,
+            ),
+          ),
+          const Spacer(),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+            decoration: BoxDecoration(
+              color: IslaColors.sunflower,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Text(
+              '$score',
+              style: const TextStyle(fontWeight: FontWeight.w900, color: IslaColors.oceanDark),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildGameContent(Map<String, dynamic> round) {
+    final websites = round['websites'] as List<dynamic>;
+
+    return Padding(
+      padding: const EdgeInsets.all(24),
+      child: Column(
+        children: [
+          GlassContainer(
+            child: Column(
+              children: [
+                const Icon(Icons.search_rounded, size: 48, color: IslaColors.royalPurple),
+                const SizedBox(height: 12),
+                Text(
+                  round['scenario'] as String,
+                  style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800),
+                  textAlign: TextAlign.center,
+                ),
+              ],
+            ),
+          ).animate().fadeIn().scale(),
+          const SizedBox(height: 32),
+          Text(
+            '¿CUÁL SITIO ES SEGURO?',
+            style: Theme.of(context).textTheme.labelLarge?.copyWith(
+              letterSpacing: 2,
+              fontWeight: FontWeight.w900,
+              color: IslaColors.charcoal.withValues(alpha: 0.6),
+            ),
+          ),
+          const SizedBox(height: 24),
+          Expanded(
+            child: ListView.separated(
+              itemCount: websites.length,
+              separatorBuilder: (_, __) => const SizedBox(height: 16),
+              itemBuilder: (context, index) {
+                final site = websites[index] as Map<String, dynamic>;
+                return _buildWebsiteCard(
+                  site['name']! as String,
+                  site['icon']! as IconData,
+                  site['safe']! as bool,
+                ).animate().slideX(begin: 0.2, delay: (index * 100).ms, curve: Curves.easeOutBack);
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildWebsiteCard(String name, IconData icon, bool safe) {
+    return GestureDetector(
+      onTap: () => _selectSite(safe, name),
+      child: GlassContainer(
+        padding: const EdgeInsets.all(16),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: safe ? IslaColors.jungleGreen.withValues(alpha: 0.1) : IslaColors.coralReef.withValues(alpha: 0.1),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(icon, color: safe ? IslaColors.jungleGreen : IslaColors.coralReef),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Text(
+                name,
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
+              ),
+            ),
+            Icon(
+              safe ? Icons.verified_user_rounded : Icons.warning_amber_rounded,
+              color: safe ? IslaColors.jungleGreen : IslaColors.coralReef,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+===
+import 'package:confetti/confetti.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:isla_digital/core/theme/app_theme.dart';
+import 'package:isla_digital/domain/models/badge.dart';
+import 'package:isla_digital/presentation/providers/app_providers.dart';
+import 'package:isla_digital/presentation/widgets/glass_container.dart';
+import 'package:isla_digital/presentation/widgets/island_background.dart';
+import 'package:isla_digital/presentation/widgets/progress_widgets.dart';
+import 'package:isla_digital/presentation/widgets/safe_lottie.dart';
+
+class Level3Screen extends ConsumerStatefulWidget {
+  const Level3Screen({super.key});
+
+  @override
+  ConsumerState<Level3Screen> createState() => _Level3ScreenState();
+}
+
+class _Level3ScreenState extends ConsumerState<Level3Screen> {
+  int currentStep = 0;
+  int score = 0;
+  late ConfettiController _confettiController;
+  final PageController _pageController = PageController();
+
+  final List<Map<String, dynamic>> rounds = [
+    {
+      'scenario': '¡Quiero ver gatitos graciosos!',
+      'websites': [
+        {'name': 'GatitosBuenos.com', 'icon': Icons.pets_rounded, 'safe': true},
+        {'name': 'PremiosGratis.xyz', 'icon': Icons.warning_rounded, 'safe': false},
+        {'name': 'VideosDeAnimales.edu', 'icon': Icons.video_library_rounded, 'safe': true},
+      ],
+    },
+    {
+      'scenario': 'Busco dibujos para colorear',
+      'websites': [
+        {'name': 'DibujosLindos.app', 'icon': Icons.brush_rounded, 'safe': true},
+        {'name': 'DescargaVirus.net', 'icon': Icons.download_rounded, 'safe': false},
+        {'name': 'MundoColor.org', 'icon': Icons.palette_rounded, 'safe': true},
+      ],
+    },
+    {
+      'scenario': 'Quiero jugar un ratito',
+      'websites': [
+        {'name': 'IslaDeJuegos.gob', 'icon': Icons.sports_esports_rounded, 'safe': true},
+        {'name': 'GanaDineroPronto', 'icon': Icons.monetization_on_rounded, 'safe': false},
+        {'name': 'DiversionSegura.com', 'icon': Icons.celebration_rounded, 'safe': true},
+      ],
+    },
+  ];
+
+  @override
+  void initState() {
+    super.initState();
+    _confettiController = ConfettiController(duration: const Duration(seconds: 3));
+  }
+
+  @override
+  void dispose() {
+    _confettiController.dispose();
+    _pageController.dispose();
+    super.dispose();
+  }
+
+  void _selectSite(bool isSafe, String name) {
+    if (isSafe) {
+      setState(() {
+        score += 50;
+        if (currentStep < rounds.length - 1) {
+          currentStep++;
+          _pageController.nextPage(
+            duration: const Duration(milliseconds: 600),
+            curve: Curves.easeOutBack,
+          );
+        } else {
+          _completeLevel();
+        }
+      });
+      ref.read(currentProfileProvider.notifier).addProgress('level_3', 50);
+    } else {
+      _showDangerDialog(name);
+    }
+  }
+
+  void _showDangerDialog(String name) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+        title: const Text('¡DETENTE, DETECTIVE!'),
+        content: Text('$name parece una trampa. Los sitios con nombres extraños o premios falsos pueden ser peligrosos.'),
+        actions: [
+          Center(
+            child: ElevatedButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('¡ENTENDIDO!'),
+            ),
+          )
+        ],
+      ),
+    );
+  }
+
+  void _completeLevel() {
+    _confettiController.play();
+    final badge = IslaBadges.getById('detective_seguro');
+    if (badge != null) {
+      final notifier = ref.read(currentProfileProvider.notifier);
+      notifier.addBadge(badge.id);
+      notifier.unlockLevel(4);
+    }
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => AlertDialog(
+        backgroundColor: Colors.white.withValues(alpha: 0.95),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(32)),
+        title: const Text('¡SÚPER DETECTIVE!', textAlign: TextAlign.center),
+        content: const Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            SafeLottie(
+              path: 'assets/animations/success/detective.json',
+              backupIcon: Icons.search_rounded,
+            ),
+            SizedBox(height: 16),
+            Text('¡Identificaste todos los peligros!'),
+          ],
+        ),
+        actions: [
+          Center(
+            child: ElevatedButton(
+              onPressed: () {
+                Navigator.pop(context);
+                Navigator.pop(context);
+              },
+              child: const Text('VOLVER AL MAPA'),
+            ),
+          )
+        ],
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Stack(
+        alignment: Alignment.center,
+        children: [
+          IslandBackground(
+            child: SafeArea(
+              child: Column(
+                children: [
+                  _buildHeader(),
+                  const SizedBox(height: 8),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 40),
+                    child: StepIndicator(
+                      currentStep: currentStep,
+                      totalSteps: rounds.length,
+                      activeColor: IslaColors.royalPurple,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Expanded(
+                    child: PageView.builder(
+                      controller: _pageController,
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemCount: rounds.length,
+                      itemBuilder: (context, index) => _buildGameContent(rounds[index]),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          ConfettiWidget(
+            confettiController: _confettiController,
+            blastDirectionality: BlastDirectionality.explosive,
+            colors: const [IslaColors.oceanBlue, IslaColors.sunflower, IslaColors.jungleGreen, IslaColors.sunsetPink],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildHeader() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+      child: Row(
+        children: [
+          IconButton(
+            icon: const Icon(Icons.close_rounded, color: IslaColors.oceanDark, size: 32),
+            onPressed: () => Navigator.pop(context),
+          ),
+          const Spacer(),
+          Text(
+            'DETECTIVE',
+            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+              color: IslaColors.oceanDark,
+              fontWeight: FontWeight.w900,
+            ),
+          ),
+          const Spacer(),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+            decoration: BoxDecoration(
+              color: IslaColors.sunflower,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Text(
+              '$score',
+              style: const TextStyle(fontWeight: FontWeight.w900, color: IslaColors.oceanDark),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildGameContent(Map<String, dynamic> round) {
+    final websites = round['websites'] as List<dynamic>;
+
+    return Padding(
+      padding: const EdgeInsets.all(24),
+      child: Column(
+        children: [
+          GlassContainer(
+            child: Column(
+              children: [
+                const Icon(Icons.search_rounded, size: 48, color: IslaColors.royalPurple),
+                const SizedBox(height: 12),
+                Text(
+                  round['scenario'] as String,
+                  style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800),
+                  textAlign: TextAlign.center,
+                ),
+              ],
+            ),
+          ).animate().fadeIn().scale(),
+          const SizedBox(height: 32),
+          Text(
+            '¿CUÁL SITIO ES SEGURO?',
+            style: Theme.of(context).textTheme.labelLarge?.copyWith(
+              letterSpacing: 2,
+              fontWeight: FontWeight.w900,
+              color: IslaColors.charcoal.withValues(alpha: 0.6),
+            ),
+          ),
+          const SizedBox(height: 24),
+          Expanded(
+            child: ListView.separated(
+              itemCount: websites.length,
+              separatorBuilder: (_, __) => const SizedBox(height: 16),
+              itemBuilder: (context, index) {
+                final site = websites[index] as Map<String, dynamic>;
+                return _buildWebsiteCard(
+                  site['name']! as String,
+                  site['icon']! as IconData,
+                  site['safe']! as bool,
+                ).animate().slideX(begin: 0.2, delay: (index * 100).ms, curve: Curves.easeOutBack);
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildWebsiteCard(String name, IconData icon, bool safe) {
+    return GestureDetector(
+      onTap: () => _selectSite(safe, name),
+      child: GlassContainer(
+        padding: const EdgeInsets.all(16),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: safe ? IslaColors.jungleGreen.withValues(alpha: 0.1) : IslaColors.coralReef.withValues(alpha: 0.1),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(icon, color: safe ? IslaColors.jungleGreen : IslaColors.coralReef),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Text(
+                name,
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
+              ),
+            ),
+            Icon(
+              safe ? Icons.verified_user_rounded : Icons.warning_amber_rounded,
+              color: safe ? IslaColors.jungleGreen : IslaColors.coralReef,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+```
+```diff:level4_screen.dart
+import 'package:confetti/confetti.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:isla_digital/core/theme/app_theme.dart';
+import 'package:isla_digital/domain/models/badge.dart';
+import 'package:isla_digital/presentation/providers/app_providers.dart';
+import 'package:isla_digital/presentation/widgets/glass_container.dart';
+import 'package:isla_digital/presentation/widgets/island_background.dart';
+import 'package:isla_digital/presentation/widgets/progress_widgets.dart';
+import 'package:isla_digital/presentation/widgets/safe_lottie.dart';
+
+class Level4Screen extends ConsumerStatefulWidget {
+  const Level4Screen({super.key});
+
+  @override
+  ConsumerState<Level4Screen> createState() => _Level4ScreenState();
+}
+
+class _Level4ScreenState extends ConsumerState<Level4Screen> {
+  int currentTab = 0;
+  int totalProgress = 0;
+  late ConfettiController _confettiController;
+
+  final List<String> tabs = ['Cuenta', 'Aprende', 'Cámara'];
+
+  @override
+  void initState() {
+    super.initState();
+    _confettiController = ConfettiController(duration: const Duration(seconds: 3));
+  }
+
+  @override
+  void dispose() {
+    _confettiController.dispose();
+    super.dispose();
+  }
+
+  void _addProgress(int points) {
+    setState(() {
+      totalProgress += points;
+      if (totalProgress >= 100) {
+        _completeLevel();
+      }
+    });
+    (ref.read(currentProfileProvider.notifier) as ProfileNotifier).addProgress('level_4', points);
+  }
+
+  void _completeLevel() {
+    _confettiController.play();
+    final badge = IslaBadges.getById('calculador_frutas');
+    if (badge != null) {
+      final notifier = ref.read(currentProfileProvider.notifier) as ProfileNotifier;
+      notifier.addBadge(badge.id);
+      notifier.unlockLevel(5);
+    }
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => AlertDialog(
+        backgroundColor: Colors.white.withValues(alpha: 0.95),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(32)),
+        title: const Text('¡EL REY DEL MANGO!', textAlign: TextAlign.center),
+        content: const Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            SafeLottie(
+              path: 'assets/animations/success/king.json',
+              backupIcon: Icons.workspace_premium_rounded,
+            ),
+            SizedBox(height: 16),
+            Text('¡Completaste todas las Súper Tareas!'),
+          ],
+        ),
+        actions: [
+          Center(
+            child: ElevatedButton(
+              onPressed: () {
+                Navigator.pop(context);
+                Navigator.pop(context);
+              },
+              child: const Text('VOLVER AL MAPA'),
+            ),
+          )
+        ],
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Stack(
+        alignment: Alignment.center,
+        children: [
+          IslandBackground(
+            child: SafeArea(
+              child: Column(
+                children: [
+                  _buildHeader(),
+                  const SizedBox(height: 8),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 40),
+                    child: IslandProgressBar(
+                      progress: totalProgress.clamp(0, 100),
+                      label: 'Progreso de Nivel',
+                      fillColor: IslaColors.coralReef,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  _buildTabBar(),
+                  const SizedBox(height: 16),
+                  Expanded(
+                    child: IndexedStack(
+                      index: currentTab,
+                      children: [
+                        CalculatorWidget(onProgress: _addProgress),
+                        CalendarWidget(onProgress: _addProgress),
+                        CameraMissionWidget(onProgress: _addProgress),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          ConfettiWidget(
+            confettiController: _confettiController,
+            blastDirectionality: BlastDirectionality.explosive,
+            colors: const [IslaColors.oceanBlue, IslaColors.sunflower, IslaColors.jungleGreen, IslaColors.sunsetPink],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildHeader() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+      child: Row(
+        children: [
+          IconButton(
+            icon: const Icon(Icons.close_rounded, color: IslaColors.oceanDark, size: 32),
+            onPressed: () => Navigator.pop(context),
+          ),
+          const Spacer(),
+          Text(
+            'SÚPER TAREAS',
+            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+              color: IslaColors.oceanDark,
+              fontWeight: FontWeight.w900,
+            ),
+          ),
+          const Spacer(),
+          const SizedBox(width: 48),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTabBar() {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 24),
+      padding: const EdgeInsets.all(6),
+      decoration: BoxDecoration(
+        color: IslaColors.oceanBlue.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(24),
+      ),
+      child: Row(
+        children: List.generate(tabs.length, (index) {
+          final isSelected = currentTab == index;
+          return Expanded(
+            child: GestureDetector(
+              onTap: () => setState(() => currentTab = index),
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 300),
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                decoration: BoxDecoration(
+                  color: isSelected ? IslaColors.oceanBlue : Colors.transparent,
+                  borderRadius: BorderRadius.circular(18),
+                  boxShadow: isSelected ? [
+                    BoxShadow(color: IslaColors.oceanBlue.withValues(alpha: 0.3), blurRadius: 8, offset: const Offset(0, 4))
+                  ] : null,
+                ),
+                child: Text(
+                  tabs[index],
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: isSelected ? Colors.white : IslaColors.charcoal.withValues(alpha: 0.5),
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
+              ),
+            ),
+          );
+        }),
+      ),
+    );
+  }
+}
+
+class CalculatorWidget extends StatefulWidget {
+  const CalculatorWidget({super.key, required this.onProgress});
+  final Function(int) onProgress;
+
+  @override
+  State<CalculatorWidget> createState() => _CalculatorWidgetState();
+}
+
+class _CalculatorWidgetState extends State<CalculatorWidget> {
+  int num1 = 2;
+  int num2 = 3;
+  int correctCount = 0;
+
+  int get index => (num1 + num2) % 5;
+
+  void _checkAnswer(int selected) {
+    if (selected == num1 + num2) {
+      widget.onProgress(20);
+      setState(() {
+        correctCount++;
+        num1 = (num1 * 3 + 1) % 5 + 1;
+        num2 = (num2 * 2 + 1) % 4 + 1;
+      });
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('¡Casi! Intenta contar de nuevo')),
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(24),
+      child: Column(
+        children: [
+          GlassContainer(
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                _buildNumberVisual(num1, Icons.auto_awesome_rounded, IslaColors.sunflower),
+                const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 20),
+                  child: Text('+', style: TextStyle(fontSize: 40, fontWeight: FontWeight.w900)),
+                ),
+                _buildNumberVisual(num2, Icons.auto_awesome_rounded, IslaColors.oceanBlue),
+              ],
+            ),
+          ).animate().fadeIn().scale(),
+          const SizedBox(height: 40),
+          const Text('¿CUÁNTOS HAY EN TOTAL?', style: TextStyle(fontWeight: FontWeight.w900, letterSpacing: 1.5)),
+          const SizedBox(height: 24),
+          Wrap(
+            spacing: 16,
+            runSpacing: 16,
+            alignment: WrapAlignment.center,
+            children: List.generate(8, (i) {
+              final val = i + 2;
+              return GestureDetector(
+                onTap: () => _checkAnswer(val),
+                child: SizedBox(
+                  width: 70,
+                  height: 70,
+                  child: GlassContainer(
+                    padding: EdgeInsets.zero,
+                    child: Center(
+                      child: Text('$val', style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w900)),
+                    ),
+                  ),
+                ),
+              );
+            }),
+          ).animate().fadeIn().scale(),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildNumberVisual(int count, IconData icon, Color color) {
+    return Column(
+      children: [
+        Wrap(
+          spacing: 4,
+          children: List.generate(count, (_) => Icon(icon, color: color, size: 24)),
+        ),
+        const SizedBox(height: 8),
+        Text('$count', style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w900)),
+      ],
+    );
+  }
+}
+
+class CalendarWidget extends StatelessWidget {
+  const CalendarWidget({super.key, required this.onProgress});
+  final Function(int) onProgress;
+
+  final List<Map<String, dynamic>> events = const [
+    {'day': '15', 'month': 'FEB', 'title': 'Fiesta del Mar', 'icon': Icons.waves_rounded},
+    {'day': '25', 'month': 'MAR', 'title': 'Día del Pescador', 'icon': Icons.set_meal_rounded},
+    {'day': '08', 'month': 'MAY', 'title': 'Festival del Sol', 'icon': Icons.wb_sunny_rounded},
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView.builder(
+      padding: const EdgeInsets.all(24),
+      itemCount: events.length,
+      itemBuilder: (context, index) {
+        final e = events[index];
+        return GestureDetector(
+          onTap: () {
+            onProgress(10);
+            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('¡Evento aprendido!')));
+          },
+          child: Padding(
+            padding: const EdgeInsets.only(bottom: 16),
+            child: GlassContainer(
+              padding: const EdgeInsets.all(16),
+              child: Row(
+                children: [
+                  Container(
+                    width: 60,
+                    height: 60,
+                    decoration: BoxDecoration(color: IslaColors.coralReef.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(12)),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(e['day']! as String, style: const TextStyle(fontWeight: FontWeight.w900, color: IslaColors.coralReef)),
+                        Text(e['month']! as String, style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w700)),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(child: Text(e['title']! as String, style: const TextStyle(fontWeight: FontWeight.w800))),
+                  Icon(e['icon']! as IconData, color: IslaColors.coralReef),
+                ],
+              ),
+            ),
+          ),
+        ).animate().slideX(begin: 0.2, delay: (index * 100).ms);
+      },
+    );
+  }
+}
+
+class CameraMissionWidget extends StatefulWidget {
+  const CameraMissionWidget({super.key, required this.onProgress});
+  final Function(int) onProgress;
+
+  @override
+  State<CameraMissionWidget> createState() => _CameraMissionWidgetState();
+}
+
+class _CameraMissionWidgetState extends State<CameraMissionWidget> {
+  final List<Map<String, dynamic>> missions = [
+    {'target': 'Algo Azul', 'icon': Icons.color_lens_rounded, 'done': false},
+    {'target': 'Una Flor', 'icon': Icons.local_florist_rounded, 'done': false},
+    {'target': 'Un Juguete', 'icon': Icons.toys_rounded, 'done': false},
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return GridView.builder(
+      padding: const EdgeInsets.all(24),
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2, crossAxisSpacing: 16, mainAxisSpacing: 16),
+      itemCount: missions.length,
+      itemBuilder: (context, index) {
+        final m = missions[index];
+        return GestureDetector(
+          onTap: () {
+            setState(() => m['done'] = true);
+            widget.onProgress(20);
+          },
+          child: GlassContainer(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon((m['done'] as bool) ? Icons.check_circle_rounded : (m['icon'] as IconData), size: 48, color: (m['done'] as bool) ? IslaColors.jungleGreen : IslaColors.coralReef),
+                const SizedBox(height: 12),
+                Text(m['target'] as String, style: const TextStyle(fontWeight: FontWeight.w800)),
+              ],
+            ),
+          ),
+        ).animate().fadeIn(delay: (index * 100).ms);
+      },
+    );
+  }
+}
+===
+import 'package:confetti/confetti.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:isla_digital/core/theme/app_theme.dart';
+import 'package:isla_digital/domain/models/badge.dart';
+import 'package:isla_digital/presentation/providers/app_providers.dart';
+import 'package:isla_digital/presentation/widgets/glass_container.dart';
+import 'package:isla_digital/presentation/widgets/island_background.dart';
+import 'package:isla_digital/presentation/widgets/progress_widgets.dart';
+import 'package:isla_digital/presentation/widgets/safe_lottie.dart';
+
+class Level4Screen extends ConsumerStatefulWidget {
+  const Level4Screen({super.key});
+
+  @override
+  ConsumerState<Level4Screen> createState() => _Level4ScreenState();
+}
+
+class _Level4ScreenState extends ConsumerState<Level4Screen> {
+  int currentTab = 0;
+  int totalProgress = 0;
+  late ConfettiController _confettiController;
+
+  final List<String> tabs = ['Cuenta', 'Aprende', 'Cámara'];
+
+  @override
+  void initState() {
+    super.initState();
+    _confettiController = ConfettiController(duration: const Duration(seconds: 3));
+  }
+
+  @override
+  void dispose() {
+    _confettiController.dispose();
+    super.dispose();
+  }
+
+  void _addProgress(int points) {
+    setState(() {
+      totalProgress += points;
+      if (totalProgress >= 100) {
+        _completeLevel();
+      }
+    });
+    ref.read(currentProfileProvider.notifier).addProgress('level_4', points);
+  }
+
+  void _completeLevel() {
+    _confettiController.play();
+    final badge = IslaBadges.getById('calculador_frutas');
+    if (badge != null) {
+      final notifier = ref.read(currentProfileProvider.notifier);
+      notifier.addBadge(badge.id);
+      notifier.unlockLevel(5);
+    }
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => AlertDialog(
+        backgroundColor: Colors.white.withValues(alpha: 0.95),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(32)),
+        title: const Text('¡EL REY DEL MANGO!', textAlign: TextAlign.center),
+        content: const Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            SafeLottie(
+              path: 'assets/animations/success/king.json',
+              backupIcon: Icons.workspace_premium_rounded,
+            ),
+            SizedBox(height: 16),
+            Text('¡Completaste todas las Súper Tareas!'),
+          ],
+        ),
+        actions: [
+          Center(
+            child: ElevatedButton(
+              onPressed: () {
+                Navigator.pop(context);
+                Navigator.pop(context);
+              },
+              child: const Text('VOLVER AL MAPA'),
+            ),
+          )
+        ],
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Stack(
+        alignment: Alignment.center,
+        children: [
+          IslandBackground(
+            child: SafeArea(
+              child: Column(
+                children: [
+                  _buildHeader(),
+                  const SizedBox(height: 8),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 40),
+                    child: IslandProgressBar(
+                      progress: totalProgress.clamp(0, 100),
+                      label: 'Progreso de Nivel',
+                      fillColor: IslaColors.coralReef,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  _buildTabBar(),
+                  const SizedBox(height: 16),
+                  Expanded(
+                    child: IndexedStack(
+                      index: currentTab,
+                      children: [
+                        CalculatorWidget(onProgress: _addProgress),
+                        CalendarWidget(onProgress: _addProgress),
+                        CameraMissionWidget(onProgress: _addProgress),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          ConfettiWidget(
+            confettiController: _confettiController,
+            blastDirectionality: BlastDirectionality.explosive,
+            colors: const [IslaColors.oceanBlue, IslaColors.sunflower, IslaColors.jungleGreen, IslaColors.sunsetPink],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildHeader() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+      child: Row(
+        children: [
+          IconButton(
+            icon: const Icon(Icons.close_rounded, color: IslaColors.oceanDark, size: 32),
+            onPressed: () => Navigator.pop(context),
+          ),
+          const Spacer(),
+          Text(
+            'SÚPER TAREAS',
+            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+              color: IslaColors.oceanDark,
+              fontWeight: FontWeight.w900,
+            ),
+          ),
+          const Spacer(),
+          const SizedBox(width: 48),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTabBar() {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 24),
+      padding: const EdgeInsets.all(6),
+      decoration: BoxDecoration(
+        color: IslaColors.oceanBlue.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(24),
+      ),
+      child: Row(
+        children: List.generate(tabs.length, (index) {
+          final isSelected = currentTab == index;
+          return Expanded(
+            child: GestureDetector(
+              onTap: () => setState(() => currentTab = index),
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 300),
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                decoration: BoxDecoration(
+                  color: isSelected ? IslaColors.oceanBlue : Colors.transparent,
+                  borderRadius: BorderRadius.circular(18),
+                  boxShadow: isSelected ? [
+                    BoxShadow(color: IslaColors.oceanBlue.withValues(alpha: 0.3), blurRadius: 8, offset: const Offset(0, 4))
+                  ] : null,
+                ),
+                child: Text(
+                  tabs[index],
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: isSelected ? Colors.white : IslaColors.charcoal.withValues(alpha: 0.5),
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
+              ),
+            ),
+          );
+        }),
+      ),
+    );
+  }
+}
+
+class CalculatorWidget extends StatefulWidget {
+  const CalculatorWidget({super.key, required this.onProgress});
+  final Function(int) onProgress;
+
+  @override
+  State<CalculatorWidget> createState() => _CalculatorWidgetState();
+}
+
+class _CalculatorWidgetState extends State<CalculatorWidget> {
+  int num1 = 2;
+  int num2 = 3;
+  int correctCount = 0;
+
+  int get index => (num1 + num2) % 5;
+
+  void _checkAnswer(int selected) {
+    if (selected == num1 + num2) {
+      widget.onProgress(20);
+      setState(() {
+        correctCount++;
+        num1 = (num1 * 3 + 1) % 5 + 1;
+        num2 = (num2 * 2 + 1) % 4 + 1;
+      });
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('¡Casi! Intenta contar de nuevo')),
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(24),
+      child: Column(
+        children: [
+          GlassContainer(
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                _buildNumberVisual(num1, Icons.auto_awesome_rounded, IslaColors.sunflower),
+                const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 20),
+                  child: Text('+', style: TextStyle(fontSize: 40, fontWeight: FontWeight.w900)),
+                ),
+                _buildNumberVisual(num2, Icons.auto_awesome_rounded, IslaColors.oceanBlue),
+              ],
+            ),
+          ).animate().fadeIn().scale(),
+          const SizedBox(height: 40),
+          const Text('¿CUÁNTOS HAY EN TOTAL?', style: TextStyle(fontWeight: FontWeight.w900, letterSpacing: 1.5)),
+          const SizedBox(height: 24),
+          Wrap(
+            spacing: 16,
+            runSpacing: 16,
+            alignment: WrapAlignment.center,
+            children: List.generate(8, (i) {
+              final val = i + 2;
+              return GestureDetector(
+                onTap: () => _checkAnswer(val),
+                child: SizedBox(
+                  width: 70,
+                  height: 70,
+                  child: GlassContainer(
+                    padding: EdgeInsets.zero,
+                    child: Center(
+                      child: Text('$val', style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w900)),
+                    ),
+                  ),
+                ),
+              );
+            }),
+          ).animate().fadeIn().scale(),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildNumberVisual(int count, IconData icon, Color color) {
+    return Column(
+      children: [
+        Wrap(
+          spacing: 4,
+          children: List.generate(count, (_) => Icon(icon, color: color, size: 24)),
+        ),
+        const SizedBox(height: 8),
+        Text('$count', style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w900)),
+      ],
+    );
+  }
+}
+
+class CalendarWidget extends StatelessWidget {
+  const CalendarWidget({super.key, required this.onProgress});
+  final Function(int) onProgress;
+
+  final List<Map<String, dynamic>> events = const [
+    {'day': '15', 'month': 'FEB', 'title': 'Fiesta del Mar', 'icon': Icons.waves_rounded},
+    {'day': '25', 'month': 'MAR', 'title': 'Día del Pescador', 'icon': Icons.set_meal_rounded},
+    {'day': '08', 'month': 'MAY', 'title': 'Festival del Sol', 'icon': Icons.wb_sunny_rounded},
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView.builder(
+      padding: const EdgeInsets.all(24),
+      itemCount: events.length,
+      itemBuilder: (context, index) {
+        final e = events[index];
+        return GestureDetector(
+          onTap: () {
+            onProgress(10);
+            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('¡Evento aprendido!')));
+          },
+          child: Padding(
+            padding: const EdgeInsets.only(bottom: 16),
+            child: GlassContainer(
+              padding: const EdgeInsets.all(16),
+              child: Row(
+                children: [
+                  Container(
+                    width: 60,
+                    height: 60,
+                    decoration: BoxDecoration(color: IslaColors.coralReef.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(12)),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(e['day']! as String, style: const TextStyle(fontWeight: FontWeight.w900, color: IslaColors.coralReef)),
+                        Text(e['month']! as String, style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w700)),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(child: Text(e['title']! as String, style: const TextStyle(fontWeight: FontWeight.w800))),
+                  Icon(e['icon']! as IconData, color: IslaColors.coralReef),
+                ],
+              ),
+            ),
+          ),
+        ).animate().slideX(begin: 0.2, delay: (index * 100).ms);
+      },
+    );
+  }
+}
+
+class CameraMissionWidget extends StatefulWidget {
+  const CameraMissionWidget({super.key, required this.onProgress});
+  final Function(int) onProgress;
+
+  @override
+  State<CameraMissionWidget> createState() => _CameraMissionWidgetState();
+}
+
+class _CameraMissionWidgetState extends State<CameraMissionWidget> {
+  final List<Map<String, dynamic>> missions = [
+    {'target': 'Algo Azul', 'icon': Icons.color_lens_rounded, 'done': false},
+    {'target': 'Una Flor', 'icon': Icons.local_florist_rounded, 'done': false},
+    {'target': 'Un Juguete', 'icon': Icons.toys_rounded, 'done': false},
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return GridView.builder(
+      padding: const EdgeInsets.all(24),
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2, crossAxisSpacing: 16, mainAxisSpacing: 16),
+      itemCount: missions.length,
+      itemBuilder: (context, index) {
+        final m = missions[index];
+        return GestureDetector(
+          onTap: () {
+            setState(() => m['done'] = true);
+            widget.onProgress(20);
+          },
+          child: GlassContainer(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon((m['done'] as bool) ? Icons.check_circle_rounded : (m['icon'] as IconData), size: 48, color: (m['done'] as bool) ? IslaColors.jungleGreen : IslaColors.coralReef),
+                const SizedBox(height: 12),
+                Text(m['target'] as String, style: const TextStyle(fontWeight: FontWeight.w800)),
+              ],
+            ),
+          ),
+        ).animate().fadeIn(delay: (index * 100).ms);
+      },
+    );
+  }
+}
+```
+
+### 6. Badge IDs incorrectos (bugs silenciosos)
+
+| Archivo | ID Usado | ID Correcto | Badge Name |
+|---------|----------|-------------|------------|
+| [level1_screen.dart](file:///home/l/Desktop/v0.4.0/lib/presentation/views/levels/level1/level1_screen.dart) | `'explorer_level_1'` | `'primer_encuentro'` | Perla de Sabiduría |
+| [level5_screen.dart](file:///home/l/Desktop/v0.4.0/lib/presentation/views/levels/level5/level5_screen.dart) | `'artist_master'` | `'artista_isla'` | Pintor de Atardeceres |
+
+**Porqué era un error**: Estos IDs no existen en `IslaBadges.allBadges` ([badge.dart](file:///home/l/Desktop/v0.4.0/lib/domain/models/badge.dart)). El badge se guardaba en SharedPreferences pero nunca era reconocido por el sistema de visualización de badges ([BadgeCard](file:///home/l/Desktop/v0.4.0/lib/presentation/widgets/badge_card.dart#5-20) busca en `IslaBadges.getById()`). El usuario completaba el nivel pero la insignia jamás se mostraba correctamente.
+
+### 7. [level5_screen.dart](file:///home/l/Desktop/v0.4.0/lib/presentation/views/levels/level5/level5_screen.dart) — Import innecesario
+
+```diff
+-import 'package:isla_digital/domain/models/models.dart';
+```
+Generaba `warning: unused_import`. El archivo no usa ningún tipo de [models.dart](file:///home/l/Desktop/v0.4.0/lib/domain/models/models.dart) directamente.
+
+```diff:level5_screen.dart
+import 'package:confetti/confetti.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:isla_digital/core/theme/app_theme.dart';
+import 'package:isla_digital/domain/models/models.dart'; 
+import 'package:isla_digital/presentation/providers/app_providers.dart';
+import 'package:isla_digital/presentation/widgets/island_background.dart';
+import 'package:isla_digital/presentation/widgets/progress_widgets.dart';
+import 'package:isla_digital/presentation/widgets/safe_lottie.dart';
+
+import 'widgets/drawing_canvas.dart';
+import 'widgets/music_sequencer.dart';
+
+class Level5Screen extends ConsumerStatefulWidget {
+  const Level5Screen({super.key});
+
+  @override
+  ConsumerState<Level5Screen> createState() => _Level5ScreenState();
+}
+
+class _Level5ScreenState extends ConsumerState<Level5Screen> {
+  int currentTab = 0;
+  int totalProgress = 0;
+  bool isCompleted = false;
+  late ConfettiController _confettiController;
+
+  final List<String> tabs = ['Pintar', 'Música'];
+
+  @override
+  void initState() {
+    super.initState();
+    _confettiController = ConfettiController(duration: const Duration(seconds: 3));
+  }
+
+  @override
+  void dispose() {
+    _confettiController.dispose();
+    super.dispose();
+  }
+
+  void _handleProgress(int points) {
+    if (isCompleted) return;
+    
+    setState(() {
+      totalProgress += points;
+      if (totalProgress >= 100) {
+        totalProgress = 100;
+        isCompleted = true;
+        _completeLevel();
+      }
+    });
+    
+    ref.read(currentProfileProvider.notifier).addProgress('level_5', points);
+  }
+
+  void _completeLevel() {
+    _confettiController.play();
+    final notifier = ref.read(currentProfileProvider.notifier);
+    
+    notifier.addBadge('artist_master');
+    notifier.addBadge('musician_tropical');
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => AlertDialog(
+        backgroundColor: Colors.white.withValues(alpha: 0.95),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(32)),
+        title: const Text(
+          '¡GRAN ARTISTA!', 
+          textAlign: TextAlign.center, 
+          style: TextStyle(fontWeight: FontWeight.w900)
+        ),
+        content: const Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            SafeLottie(
+              path: 'assets/animations/success/artist.json',
+              backupIcon: Icons.palette_rounded,
+            ),
+            SizedBox(height: 16),
+            Text(
+              '¡Tus creaciones son maravillosas!',
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+        actions: [
+          Center(
+            child: ElevatedButton(
+              style: ElevatedButton.styleFrom(backgroundColor: IslaColors.jungleGreen),
+              onPressed: () {
+                Navigator.pop(context); 
+                Navigator.pop(context); 
+              },
+              child: const Text('VOLVER AL MAPA', style: TextStyle(color: Colors.white)),
+            ),
+          )
+        ],
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Stack(
+        alignment: Alignment.center,
+        children: [
+          IslandBackground(
+            child: SafeArea(
+              child: Column(
+                children: [
+                  _buildHeader(),
+                  const SizedBox(height: 8),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 40),
+                    child: IslandProgressBar(
+                      // CORRECCIÓN: Se asegura el tipo de dato correcto. 
+                      // Si el error decía que pasabas double a int, usa totalProgress directamente.
+                      progress: totalProgress, 
+                      label: 'Progreso Artístico',
+                      fillColor: IslaColors.sunsetPink,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  _buildTabBar(),
+                  const SizedBox(height: 16),
+                  Expanded(
+                    child: IndexedStack(
+                      index: currentTab,
+                      children: [
+                        DrawingCanvas(onProgress: () => _handleProgress(10)),
+                        MusicSequencer(onProgress: () => _handleProgress(10)),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          ConfettiWidget(
+            confettiController: _confettiController,
+            blastDirectionality: BlastDirectionality.explosive,
+            colors: const [
+              IslaColors.oceanBlue, 
+              IslaColors.sunflower, 
+              IslaColors.jungleGreen, 
+              IslaColors.sunsetPink
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildHeader() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+      child: Row(
+        children: [
+          IconButton(
+            icon: const Icon(Icons.close_rounded, color: IslaColors.oceanDark, size: 32),
+            onPressed: () => Navigator.pop(context),
+          ),
+          const Expanded(
+            child: Text(
+              'ISLA DEL ARTE',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: IslaColors.oceanDark,
+                fontWeight: FontWeight.w900,
+                fontSize: 22,
+              ),
+            ),
+          ),
+          const SizedBox(width: 48), 
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTabBar() {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 24),
+      padding: const EdgeInsets.all(6),
+      decoration: BoxDecoration(
+        color: IslaColors.oceanBlue.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(24),
+      ),
+      child: Row(
+        children: List.generate(tabs.length, (index) {
+          final isSelected = currentTab == index;
+          return Expanded(
+            child: GestureDetector(
+              onTap: () => setState(() => currentTab = index),
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 300),
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                decoration: BoxDecoration(
+                  color: isSelected ? IslaColors.oceanBlue : Colors.transparent,
+                  borderRadius: BorderRadius.circular(18),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      index == 0 ? Icons.brush_rounded : Icons.music_note_rounded, 
+                      color: isSelected ? Colors.white : IslaColors.charcoal.withValues(alpha: 0.5), 
+                      size: 18
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      tabs[index],
+                      style: TextStyle(
+                        color: isSelected ? Colors.white : IslaColors.charcoal.withValues(alpha: 0.5),
+                        fontWeight: FontWeight.w900,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          );
+        }),
+      ),
+    );
+  }
+}
+===
+import 'package:confetti/confetti.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:isla_digital/core/theme/app_theme.dart';
+import 'package:isla_digital/presentation/providers/app_providers.dart';
+import 'package:isla_digital/presentation/widgets/island_background.dart';
+import 'package:isla_digital/presentation/widgets/progress_widgets.dart';
+import 'package:isla_digital/presentation/widgets/safe_lottie.dart';
+
+import 'widgets/drawing_canvas.dart';
+import 'widgets/music_sequencer.dart';
+
+class Level5Screen extends ConsumerStatefulWidget {
+  const Level5Screen({super.key});
+
+  @override
+  ConsumerState<Level5Screen> createState() => _Level5ScreenState();
+}
+
+class _Level5ScreenState extends ConsumerState<Level5Screen> {
+  int currentTab = 0;
+  int totalProgress = 0;
+  bool isCompleted = false;
+  late ConfettiController _confettiController;
+
+  final List<String> tabs = ['Pintar', 'Música'];
+
+  @override
+  void initState() {
+    super.initState();
+    _confettiController = ConfettiController(duration: const Duration(seconds: 3));
+  }
+
+  @override
+  void dispose() {
+    _confettiController.dispose();
+    super.dispose();
+  }
+
+  void _handleProgress(int points) {
+    if (isCompleted) return;
+    
+    setState(() {
+      totalProgress += points;
+      if (totalProgress >= 100) {
+        totalProgress = 100;
+        isCompleted = true;
+        _completeLevel();
+      }
+    });
+    
+    ref.read(currentProfileProvider.notifier).addProgress('level_5', points);
+  }
+
+  void _completeLevel() {
+    _confettiController.play();
+    final notifier = ref.read(currentProfileProvider.notifier);
+    
+    notifier.addBadge('artista_isla');
+    notifier.addBadge('musician_tropical');
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => AlertDialog(
+        backgroundColor: Colors.white.withValues(alpha: 0.95),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(32)),
+        title: const Text(
+          '¡GRAN ARTISTA!', 
+          textAlign: TextAlign.center, 
+          style: TextStyle(fontWeight: FontWeight.w900)
+        ),
+        content: const Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            SafeLottie(
+              path: 'assets/animations/success/artist.json',
+              backupIcon: Icons.palette_rounded,
+            ),
+            SizedBox(height: 16),
+            Text(
+              '¡Tus creaciones son maravillosas!',
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+        actions: [
+          Center(
+            child: ElevatedButton(
+              style: ElevatedButton.styleFrom(backgroundColor: IslaColors.jungleGreen),
+              onPressed: () {
+                Navigator.pop(context); 
+                Navigator.pop(context); 
+              },
+              child: const Text('VOLVER AL MAPA', style: TextStyle(color: Colors.white)),
+            ),
+          )
+        ],
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Stack(
+        alignment: Alignment.center,
+        children: [
+          IslandBackground(
+            child: SafeArea(
+              child: Column(
+                children: [
+                  _buildHeader(),
+                  const SizedBox(height: 8),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 40),
+                    child: IslandProgressBar(
+                      // CORRECCIÓN: Se asegura el tipo de dato correcto. 
+                      // Si el error decía que pasabas double a int, usa totalProgress directamente.
+                      progress: totalProgress, 
+                      label: 'Progreso Artístico',
+                      fillColor: IslaColors.sunsetPink,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  _buildTabBar(),
+                  const SizedBox(height: 16),
+                  Expanded(
+                    child: IndexedStack(
+                      index: currentTab,
+                      children: [
+                        DrawingCanvas(onProgress: () => _handleProgress(10)),
+                        MusicSequencer(onProgress: () => _handleProgress(10)),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          ConfettiWidget(
+            confettiController: _confettiController,
+            blastDirectionality: BlastDirectionality.explosive,
+            colors: const [
+              IslaColors.oceanBlue, 
+              IslaColors.sunflower, 
+              IslaColors.jungleGreen, 
+              IslaColors.sunsetPink
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildHeader() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+      child: Row(
+        children: [
+          IconButton(
+            icon: const Icon(Icons.close_rounded, color: IslaColors.oceanDark, size: 32),
+            onPressed: () => Navigator.pop(context),
+          ),
+          const Expanded(
+            child: Text(
+              'ISLA DEL ARTE',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: IslaColors.oceanDark,
+                fontWeight: FontWeight.w900,
+                fontSize: 22,
+              ),
+            ),
+          ),
+          const SizedBox(width: 48), 
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTabBar() {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 24),
+      padding: const EdgeInsets.all(6),
+      decoration: BoxDecoration(
+        color: IslaColors.oceanBlue.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(24),
+      ),
+      child: Row(
+        children: List.generate(tabs.length, (index) {
+          final isSelected = currentTab == index;
+          return Expanded(
+            child: GestureDetector(
+              onTap: () => setState(() => currentTab = index),
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 300),
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                decoration: BoxDecoration(
+                  color: isSelected ? IslaColors.oceanBlue : Colors.transparent,
+                  borderRadius: BorderRadius.circular(18),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      index == 0 ? Icons.brush_rounded : Icons.music_note_rounded, 
+                      color: isSelected ? Colors.white : IslaColors.charcoal.withValues(alpha: 0.5), 
+                      size: 18
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      tabs[index],
+                      style: TextStyle(
+                        color: isSelected ? Colors.white : IslaColors.charcoal.withValues(alpha: 0.5),
+                        fontWeight: FontWeight.w900,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          );
+        }),
+      ),
+    );
+  }
+}
+```
+
+### 8. [home_screen.dart](file:///home/l/Desktop/v0.4.0/lib/presentation/views/screens/home_screen.dart) — Cast innecesario
+
+```diff
+-final String profileName = (profile?.name as String?) ?? 'Explorador';
++final String profileName = profile?.name ?? 'Explorador';
+```
+`profile?.name` ya es `String?`. El cast `as String?` es redundante.
+
+### 9. [level_select_screen.dart](file:///home/l/Desktop/v0.4.0/lib/presentation/views/screens/level_select_screen.dart) — Dynamic call inseguro
+
+```diff
+-final double progressValue = (progressMap[level.id] ?? 0).toDouble();
++final double progressValue = ((progressMap[level.id] as num?) ?? 0).toDouble();
+```
+**Porqué era un error**: `progressMap` es `Map<String, dynamic>`, lo que significa que `.toDouble()` era un `dynamic call` — no verificado en compile-time. Con `as num?` forzamos el tipo seguro.
+
+### 10. [drawing_canvas.dart](file:///home/l/Desktop/v0.4.0/lib/presentation/views/levels/level5/widgets/drawing_canvas.dart) — Múltiples lints corregidos
+
+- `sort_constructors_first`: Constructor movido antes de los campos
+- `prefer_final_locals`: Variables locales declaradas como `final`
+- `cast_nullable_to_non_nullable`: Agregado `!` antes del cast de `findRenderObject()`
+
+```diff:drawing_canvas.dart
+import 'package:flutter/material.dart';
+import 'package:isla_digital/core/theme/app_theme.dart';
+
+class DrawingCanvas extends StatefulWidget {
+  final VoidCallback onProgress;
+  const DrawingCanvas({super.key, required this.onProgress});
+
+  @override
+  State<DrawingCanvas> createState() => _DrawingCanvasState();
+}
+
+class _DrawingCanvasState extends State<DrawingCanvas> {
+  List<Offset?> points = [];
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.8),
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: IslaColors.sunsetPink.withValues(alpha: 0.3), width: 4),
+      ),
+      child: GestureDetector(
+        onPanUpdate: (details) {
+          setState(() {
+            RenderBox renderBox = context.findRenderObject() as RenderBox;
+            points.add(renderBox.globalToLocal(details.globalPosition));
+          });
+          if (points.length % 50 == 0) widget.onProgress();
+        },
+        onPanEnd: (details) => points.add(null),
+        child: CustomPaint(
+          painter: CanvasPainter(points: points),
+          size: Size.infinite,
+        ),
+      ),
+    );
+  }
+}
+
+class CanvasPainter extends CustomPainter {
+  final List<Offset?> points;
+  CanvasPainter({required this.points});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    Paint paint = Paint()
+      ..color = IslaColors.sunsetPink
+      ..strokeCap = StrokeCap.round
+      ..strokeWidth = 8.0;
+
+    for (int i = 0; i < points.length - 1; i++) {
+      if (points[i] != null && points[i + 1] != null) {
+        canvas.drawLine(points[i]!, points[i + 1]!, paint);
+      }
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
+}
+===
+import 'package:flutter/material.dart';
+import 'package:isla_digital/core/theme/app_theme.dart';
+
+class DrawingCanvas extends StatefulWidget {
+  const DrawingCanvas({super.key, required this.onProgress});
+  final VoidCallback onProgress;
+
+  @override
+  State<DrawingCanvas> createState() => _DrawingCanvasState();
+}
+
+class _DrawingCanvasState extends State<DrawingCanvas> {
+  List<Offset?> points = [];
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.8),
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: IslaColors.sunsetPink.withValues(alpha: 0.3), width: 4),
+      ),
+      child: GestureDetector(
+        onPanUpdate: (details) {
+          setState(() {
+            final RenderBox renderBox = context.findRenderObject()! as RenderBox;
+            points.add(renderBox.globalToLocal(details.globalPosition));
+          });
+          if (points.length % 50 == 0) widget.onProgress();
+        },
+        onPanEnd: (details) => points.add(null),
+        child: CustomPaint(
+          painter: CanvasPainter(points: points),
+          size: Size.infinite,
+        ),
+      ),
+    );
+  }
+}
+
+class CanvasPainter extends CustomPainter {
+  CanvasPainter({required this.points});
+  final List<Offset?> points;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final Paint paint = Paint()
+      ..color = IslaColors.sunsetPink
+      ..strokeCap = StrokeCap.round
+      ..strokeWidth = 8.0;
+
+    for (int i = 0; i < points.length - 1; i++) {
+      if (points[i] != null && points[i + 1] != null) {
+        canvas.drawLine(points[i]!, points[i + 1]!, paint);
+      }
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
+}
+}
+```
+
+### 11. [music_sequencer.dart](file:///home/l/Desktop/v0.4.0/lib/presentation/views/levels/level5/widgets/music_sequencer.dart) — Widget y lint optimizados
+
+- `sort_constructors_first`: Constructor movido antes de los campos
+- `unnecessary_lambdas`: [() { onProgress(); }](file:///home/l/Desktop/v0.4.0/lib/main.dart#19-48) → `onProgress` (tearoff)
+- `use_decorated_box`: [Container(decoration: ...)](file:///home/l/Desktop/v0.4.0/lib/presentation/widgets/glass_container.dart#4-66) → `DecoratedBox(decoration: ...)` (más eficiente, no genera layer innecesaria)
+
+```diff:music_sequencer.dart
+import 'package:flutter/material.dart';
+import 'package:isla_digital/core/theme/app_theme.dart';
+
+class MusicSequencer extends StatelessWidget {
+  final VoidCallback onProgress;
+  const MusicSequencer({super.key, required this.onProgress});
+
+  @override
+  Widget build(BuildContext context) {
+    return GridView.builder(
+      padding: const EdgeInsets.all(24),
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 3,
+        mainAxisSpacing: 16,
+        crossAxisSpacing: 16,
+      ),
+      itemCount: 9,
+      itemBuilder: (context, index) {
+        return GestureDetector(
+          onTap: () {
+            // Aquí llamarías a un servicio de sonido
+            onProgress();
+          },
+          child: Container(
+            decoration: BoxDecoration(
+              color: IslaColors.oceanBlue.withValues(alpha: 0.6),
+              borderRadius: BorderRadius.circular(20),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.1),
+                  blurRadius: 10,
+                  offset: const Offset(0, 4),
+                )
+              ],
+            ),
+            child: const Icon(Icons.music_note_rounded, color: Colors.white, size: 40),
+          ),
+        );
+      },
+    );
+  }
+}
+===
+import 'package:flutter/material.dart';
+import 'package:isla_digital/core/theme/app_theme.dart';
+
+class MusicSequencer extends StatelessWidget {
+  const MusicSequencer({super.key, required this.onProgress});
+  final VoidCallback onProgress;
+
+  @override
+  Widget build(BuildContext context) {
+    return GridView.builder(
+      padding: const EdgeInsets.all(24),
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 3,
+        mainAxisSpacing: 16,
+        crossAxisSpacing: 16,
+      ),
+      itemCount: 9,
+      itemBuilder: (context, index) {
+        return GestureDetector(
+          onTap: onProgress,
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+              color: IslaColors.oceanBlue.withValues(alpha: 0.6),
+              borderRadius: BorderRadius.circular(20),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.1),
+                  blurRadius: 10,
+                  offset: const Offset(0, 4),
+                )
+              ],
+            ),
+            child: const Icon(Icons.music_note_rounded, color: Colors.white, size: 40),
+          ),
+        );
+      },
+    );
+  }
+}
+}
+```
+
+### 12. [app_providers.dart](file:///home/l/Desktop/v0.4.0/lib/presentation/providers/app_providers.dart) — Lints menores
+
+- Eliminados `currentLevel: 1` y `totalPlayTimeMinutes: 0` porque ya son los valores default del constructor de [ChildProfile](file:///home/l/Desktop/v0.4.0/lib/domain/models/child_profile.dart#3-84)
+- [() => AppStateNotifier()](file:///home/l/Desktop/v0.4.0/lib/main.dart#19-48) → `AppStateNotifier.new` (tearoff)
+
+```diff:app_providers.dart
+import 'dart:async';
+import 'package:flutter/foundation.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:isla_digital/core/services/services.dart';
+import 'package:isla_digital/domain/models/models.dart';
+
+// --- PROFILE PROVIDER (Modern Notifier) ---
+
+/// Proveedor para gestionar el perfil del niño.
+/// Usamos [Notifier] para una gestión de estado más limpia y moderna.
+class ProfileNotifier extends Notifier<ChildProfile?> {
+  @override
+  ChildProfile? build() {
+    // Inicializamos el estado desde el servicio de persistencia
+    return LocalStorageService.loadProfile();
+  }
+
+  // --- MÉTODOS DE ACCIÓN ---
+
+  Future<void> createProfile(
+    String name, 
+    int age, {
+    String avatar = '0',
+  }) async {
+    final profile = ChildProfile(
+      id: DateTime.now().millisecondsSinceEpoch.toString(),
+      name: name,
+      age: age,
+      avatar: avatar,
+      levelProgress: const {},
+      earnedBadges: const [],
+      currentLevel: 1,
+      totalPlayTimeMinutes: 0,
+    );
+    await _updateAndSave(profile);
+  }
+
+  Future<void> unlockLevel(int levelNumber) async {
+    if (state == null) return;
+    
+    if (levelNumber > state!.currentLevel) {
+      final updatedProfile = state!.copyWith(currentLevel: levelNumber);
+      await _updateAndSave(updatedProfile);
+      debugPrint('🎉 ¡Nivel $levelNumber desbloqueado!');
+    }
+  }
+
+  Future<void> addProgress(String levelId, int points) async {
+    if (state == null) return;
+
+    final newProgress = Map<String, int>.from(state!.levelProgress);
+    newProgress[levelId] = (newProgress[levelId] ?? 0) + points;
+
+    final updatedProfile = state!.copyWith(levelProgress: newProgress);
+    await _updateAndSave(updatedProfile);
+    await LocalStorageService.saveLevelProgress(levelId, newProgress[levelId]!);
+  }
+
+  Future<void> addBadge(String badgeId) async {
+    if (state == null || state!.earnedBadges.contains(badgeId)) return;
+    
+    final newBadges = List<String>.from(state!.earnedBadges)..add(badgeId);
+    final updatedProfile = state!.copyWith(earnedBadges: newBadges);
+    
+    await _updateAndSave(updatedProfile);
+    await LocalStorageService.addBadge(badgeId);
+  }
+
+  Future<void> _updateAndSave(ChildProfile profile) async {
+    state = profile;
+    await LocalStorageService.saveProfile(profile);
+  }
+
+  Future<void> resetProgress() async {
+    state = null;
+    await LocalStorageService.deleteProfile();
+  }
+}
+
+final currentProfileProvider = NotifierProvider<ProfileNotifier, ChildProfile?>(() {
+  return ProfileNotifier();
+});
+
+// --- PARENTAL SETTINGS PROVIDER ---
+
+class ParentalSettingsNotifier extends Notifier<ParentalSettings> {
+  @override
+  ParentalSettings build() {
+    return LocalStorageService.loadParentalSettings();
+  }
+
+  Future<void> _update(ParentalSettings updated) async {
+    state = updated;
+    await LocalStorageService.saveParentalSettings(updated);
+  }
+
+  Future<void> updateTimeLimit(int minutes) => _update(state.copyWith(dailyTimeLimitMinutes: minutes));
+  Future<void> toggleSound() => _update(state.copyWith(soundEnabled: !state.soundEnabled));
+  Future<void> toggleMusic() => _update(state.copyWith(musicEnabled: !state.musicEnabled));
+}
+
+final parentalSettingsProvider = NotifierProvider<ParentalSettingsNotifier, ParentalSettings>(() {
+  return ParentalSettingsNotifier();
+});
+
+// --- APP UI STATE PROVIDER ---
+
+@immutable
+class AppState {
+  const AppState({
+    this.isLoading = false,
+    this.showCelebration = false,
+  });
+
+  final bool isLoading;
+  final bool showCelebration;
+
+  AppState copyWith({bool? isLoading, bool? showCelebration}) {
+    return AppState(
+      isLoading: isLoading ?? this.isLoading,
+      showCelebration: showCelebration ?? this.showCelebration,
+    );
+  }
+}
+
+class AppStateNotifier extends Notifier<AppState> {
+  @override
+  AppState build() => const AppState();
+
+  void setLoading(bool loading) => state = state.copyWith(isLoading: loading);
+  
+  void triggerCelebration() {
+    state = state.copyWith(showCelebration: true);
+    // En Notifier, no necesitamos 'mounted', Riverpod gestiona el ciclo de vida.
+    Future.delayed(const Duration(seconds: 3), () {
+      state = state.copyWith(showCelebration: false);
+    });
+  }
+}
+
+final appStateProvider = NotifierProvider<AppStateNotifier, AppState>(() => AppStateNotifier());
+
+// --- LEVEL PROGRESS PROVIDER ---
+
+/// Proveedor que devuelve un [int] (puntos) para un nivel específico.
+final levelProgressProvider = Provider.family<int, String>((ref, levelId) {
+  final profile = ref.watch(currentProfileProvider);
+  // Garantizamos el retorno de un int, nunca dynamic.
+  return profile?.levelProgress[levelId] ?? 0;
+});
+===
+import 'dart:async';
+import 'package:flutter/foundation.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:isla_digital/core/services/services.dart';
+import 'package:isla_digital/domain/models/models.dart';
+
+// --- PROFILE PROVIDER (Modern Notifier) ---
+
+/// Proveedor para gestionar el perfil del niño.
+/// Usamos [Notifier] para una gestión de estado más limpia y moderna.
+class ProfileNotifier extends Notifier<ChildProfile?> {
+  @override
+  ChildProfile? build() {
+    // Inicializamos el estado desde el servicio de persistencia
+    return LocalStorageService.loadProfile();
+  }
+
+  // --- MÉTODOS DE ACCIÓN ---
+
+  Future<void> createProfile(
+    String name, 
+    int age, {
+    String avatar = '0',
+  }) async {
+    final profile = ChildProfile(
+      id: DateTime.now().millisecondsSinceEpoch.toString(),
+      name: name,
+      age: age,
+      avatar: avatar,
+      levelProgress: const {},
+      earnedBadges: const [],
+    );
+    await _updateAndSave(profile);
+  }
+
+  Future<void> unlockLevel(int levelNumber) async {
+    if (state == null) return;
+    
+    if (levelNumber > state!.currentLevel) {
+      final updatedProfile = state!.copyWith(currentLevel: levelNumber);
+      await _updateAndSave(updatedProfile);
+      debugPrint('🎉 ¡Nivel $levelNumber desbloqueado!');
+    }
+  }
+
+  Future<void> addProgress(String levelId, int points) async {
+    if (state == null) return;
+
+    final newProgress = Map<String, int>.from(state!.levelProgress);
+    newProgress[levelId] = (newProgress[levelId] ?? 0) + points;
+
+    final updatedProfile = state!.copyWith(levelProgress: newProgress);
+    await _updateAndSave(updatedProfile);
+    await LocalStorageService.saveLevelProgress(levelId, newProgress[levelId]!);
+  }
+
+  Future<void> addBadge(String badgeId) async {
+    if (state == null || state!.earnedBadges.contains(badgeId)) return;
+    
+    final newBadges = List<String>.from(state!.earnedBadges)..add(badgeId);
+    final updatedProfile = state!.copyWith(earnedBadges: newBadges);
+    
+    await _updateAndSave(updatedProfile);
+    await LocalStorageService.addBadge(badgeId);
+  }
+
+  Future<void> _updateAndSave(ChildProfile profile) async {
+    state = profile;
+    await LocalStorageService.saveProfile(profile);
+  }
+
+  Future<void> resetProgress() async {
+    state = null;
+    await LocalStorageService.deleteProfile();
+  }
+}
+
+final currentProfileProvider = NotifierProvider<ProfileNotifier, ChildProfile?>(() {
+  return ProfileNotifier();
+});
+
+// --- PARENTAL SETTINGS PROVIDER ---
+
+class ParentalSettingsNotifier extends Notifier<ParentalSettings> {
+  @override
+  ParentalSettings build() {
+    return LocalStorageService.loadParentalSettings();
+  }
+
+  Future<void> _update(ParentalSettings updated) async {
+    state = updated;
+    await LocalStorageService.saveParentalSettings(updated);
+  }
+
+  Future<void> updateTimeLimit(int minutes) => _update(state.copyWith(dailyTimeLimitMinutes: minutes));
+  Future<void> toggleSound() => _update(state.copyWith(soundEnabled: !state.soundEnabled));
+  Future<void> toggleMusic() => _update(state.copyWith(musicEnabled: !state.musicEnabled));
+}
+
+final parentalSettingsProvider = NotifierProvider<ParentalSettingsNotifier, ParentalSettings>(() {
+  return ParentalSettingsNotifier();
+});
+
+// --- APP UI STATE PROVIDER ---
+
+@immutable
+class AppState {
+  const AppState({
+    this.isLoading = false,
+    this.showCelebration = false,
+  });
+
+  final bool isLoading;
+  final bool showCelebration;
+
+  AppState copyWith({bool? isLoading, bool? showCelebration}) {
+    return AppState(
+      isLoading: isLoading ?? this.isLoading,
+      showCelebration: showCelebration ?? this.showCelebration,
+    );
+  }
+}
+
+class AppStateNotifier extends Notifier<AppState> {
+  @override
+  AppState build() => const AppState();
+
+  void setLoading(bool loading) => state = state.copyWith(isLoading: loading);
+  
+  void triggerCelebration() {
+    state = state.copyWith(showCelebration: true);
+    // En Notifier, no necesitamos 'mounted', Riverpod gestiona el ciclo de vida.
+    Future.delayed(const Duration(seconds: 3), () {
+      state = state.copyWith(showCelebration: false);
+    });
+  }
+}
+
+final appStateProvider = NotifierProvider<AppStateNotifier, AppState>(AppStateNotifier.new);
+
+// --- LEVEL PROGRESS PROVIDER ---
+
+/// Proveedor que devuelve un [int] (puntos) para un nivel específico.
+final levelProgressProvider = Provider.family<int, String>((ref, levelId) {
+  final profile = ref.watch(currentProfileProvider);
+  // Garantizamos el retorno de un int, nunca dynamic.
+  return profile?.levelProgress[levelId] ?? 0;
+});
+```
+
+---
+
+## Archivos NO modificados (sin problemas encontrados)
+
+Los siguientes archivos fueron revisados línea por línea y **no necesitan cambios**:
+
+| Categoría | Archivos |
+|-----------|----------|
+| **Core** | [core.dart](file:///home/l/Desktop/v0.4.0/lib/core/core.dart), [services.dart](file:///home/l/Desktop/v0.4.0/lib/core/services/services.dart), [audio_service.dart](file:///home/l/Desktop/v0.4.0/lib/core/services/audio_service.dart), [local_storage_service.dart](file:///home/l/Desktop/v0.4.0/lib/core/services/local_storage_service.dart) |
+| **Theme** | [app_theme.dart](file:///home/l/Desktop/v0.4.0/lib/core/theme/app_theme.dart), [theme.dart](file:///home/l/Desktop/v0.4.0/lib/core/theme/theme.dart) |
+| **Utils** | [color_utils.dart](file:///home/l/Desktop/v0.4.0/lib/core/utils/color_utils.dart), [page_transitions.dart](file:///home/l/Desktop/v0.4.0/lib/core/utils/page_transitions.dart), [input_adapter.dart](file:///home/l/Desktop/v0.4.0/lib/core/utils/input_adapter.dart), [utils.dart](file:///home/l/Desktop/v0.4.0/lib/core/utils/utils.dart) |
+| **Models** | [child_profile.dart](file:///home/l/Desktop/v0.4.0/lib/domain/models/child_profile.dart), [parental_settings.dart](file:///home/l/Desktop/v0.4.0/lib/domain/models/parental_settings.dart), [badge.dart](file:///home/l/Desktop/v0.4.0/lib/domain/models/badge.dart), [models.dart](file:///home/l/Desktop/v0.4.0/lib/domain/models/models.dart) |
+| **Screens** | [profile_setup_screen.dart](file:///home/l/Desktop/v0.4.0/lib/presentation/views/screens/profile_setup_screen.dart), [parental_dashboard_screen.dart](file:///home/l/Desktop/v0.4.0/lib/presentation/views/screens/parental_dashboard_screen.dart), [showcase_screen.dart](file:///home/l/Desktop/v0.4.0/lib/presentation/views/screens/showcase_screen.dart) |
+| **Widgets** | [glass_container.dart](file:///home/l/Desktop/v0.4.0/lib/presentation/widgets/glass_container.dart), [big_button.dart](file:///home/l/Desktop/v0.4.0/lib/presentation/widgets/big_button.dart), [progress_widgets.dart](file:///home/l/Desktop/v0.4.0/lib/presentation/widgets/progress_widgets.dart), [safe_lottie.dart](file:///home/l/Desktop/v0.4.0/lib/presentation/widgets/safe_lottie.dart), [badge_card.dart](file:///home/l/Desktop/v0.4.0/lib/presentation/widgets/badge_card.dart), [badge_widgets.dart](file:///home/l/Desktop/v0.4.0/lib/presentation/widgets/badge_widgets.dart), [island_background.dart](file:///home/l/Desktop/v0.4.0/lib/presentation/widgets/island_background.dart), [widgets.dart](file:///home/l/Desktop/v0.4.0/lib/presentation/widgets/widgets.dart) |
+| **Barrel** | [providers.dart](file:///home/l/Desktop/v0.4.0/lib/presentation/providers/providers.dart) |
+| **Android** | [debug/AndroidManifest.xml](file:///home/l/Desktop/v0.4.0/android/app/src/debug/AndroidManifest.xml), [profile/AndroidManifest.xml](file:///home/l/Desktop/v0.4.0/android/app/src/profile/AndroidManifest.xml) |

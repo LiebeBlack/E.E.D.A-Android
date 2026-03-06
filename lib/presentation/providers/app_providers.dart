@@ -18,7 +18,7 @@ class ProfileNotifier extends Notifier<ChildProfile?> {
   // --- MÉTODOS DE ACCIÓN ---
 
   Future<void> createProfile(
-    String name, 
+    String name,
     int age, {
     String avatar = '0',
   }) async {
@@ -29,15 +29,13 @@ class ProfileNotifier extends Notifier<ChildProfile?> {
       avatar: avatar,
       levelProgress: const {},
       earnedBadges: const [],
-      currentLevel: 1,
-      totalPlayTimeMinutes: 0,
     );
     await _updateAndSave(profile);
   }
 
   Future<void> unlockLevel(int levelNumber) async {
     if (state == null) return;
-    
+
     if (levelNumber > state!.currentLevel) {
       final updatedProfile = state!.copyWith(currentLevel: levelNumber);
       await _updateAndSave(updatedProfile);
@@ -58,10 +56,10 @@ class ProfileNotifier extends Notifier<ChildProfile?> {
 
   Future<void> addBadge(String badgeId) async {
     if (state == null || state!.earnedBadges.contains(badgeId)) return;
-    
+
     final newBadges = List<String>.from(state!.earnedBadges)..add(badgeId);
     final updatedProfile = state!.copyWith(earnedBadges: newBadges);
-    
+
     await _updateAndSave(updatedProfile);
     await LocalStorageService.addBadge(badgeId);
   }
@@ -77,7 +75,8 @@ class ProfileNotifier extends Notifier<ChildProfile?> {
   }
 }
 
-final currentProfileProvider = NotifierProvider<ProfileNotifier, ChildProfile?>(() {
+final currentProfileProvider =
+    NotifierProvider<ProfileNotifier, ChildProfile?>(() {
   return ProfileNotifier();
 });
 
@@ -94,12 +93,16 @@ class ParentalSettingsNotifier extends Notifier<ParentalSettings> {
     await LocalStorageService.saveParentalSettings(updated);
   }
 
-  Future<void> updateTimeLimit(int minutes) => _update(state.copyWith(dailyTimeLimitMinutes: minutes));
-  Future<void> toggleSound() => _update(state.copyWith(soundEnabled: !state.soundEnabled));
-  Future<void> toggleMusic() => _update(state.copyWith(musicEnabled: !state.musicEnabled));
+  Future<void> updateTimeLimit(int minutes) =>
+      _update(state.copyWith(dailyTimeLimitMinutes: minutes));
+  Future<void> toggleSound() =>
+      _update(state.copyWith(soundEnabled: !state.soundEnabled));
+  Future<void> toggleMusic() =>
+      _update(state.copyWith(musicEnabled: !state.musicEnabled));
 }
 
-final parentalSettingsProvider = NotifierProvider<ParentalSettingsNotifier, ParentalSettings>(() {
+final parentalSettingsProvider =
+    NotifierProvider<ParentalSettingsNotifier, ParentalSettings>(() {
   return ParentalSettingsNotifier();
 });
 
@@ -124,21 +127,26 @@ class AppState {
 }
 
 class AppStateNotifier extends Notifier<AppState> {
+  Timer? _celebrationTimer;
+
   @override
   AppState build() => const AppState();
 
   void setLoading(bool loading) => state = state.copyWith(isLoading: loading);
-  
+
   void triggerCelebration() {
     state = state.copyWith(showCelebration: true);
-    // En Notifier, no necesitamos 'mounted', Riverpod gestiona el ciclo de vida.
-    Future.delayed(const Duration(seconds: 3), () {
+
+    // Concurrency Fix: Cancel existing timer before starting a new one
+    _celebrationTimer?.cancel();
+    _celebrationTimer = Timer(const Duration(seconds: 3), () {
       state = state.copyWith(showCelebration: false);
     });
   }
 }
 
-final appStateProvider = NotifierProvider<AppStateNotifier, AppState>(() => AppStateNotifier());
+final appStateProvider =
+    NotifierProvider<AppStateNotifier, AppState>(AppStateNotifier.new);
 
 // --- LEVEL PROGRESS PROVIDER ---
 

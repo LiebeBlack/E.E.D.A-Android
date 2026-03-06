@@ -68,7 +68,8 @@ class IslandProgressBar extends StatelessWidget {
                   AnimatedContainer(
                     duration: 600.ms,
                     curve: Curves.elasticOut,
-                    width: (percentage * constraints.maxWidth).clamp(0, constraints.maxWidth),
+                    width: (percentage * constraints.maxWidth)
+                        .clamp(0, constraints.maxWidth),
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(height / 2),
                       gradient: LinearGradient(
@@ -84,19 +85,25 @@ class IslandProgressBar extends StatelessWidget {
                         duration: 2.seconds,
                         color: Colors.white.withValues(alpha: 0.3),
                       ),
-                  
+
                   // Texto de porcentaje
                   if (showPercentage)
                     Align(
                       child: Text(
                         '${(percentage * 100).toInt()}%',
                         style: TextStyle(
-                          color: percentage > 0.5 ? Colors.white : IslaColors.oceanDark,
-                          fontWeight: FontWeight.w900, // FIX: Cambiado de .black a .w900
+                          color: percentage > 0.5
+                              ? Colors.white
+                              : IslaColors.oceanDark,
+                          fontWeight: FontWeight
+                              .w900, // FIX: Cambiado de .black a .w900
                           fontSize: height * 0.55,
-                          shadows: percentage > 0.5 ? [
-                            const Shadow(blurRadius: 2, color: Colors.black26)
-                          ] : null,
+                          shadows: percentage > 0.5
+                              ? [
+                                  const Shadow(
+                                      blurRadius: 2, color: Colors.black26)
+                                ]
+                              : null,
                         ),
                       ),
                     ),
@@ -138,7 +145,9 @@ class StepIndicator extends StatelessWidget {
           height: 24,
           margin: const EdgeInsets.symmetric(horizontal: 4),
           decoration: BoxDecoration(
-            color: isCompleted ? color : (isCurrent ? color.withValues(alpha: 0.2) : IslaColors.mist),
+            color: isCompleted
+                ? color
+                : (isCurrent ? color.withValues(alpha: 0.2) : IslaColors.mist),
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
               color: isCurrent || isCompleted ? color : IslaColors.grey,
@@ -153,11 +162,15 @@ class StepIndicator extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.bold,
-                      color: isCurrent ? color : (isCompleted ? Colors.white : IslaColors.grey),
+                      color: isCurrent
+                          ? color
+                          : (isCompleted ? Colors.white : IslaColors.grey),
                     ),
                   ),
           ),
-        ).animate(target: isCurrent ? 1 : 0).scale(begin: const Offset(1, 1), end: const Offset(1.1, 1.1));
+        )
+            .animate(target: isCurrent ? 1 : 0)
+            .scale(begin: const Offset(1, 1), end: const Offset(1.1, 1.1));
       }),
     );
   }

@@ -65,10 +65,10 @@ class LevelSelectScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final profile = ref.watch(currentProfileProvider);
-    
+
     // Aseguramos que el nivel desbloqueado sea un entero
     final int currentUnlocked = (profile?.currentLevel ?? 1).toInt();
-    
+
     final Map<String, dynamic> progressMap = profile?.levelProgress ?? {};
 
     return Scaffold(
@@ -86,9 +86,10 @@ class LevelSelectScreen extends ConsumerWidget {
                 itemBuilder: (context, index) {
                   final level = _levels[index];
                   final isUnlocked = (index + 1) <= currentUnlocked;
-                  
+
                   // Forzamos que el progreso sea double para la lógica interna
-                  final double progressValue = (progressMap[level.id] ?? 0).toDouble();
+                  final double progressValue =
+                      ((progressMap[level.id] as num?) ?? 0).toDouble();
 
                   return _LevelListItem(
                     index: index,
@@ -111,7 +112,8 @@ class LevelSelectScreen extends ConsumerWidget {
       child: Row(
         children: [
           IconButton(
-            icon: const Icon(Icons.arrow_back_ios_new_rounded, color: IslaColors.oceanDark),
+            icon: const Icon(Icons.arrow_back_ios_new_rounded,
+                color: IslaColors.oceanDark),
             onPressed: () => Navigator.pop(context),
           ),
           Expanded(
@@ -147,9 +149,10 @@ class _LevelListItem extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.only(bottom: 20),
       child: GestureDetector(
-        onTap: isUnlocked 
-          ? () => Navigator.push(context, MaterialPageRoute(builder: (_) => level.screen))
-          : () => _showLockedMessage(context),
+        onTap: isUnlocked
+            ? () => Navigator.push(
+                context, MaterialPageRoute(builder: (_) => level.screen))
+            : () => _showLockedMessage(context),
         child: GlassContainer(
           padding: const EdgeInsets.all(16),
           child: Opacity(
@@ -165,7 +168,9 @@ class _LevelListItem extends StatelessWidget {
                       Text(
                         level.title,
                         style: IslaThemes.titleMediumStyle.copyWith(
-                          color: isUnlocked ? IslaColors.oceanDark : Colors.grey[700],
+                          color: isUnlocked
+                              ? IslaColors.oceanDark
+                              : Colors.grey[700],
                         ),
                       ),
                       Text(
@@ -176,8 +181,8 @@ class _LevelListItem extends StatelessWidget {
                         const SizedBox(height: 12),
                         IslandProgressBar(
                           // CORRECCIÓN LÍNEA 181: Si IslandProgressBar pide int, convertimos aquí
-                          progress: progress.toInt(), 
-                          height: 8, 
+                          progress: progress.toInt(),
+                          height: 8,
                           fillColor: level.color,
                         ),
                       ],
@@ -185,10 +190,9 @@ class _LevelListItem extends StatelessWidget {
                   ),
                 ),
                 _StatusIndicator(
-                  isUnlocked: isUnlocked, 
-                  isCompleted: isCompleted, 
-                  color: level.color
-                ),
+                    isUnlocked: isUnlocked,
+                    isCompleted: isCompleted,
+                    color: level.color),
               ],
             ),
           ),
@@ -248,10 +252,13 @@ class _StatusIndicator extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (!isUnlocked) return const Icon(Icons.lock_outline_rounded, color: Colors.grey);
-    
+    if (!isUnlocked) {
+      return const Icon(Icons.lock_outline_rounded, color: Colors.grey);
+    }
+
     if (isCompleted) {
-      return const Icon(Icons.check_circle_rounded, color: IslaColors.jungleGreen, size: 36);
+      return const Icon(Icons.check_circle_rounded,
+          color: IslaColors.jungleGreen, size: 36);
     }
 
     return Icon(Icons.play_circle_filled_rounded, color: color, size: 36);

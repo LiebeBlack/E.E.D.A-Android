@@ -15,12 +15,13 @@ class HomeScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     // TIPADO ESTRICTO: Accedemos al perfil
     final profile = ref.watch(currentProfileProvider);
-    
+
     // CORRECCIÓN: Conversión explícita y manejo de nulos
     // Forzamos el cast a String y List<String> para evitar el error de dynamic
-    final String profileName = (profile?.name as String?) ?? 'Explorador';
-    final List<String> earnedBadges = List<String>.from(profile?.earnedBadges ?? []);
-    
+    final String profileName = profile?.name ?? 'Explorador';
+    final List<String> earnedBadges =
+        List<String>.from(profile?.earnedBadges ?? []);
+
     final size = MediaQuery.sizeOf(context);
     final isSmallScreen = size.height < 400;
 
@@ -33,9 +34,9 @@ class HomeScreen extends ConsumerWidget {
               physics: const BouncingScrollPhysics(),
               slivers: [
                 SliverToBoxAdapter(
-                  child: _TopBar(name: profileName, badgesCount: earnedBadges.length),
+                  child: _TopBar(
+                      name: profileName, badgesCount: earnedBadges.length),
                 ),
-                
                 SliverFillRemaining(
                   hasScrollBody: false,
                   child: Padding(
@@ -47,20 +48,20 @@ class HomeScreen extends ConsumerWidget {
                         const SizedBox(height: 30),
                         _ActionsGrid(earnedBadges: earnedBadges),
                         const Spacer(),
-                        const SizedBox(height: 120), 
+                        const SizedBox(height: 120),
                       ],
                     ),
                   ),
                 ),
               ],
             ),
-            
             _BottomCharacters(isSmallScreen: isSmallScreen),
-            
             Positioned(
               top: 16,
               right: 16,
-              child: _SettingsButton(onPressed: () => _showSettingsMenu(context)),
+              child: _SettingsButton(
+                  onPressed: () =>
+                      Navigator.pushNamed(context, '/advanced_settings')),
             ),
           ],
         ),
@@ -68,37 +69,7 @@ class HomeScreen extends ConsumerWidget {
     );
   }
 
-  void _showSettingsMenu(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(32)),
-        title: Text('ZONA DE PADRES', 
-          textAlign: TextAlign.center, 
-          style: IslaThemes.titleMediumStyle.copyWith(color: IslaColors.oceanDark)),
-        content: const Text('¿Deseas entrar a la configuración parental?', textAlign: TextAlign.center),
-        actionsAlignment: MainAxisAlignment.center,
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('CANCELAR'),
-          ),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: IslaColors.oceanBlue, 
-              foregroundColor: Colors.white,
-              shape: const StadiumBorder(),
-            ),
-            onPressed: () {
-              Navigator.pop(context);
-              Navigator.pushNamed(context, '/parental');
-            },
-            child: const Text('ENTRAR'),
-          ),
-        ],
-      ),
-    );
-  }
+  // Removed _showSettingsMenu entirely, replaced by full screen routing
 }
 
 // --- SUB-WIDGETS ---
@@ -116,9 +87,12 @@ class _TopBar extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         child: Row(
           children: [
-            const Hero(
-              tag: 'profile_avatar',
-              child: _AvatarCircle(),
+            GestureDetector(
+              onTap: () => Navigator.pushNamed(context, '/advanced_profile'),
+              child: const Hero(
+                tag: 'profile_avatar_big',
+                child: _AvatarCircle(),
+              ),
             ),
             const SizedBox(width: 12),
             Expanded(
@@ -153,7 +127,8 @@ class _AvatarCircle extends StatelessWidget {
         color: IslaColors.sunflower,
         shape: BoxShape.circle,
       ),
-      child: const Icon(Icons.face_retouching_natural_rounded, color: Colors.white, size: 24),
+      child: const Icon(Icons.face_retouching_natural_rounded,
+          color: Colors.white, size: 24),
     );
   }
 }
@@ -172,7 +147,8 @@ class _BadgePill extends StatelessWidget {
       ),
       child: Row(
         children: [
-          const Icon(Icons.stars_rounded, color: IslaColors.sunflower, size: 18),
+          const Icon(Icons.stars_rounded,
+              color: IslaColors.sunflower, size: 18),
           const SizedBox(width: 6),
           Text('$count', style: IslaThemes.badgeCounterStyle),
         ],
@@ -212,7 +188,6 @@ class _ActionsGrid extends StatelessWidget {
           color: IslaColors.jungleGreen,
           onPressed: () => Navigator.pushNamed(context, '/levels'),
         ).animate().fadeIn(delay: 400.ms).slideX(begin: -0.1),
-        
         const SizedBox(height: 16),
         Row(
           children: [
@@ -235,18 +210,27 @@ class _ActionsGrid extends StatelessWidget {
             ),
           ],
         ),
+        const SizedBox(height: 16),
+        BigButton(
+          icon: Icons.stars_rounded,
+          label: 'EVENTO ESPECIAL',
+          color: IslaColors.sunsetPink,
+          onPressed: () => Navigator.pushNamed(context, '/event'),
+        ).animate().fadeIn(delay: 850.ms).slideY(begin: 0.1),
       ],
     );
   }
 
   void _showBadgesDialog(BuildContext context, List<String> earned) {
-     showDialog(
+    showDialog(
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('TUS MEDALLAS'),
         content: Text('Has ganado ${earned.length} medallas en tus aventuras.'),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('¡GENIAL!'))
+          TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('¡GENIAL!'))
         ],
       ),
     );
@@ -268,7 +252,9 @@ class _BottomCharacters extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
-            const SafeLottie(path: 'assets/animations/characters/giraffe_hello.json', size: 130),
+            const SafeLottie(
+                path: 'assets/animations/characters/giraffe_hello.json',
+                size: 130),
             SafeLottie(
               path: 'assets/animations/characters/cat_wave.json',
               size: isSmallScreen ? 100 : 130,
@@ -298,7 +284,8 @@ class _SettingsButton extends StatelessWidget {
             shape: BoxShape.circle,
             border: Border.all(color: Colors.white.withValues(alpha: 0.5)),
           ),
-          child: const Icon(Icons.settings_rounded, color: IslaColors.oceanDark),
+          child:
+              const Icon(Icons.settings_rounded, color: IslaColors.oceanDark),
         ),
       ),
     );

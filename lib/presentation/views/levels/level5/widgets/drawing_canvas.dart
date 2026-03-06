@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:isla_digital/core/theme/app_theme.dart';
 
 class DrawingCanvas extends StatefulWidget {
-  final VoidCallback onProgress;
   const DrawingCanvas({super.key, required this.onProgress});
+  final VoidCallback onProgress;
 
   @override
   State<DrawingCanvas> createState() => _DrawingCanvasState();
@@ -19,12 +19,14 @@ class _DrawingCanvasState extends State<DrawingCanvas> {
       decoration: BoxDecoration(
         color: Colors.white.withValues(alpha: 0.8),
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: IslaColors.sunsetPink.withValues(alpha: 0.3), width: 4),
+        border: Border.all(
+            color: IslaColors.sunsetPink.withValues(alpha: 0.3), width: 4),
       ),
       child: GestureDetector(
         onPanUpdate: (details) {
           setState(() {
-            RenderBox renderBox = context.findRenderObject() as RenderBox;
+            final RenderBox renderBox =
+                context.findRenderObject()! as RenderBox;
             points.add(renderBox.globalToLocal(details.globalPosition));
           });
           if (points.length % 50 == 0) widget.onProgress();
@@ -40,21 +42,36 @@ class _DrawingCanvasState extends State<DrawingCanvas> {
 }
 
 class CanvasPainter extends CustomPainter {
-  final List<Offset?> points;
   CanvasPainter({required this.points});
+  final List<Offset?> points;
 
   @override
   void paint(Canvas canvas, Size size) {
-    Paint paint = Paint()
+    final Paint paint = Paint()
       ..color = IslaColors.sunsetPink
       ..strokeCap = StrokeCap.round
+      ..strokeJoin = StrokeJoin.round
+      ..style = PaintingStyle.stroke
       ..strokeWidth = 8.0;
 
-    for (int i = 0; i < points.length - 1; i++) {
-      if (points[i] != null && points[i + 1] != null) {
-        canvas.drawLine(points[i]!, points[i + 1]!, paint);
+    final path = Path();
+    bool isNewPath = true;
+
+    for (int i = 0; i < points.length; i++) {
+      final point = points[i];
+      if (point == null) {
+        isNewPath = true;
+      } else {
+        if (isNewPath) {
+          path.moveTo(point.dx, point.dy);
+          isNewPath = false;
+        } else {
+          // Optimized continuous drawing
+          path.lineTo(point.dx, point.dy);
+        }
       }
     }
+    canvas.drawPath(path, paint);
   }
 
   @override

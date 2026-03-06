@@ -12,10 +12,12 @@ class ParentalDashboardScreen extends ConsumerStatefulWidget {
   const ParentalDashboardScreen({super.key});
 
   @override
-  ConsumerState<ParentalDashboardScreen> createState() => _ParentalDashboardScreenState();
+  ConsumerState<ParentalDashboardScreen> createState() =>
+      _ParentalDashboardScreenState();
 }
 
-class _ParentalDashboardScreenState extends ConsumerState<ParentalDashboardScreen> {
+class _ParentalDashboardScreenState
+    extends ConsumerState<ParentalDashboardScreen> {
   bool _isAuthenticated = false;
   late int _num1, _num2;
   late String _operation;
@@ -35,7 +37,7 @@ class _ParentalDashboardScreenState extends ConsumerState<ParentalDashboardScree
 
   void _generateMathProblem() {
     final random = Random();
-    _num1 = random.nextInt(12) + 5; 
+    _num1 = random.nextInt(12) + 5;
     _num2 = random.nextInt(10) + 2;
     _operation = random.nextBool() ? '+' : '-';
 
@@ -68,16 +70,16 @@ class _ParentalDashboardScreenState extends ConsumerState<ParentalDashboardScree
     // TIPADO CORREGIDO: Especificamos los modelos para evitar Dynamic calls
     final ChildProfile? profile = ref.watch(currentProfileProvider);
     final ParentalSettings settings = ref.watch(parentalSettingsProvider);
-    
+
     return Scaffold(
-      resizeToAvoidBottomInset: true, 
+      resizeToAvoidBottomInset: true,
       body: IslandBackground(
         child: SafeArea(
           child: AnimatedSwitcher(
             duration: 400.ms,
-            child: !_isAuthenticated 
-              ? _buildAuthLock() 
-              : _buildMainDashboard(profile, settings),
+            child: !_isAuthenticated
+                ? _buildAuthLock()
+                : _buildMainDashboard(profile, settings),
           ),
         ),
       ),
@@ -93,20 +95,25 @@ class _ParentalDashboardScreenState extends ConsumerState<ParentalDashboardScree
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Icon(Icons.lock_person_rounded, size: 64, color: IslaColors.oceanBlue),
+              const Icon(Icons.lock_person_rounded,
+                  size: 64, color: IslaColors.oceanBlue),
               const SizedBox(height: 16),
               const Text(
-                'SOLO ADULTOS', 
-                style: TextStyle(fontWeight: FontWeight.w900, fontSize: 20, color: IslaColors.oceanDark),
+                'SOLO ADULTOS',
+                style: TextStyle(
+                    fontWeight: FontWeight.w900,
+                    fontSize: 20,
+                    color: IslaColors.oceanDark),
               ),
               const SizedBox(height: 8),
-              const Text('Resuelve para configurar la isla:', textAlign: TextAlign.center),
+              const Text('Resuelve para configurar la isla:',
+                  textAlign: TextAlign.center),
               const SizedBox(height: 24),
               Text(
-                '$_num1 $_operation $_num2 = ?', 
+                '$_num1 $_operation $_num2 = ?',
                 style: const TextStyle(
-                  fontSize: 40, 
-                  fontWeight: FontWeight.w900, 
+                  fontSize: 40,
+                  fontWeight: FontWeight.w900,
                   color: IslaColors.oceanBlue,
                 ),
               ),
@@ -115,13 +122,14 @@ class _ParentalDashboardScreenState extends ConsumerState<ParentalDashboardScree
                 controller: _answerController,
                 keyboardType: TextInputType.number,
                 textAlign: TextAlign.center,
-                style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
+                style:
+                    const TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
                 decoration: InputDecoration(
                   hintText: 'Respuesta',
                   filled: true,
                   fillColor: Colors.white.withValues(alpha: 0.3),
                   border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(20), 
+                    borderRadius: BorderRadius.circular(20),
                     borderSide: BorderSide.none,
                   ),
                 ),
@@ -133,11 +141,13 @@ class _ParentalDashboardScreenState extends ConsumerState<ParentalDashboardScree
                 style: ElevatedButton.styleFrom(
                   backgroundColor: IslaColors.oceanBlue,
                   minimumSize: const Size(double.infinity, 56),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16)),
                 ),
                 child: const Text(
-                  'VERIFICAR', 
-                  style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                  'VERIFICAR',
+                  style: TextStyle(
+                      color: Colors.white, fontWeight: FontWeight.bold),
                 ),
               ),
             ],
@@ -179,7 +189,7 @@ class _ParentalDashboardScreenState extends ConsumerState<ParentalDashboardScree
         ),
         const SizedBox(width: 16),
         const Text(
-          'Configuración', 
+          'Configuración',
           style: TextStyle(fontSize: 24, fontWeight: FontWeight.w900),
         ),
       ],
@@ -192,9 +202,12 @@ class _ParentalDashboardScreenState extends ConsumerState<ParentalDashboardScree
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
-          _statColumn('Nivel', profile.currentLevel.toString(), Icons.bolt_rounded),
-          _statColumn('Logros', profile.earnedBadges.length.toString(), Icons.emoji_events_rounded),
-          _statColumn('Minutos', profile.totalPlayTimeMinutes.toString(), Icons.history_toggle_off_rounded),
+          _statColumn(
+              'Nivel', profile.currentLevel.toString(), Icons.bolt_rounded),
+          _statColumn('Logros', profile.earnedBadges.length.toString(),
+              Icons.emoji_events_rounded),
+          _statColumn('Minutos', profile.totalPlayTimeMinutes.toString(),
+              Icons.history_toggle_off_rounded),
         ],
       ),
     );
@@ -204,8 +217,10 @@ class _ParentalDashboardScreenState extends ConsumerState<ParentalDashboardScree
     return Column(
       children: [
         Icon(icon, color: IslaColors.oceanBlue),
-        Text(value, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-        Text(label, style: const TextStyle(fontSize: 12, color: Colors.black54)),
+        Text(value,
+            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+        Text(label,
+            style: const TextStyle(fontSize: 12, color: Colors.black54)),
       ],
     );
   }
@@ -218,10 +233,12 @@ class _ParentalDashboardScreenState extends ConsumerState<ParentalDashboardScree
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text('Límite Diario', style: TextStyle(fontWeight: FontWeight.bold)),
+              const Text('Límite Diario',
+                  style: TextStyle(fontWeight: FontWeight.bold)),
               Text(
-                '${settings.dailyTimeLimitMinutes} min', 
-                style: const TextStyle(color: IslaColors.oceanBlue, fontWeight: FontWeight.bold),
+                '${settings.dailyTimeLimitMinutes} min',
+                style: const TextStyle(
+                    color: IslaColors.oceanBlue, fontWeight: FontWeight.bold),
               ),
             ],
           ),
@@ -230,7 +247,9 @@ class _ParentalDashboardScreenState extends ConsumerState<ParentalDashboardScree
             min: 15, max: 120, divisions: 7,
             activeColor: IslaColors.oceanBlue,
             // CORRECCIÓN: Al usar ref.read(...) ahora el compilador sabe qué métodos existen
-            onChanged: (val) => ref.read(parentalSettingsProvider.notifier).updateTimeLimit(val.toInt()),
+            onChanged: (val) => ref
+                .read(parentalSettingsProvider.notifier)
+                .updateTimeLimit(val.toInt()),
           ),
         ],
       ),
@@ -245,14 +264,16 @@ class _ParentalDashboardScreenState extends ConsumerState<ParentalDashboardScree
         children: [
           SwitchListTile(
             title: const Text('Efectos Especiales'),
-            secondary: const Icon(Icons.volume_up_rounded, color: IslaColors.oceanBlue),
+            secondary: const Icon(Icons.volume_up_rounded,
+                color: IslaColors.oceanBlue),
             value: settings.soundEnabled,
             onChanged: (val) => notifier.toggleSound(),
           ),
           const Divider(height: 1),
           SwitchListTile(
             title: const Text('Música de Fondo'),
-            secondary: const Icon(Icons.music_note_rounded, color: IslaColors.oceanBlue),
+            secondary: const Icon(Icons.music_note_rounded,
+                color: IslaColors.oceanBlue),
             value: settings.musicEnabled,
             onChanged: (val) => notifier.toggleMusic(),
           ),
@@ -265,8 +286,9 @@ class _ParentalDashboardScreenState extends ConsumerState<ParentalDashboardScree
     return Padding(
       padding: const EdgeInsets.only(left: 8, bottom: 8),
       child: Text(
-        title, 
-        style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.black54),
+        title,
+        style: const TextStyle(
+            fontSize: 12, fontWeight: FontWeight.bold, color: Colors.black54),
       ),
     );
   }
@@ -290,18 +312,21 @@ class _ParentalDashboardScreenState extends ConsumerState<ParentalDashboardScree
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('¿Estás seguro?'),
-        content: const Text('Se perderán todos los niveles completados y logros obtenidos.'),
+        content: const Text(
+            'Se perderán todos los niveles completados y logros obtenidos.'),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('CANCELAR')),
           TextButton(
-            onPressed: () {
-              // CORRECCIÓN: Llamada tipada al Reset del perfil
-              ref.read(currentProfileProvider.notifier).resetProgress();
-              Navigator.pop(context); // Cierra Dialog
-              Navigator.pop(context); // Sale del dashboard
-            }, 
-            child: const Text('BORRAR TODO', style: TextStyle(color: Colors.redAccent))
-          ),
+              onPressed: () => Navigator.pop(context),
+              child: const Text('CANCELAR')),
+          TextButton(
+              onPressed: () {
+                // CORRECCIÓN: Llamada tipada al Reset del perfil
+                ref.read(currentProfileProvider.notifier).resetProgress();
+                Navigator.pop(context); // Cierra Dialog
+                Navigator.pop(context); // Sale del dashboard
+              },
+              child: const Text('BORRAR TODO',
+                  style: TextStyle(color: Colors.redAccent))),
         ],
       ),
     );

@@ -2,7 +2,6 @@ import 'package:confetti/confetti.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:isla_digital/core/theme/app_theme.dart';
-import 'package:isla_digital/domain/models/models.dart'; 
 import 'package:isla_digital/presentation/providers/app_providers.dart';
 import 'package:isla_digital/presentation/widgets/island_background.dart';
 import 'package:isla_digital/presentation/widgets/progress_widgets.dart';
@@ -29,7 +28,8 @@ class _Level5ScreenState extends ConsumerState<Level5Screen> {
   @override
   void initState() {
     super.initState();
-    _confettiController = ConfettiController(duration: const Duration(seconds: 3));
+    _confettiController =
+        ConfettiController(duration: const Duration(seconds: 3));
   }
 
   @override
@@ -40,7 +40,7 @@ class _Level5ScreenState extends ConsumerState<Level5Screen> {
 
   void _handleProgress(int points) {
     if (isCompleted) return;
-    
+
     setState(() {
       totalProgress += points;
       if (totalProgress >= 100) {
@@ -49,15 +49,15 @@ class _Level5ScreenState extends ConsumerState<Level5Screen> {
         _completeLevel();
       }
     });
-    
+
     ref.read(currentProfileProvider.notifier).addProgress('level_5', points);
   }
 
   void _completeLevel() {
     _confettiController.play();
     final notifier = ref.read(currentProfileProvider.notifier);
-    
-    notifier.addBadge('artist_master');
+
+    notifier.addBadge('artista_isla');
     notifier.addBadge('musician_tropical');
 
     showDialog(
@@ -66,11 +66,9 @@ class _Level5ScreenState extends ConsumerState<Level5Screen> {
       builder: (context) => AlertDialog(
         backgroundColor: Colors.white.withValues(alpha: 0.95),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(32)),
-        title: const Text(
-          '¡GRAN ARTISTA!', 
-          textAlign: TextAlign.center, 
-          style: TextStyle(fontWeight: FontWeight.w900)
-        ),
+        title: const Text('¡GRAN ARTISTA!',
+            textAlign: TextAlign.center,
+            style: TextStyle(fontWeight: FontWeight.w900)),
         content: const Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -88,12 +86,14 @@ class _Level5ScreenState extends ConsumerState<Level5Screen> {
         actions: [
           Center(
             child: ElevatedButton(
-              style: ElevatedButton.styleFrom(backgroundColor: IslaColors.jungleGreen),
+              style: ElevatedButton.styleFrom(
+                  backgroundColor: IslaColors.jungleGreen),
               onPressed: () {
-                Navigator.pop(context); 
-                Navigator.pop(context); 
+                Navigator.pop(context);
+                Navigator.pop(context);
               },
-              child: const Text('VOLVER AL MAPA', style: TextStyle(color: Colors.white)),
+              child: const Text('VOLVER AL MAPA',
+                  style: TextStyle(color: Colors.white)),
             ),
           )
         ],
@@ -116,9 +116,9 @@ class _Level5ScreenState extends ConsumerState<Level5Screen> {
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 40),
                     child: IslandProgressBar(
-                      // CORRECCIÓN: Se asegura el tipo de dato correcto. 
+                      // CORRECCIÓN: Se asegura el tipo de dato correcto.
                       // Si el error decía que pasabas double a int, usa totalProgress directamente.
-                      progress: totalProgress, 
+                      progress: totalProgress,
                       label: 'Progreso Artístico',
                       fillColor: IslaColors.sunsetPink,
                     ),
@@ -143,9 +143,9 @@ class _Level5ScreenState extends ConsumerState<Level5Screen> {
             confettiController: _confettiController,
             blastDirectionality: BlastDirectionality.explosive,
             colors: const [
-              IslaColors.oceanBlue, 
-              IslaColors.sunflower, 
-              IslaColors.jungleGreen, 
+              IslaColors.oceanBlue,
+              IslaColors.sunflower,
+              IslaColors.jungleGreen,
               IslaColors.sunsetPink
             ],
           ),
@@ -160,7 +160,8 @@ class _Level5ScreenState extends ConsumerState<Level5Screen> {
       child: Row(
         children: [
           IconButton(
-            icon: const Icon(Icons.close_rounded, color: IslaColors.oceanDark, size: 32),
+            icon: const Icon(Icons.close_rounded,
+                color: IslaColors.oceanDark, size: 32),
             onPressed: () => Navigator.pop(context),
           ),
           const Expanded(
@@ -174,7 +175,7 @@ class _Level5ScreenState extends ConsumerState<Level5Screen> {
               ),
             ),
           ),
-          const SizedBox(width: 48), 
+          const SizedBox(width: 48),
         ],
       ),
     );
@@ -205,15 +206,20 @@ class _Level5ScreenState extends ConsumerState<Level5Screen> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Icon(
-                      index == 0 ? Icons.brush_rounded : Icons.music_note_rounded, 
-                      color: isSelected ? Colors.white : IslaColors.charcoal.withValues(alpha: 0.5), 
-                      size: 18
-                    ),
+                        index == 0
+                            ? Icons.brush_rounded
+                            : Icons.music_note_rounded,
+                        color: isSelected
+                            ? Colors.white
+                            : IslaColors.charcoal.withValues(alpha: 0.5),
+                        size: 18),
                     const SizedBox(width: 8),
                     Text(
                       tabs[index],
                       style: TextStyle(
-                        color: isSelected ? Colors.white : IslaColors.charcoal.withValues(alpha: 0.5),
+                        color: isSelected
+                            ? Colors.white
+                            : IslaColors.charcoal.withValues(alpha: 0.5),
                         fontWeight: FontWeight.w900,
                       ),
                     ),

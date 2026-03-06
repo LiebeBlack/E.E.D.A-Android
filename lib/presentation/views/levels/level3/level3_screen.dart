@@ -28,24 +28,52 @@ class _Level3ScreenState extends ConsumerState<Level3Screen> {
       'scenario': '¡Quiero ver gatitos graciosos!',
       'websites': [
         {'name': 'GatitosBuenos.com', 'icon': Icons.pets_rounded, 'safe': true},
-        {'name': 'PremiosGratis.xyz', 'icon': Icons.warning_rounded, 'safe': false},
-        {'name': 'VideosDeAnimales.edu', 'icon': Icons.video_library_rounded, 'safe': true},
+        {
+          'name': 'PremiosGratis.xyz',
+          'icon': Icons.warning_rounded,
+          'safe': false
+        },
+        {
+          'name': 'VideosDeAnimales.edu',
+          'icon': Icons.video_library_rounded,
+          'safe': true
+        },
       ],
     },
     {
       'scenario': 'Busco dibujos para colorear',
       'websites': [
-        {'name': 'DibujosLindos.app', 'icon': Icons.brush_rounded, 'safe': true},
-        {'name': 'DescargaVirus.net', 'icon': Icons.download_rounded, 'safe': false},
+        {
+          'name': 'DibujosLindos.app',
+          'icon': Icons.brush_rounded,
+          'safe': true
+        },
+        {
+          'name': 'DescargaVirus.net',
+          'icon': Icons.download_rounded,
+          'safe': false
+        },
         {'name': 'MundoColor.org', 'icon': Icons.palette_rounded, 'safe': true},
       ],
     },
     {
       'scenario': 'Quiero jugar un ratito',
       'websites': [
-        {'name': 'IslaDeJuegos.gob', 'icon': Icons.sports_esports_rounded, 'safe': true},
-        {'name': 'GanaDineroPronto', 'icon': Icons.monetization_on_rounded, 'safe': false},
-        {'name': 'DiversionSegura.com', 'icon': Icons.celebration_rounded, 'safe': true},
+        {
+          'name': 'IslaDeJuegos.gob',
+          'icon': Icons.sports_esports_rounded,
+          'safe': true
+        },
+        {
+          'name': 'GanaDineroPronto',
+          'icon': Icons.monetization_on_rounded,
+          'safe': false
+        },
+        {
+          'name': 'DiversionSegura.com',
+          'icon': Icons.celebration_rounded,
+          'safe': true
+        },
       ],
     },
   ];
@@ -53,7 +81,8 @@ class _Level3ScreenState extends ConsumerState<Level3Screen> {
   @override
   void initState() {
     super.initState();
-    _confettiController = ConfettiController(duration: const Duration(seconds: 3));
+    _confettiController =
+        ConfettiController(duration: const Duration(seconds: 3));
   }
 
   @override
@@ -77,7 +106,7 @@ class _Level3ScreenState extends ConsumerState<Level3Screen> {
           _completeLevel();
         }
       });
-      (ref.read(currentProfileProvider.notifier) as ProfileNotifier).addProgress('level_3', 50);
+      ref.read(currentProfileProvider.notifier).addProgress('level_3', 50);
     } else {
       _showDangerDialog(name);
     }
@@ -89,7 +118,8 @@ class _Level3ScreenState extends ConsumerState<Level3Screen> {
       builder: (context) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
         title: const Text('¡DETENTE, DETECTIVE!'),
-        content: Text('$name parece una trampa. Los sitios con nombres extraños o premios falsos pueden ser peligrosos.'),
+        content: Text(
+            '$name parece una trampa. Los sitios con nombres extraños o premios falsos pueden ser peligrosos.'),
         actions: [
           Center(
             child: ElevatedButton(
@@ -106,7 +136,7 @@ class _Level3ScreenState extends ConsumerState<Level3Screen> {
     _confettiController.play();
     final badge = IslaBadges.getById('detective_seguro');
     if (badge != null) {
-      final notifier = ref.read(currentProfileProvider.notifier) as ProfileNotifier;
+      final notifier = ref.read(currentProfileProvider.notifier);
       notifier.addBadge(badge.id);
       notifier.unlockLevel(4);
     }
@@ -170,7 +200,8 @@ class _Level3ScreenState extends ConsumerState<Level3Screen> {
                       controller: _pageController,
                       physics: const NeverScrollableScrollPhysics(),
                       itemCount: rounds.length,
-                      itemBuilder: (context, index) => _buildGameContent(rounds[index]),
+                      itemBuilder: (context, index) =>
+                          _buildGameContent(rounds[index]),
                     ),
                   ),
                 ],
@@ -180,7 +211,12 @@ class _Level3ScreenState extends ConsumerState<Level3Screen> {
           ConfettiWidget(
             confettiController: _confettiController,
             blastDirectionality: BlastDirectionality.explosive,
-            colors: const [IslaColors.oceanBlue, IslaColors.sunflower, IslaColors.jungleGreen, IslaColors.sunsetPink],
+            colors: const [
+              IslaColors.oceanBlue,
+              IslaColors.sunflower,
+              IslaColors.jungleGreen,
+              IslaColors.sunsetPink
+            ],
           ),
         ],
       ),
@@ -193,16 +229,17 @@ class _Level3ScreenState extends ConsumerState<Level3Screen> {
       child: Row(
         children: [
           IconButton(
-            icon: const Icon(Icons.close_rounded, color: IslaColors.oceanDark, size: 32),
+            icon: const Icon(Icons.close_rounded,
+                color: IslaColors.oceanDark, size: 32),
             onPressed: () => Navigator.pop(context),
           ),
           const Spacer(),
           Text(
             'DETECTIVE',
             style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-              color: IslaColors.oceanDark,
-              fontWeight: FontWeight.w900,
-            ),
+                  color: IslaColors.oceanDark,
+                  fontWeight: FontWeight.w900,
+                ),
           ),
           const Spacer(),
           Container(
@@ -213,7 +250,8 @@ class _Level3ScreenState extends ConsumerState<Level3Screen> {
             ),
             child: Text(
               '$score',
-              style: const TextStyle(fontWeight: FontWeight.w900, color: IslaColors.oceanDark),
+              style: const TextStyle(
+                  fontWeight: FontWeight.w900, color: IslaColors.oceanDark),
             ),
           ),
         ],
@@ -231,11 +269,15 @@ class _Level3ScreenState extends ConsumerState<Level3Screen> {
           GlassContainer(
             child: Column(
               children: [
-                const Icon(Icons.search_rounded, size: 48, color: IslaColors.royalPurple),
+                const Icon(Icons.search_rounded,
+                    size: 48, color: IslaColors.royalPurple),
                 const SizedBox(height: 12),
                 Text(
                   round['scenario'] as String,
-                  style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800),
+                  style: Theme.of(context)
+                      .textTheme
+                      .titleLarge
+                      ?.copyWith(fontWeight: FontWeight.w800),
                   textAlign: TextAlign.center,
                 ),
               ],
@@ -245,10 +287,10 @@ class _Level3ScreenState extends ConsumerState<Level3Screen> {
           Text(
             '¿CUÁL SITIO ES SEGURO?',
             style: Theme.of(context).textTheme.labelLarge?.copyWith(
-              letterSpacing: 2,
-              fontWeight: FontWeight.w900,
-              color: IslaColors.charcoal.withValues(alpha: 0.6),
-            ),
+                  letterSpacing: 2,
+                  fontWeight: FontWeight.w900,
+                  color: IslaColors.charcoal.withValues(alpha: 0.6),
+                ),
           ),
           const SizedBox(height: 24),
           Expanded(
@@ -261,7 +303,10 @@ class _Level3ScreenState extends ConsumerState<Level3Screen> {
                   site['name']! as String,
                   site['icon']! as IconData,
                   site['safe']! as bool,
-                ).animate().slideX(begin: 0.2, delay: (index * 100).ms, curve: Curves.easeOutBack);
+                ).animate().slideX(
+                    begin: 0.2,
+                    delay: (index * 100).ms,
+                    curve: Curves.easeOutBack);
               },
             ),
           ),
@@ -280,16 +325,22 @@ class _Level3ScreenState extends ConsumerState<Level3Screen> {
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: safe ? IslaColors.jungleGreen.withValues(alpha: 0.1) : IslaColors.coralReef.withValues(alpha: 0.1),
+                color: safe
+                    ? IslaColors.jungleGreen.withValues(alpha: 0.1)
+                    : IslaColors.coralReef.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
-              child: Icon(icon, color: safe ? IslaColors.jungleGreen : IslaColors.coralReef),
+              child: Icon(icon,
+                  color: safe ? IslaColors.jungleGreen : IslaColors.coralReef),
             ),
             const SizedBox(width: 16),
             Expanded(
               child: Text(
                 name,
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
+                style: Theme.of(context)
+                    .textTheme
+                    .titleMedium
+                    ?.copyWith(fontWeight: FontWeight.w700),
               ),
             ),
             Icon(

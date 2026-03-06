@@ -32,7 +32,7 @@ class GlassContainer extends StatelessWidget {
               end: Alignment.bottomRight,
               colors: [
                 // 0.8 de alpha para máxima legibilidad del texto
-                Colors.white.withValues(alpha: 0.85), 
+                Colors.white.withValues(alpha: 0.85),
                 Colors.white.withValues(alpha: 0.75),
               ],
             ),

@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 /// Utilidad para crear transiciones de página animadas.
 /// Fade + Slide desde abajo para una experiencia más suave.
 class FadeSlideRoute<T> extends PageRouteBuilder<T> {
-
   FadeSlideRoute({required this.page})
       : super(
           pageBuilder: (context, animation, secondaryAnimation) => page,

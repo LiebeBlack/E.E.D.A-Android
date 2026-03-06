@@ -31,10 +31,11 @@ class _BigButtonState extends State<BigButton> {
   Widget build(BuildContext context) {
     final double shadowHeight = _isPressed ? 2 : 6;
     final double topPadding = _isPressed ? 4 : 0;
-    
+
     // Create a darker shade using HSL for more vibrant depth
     final hsl = HSLColor.fromColor(widget.color);
-    final darkColor = hsl.withLightness((hsl.lightness - 0.2).clamp(0.0, 1.0)).toColor();
+    final darkColor =
+        hsl.withLightness((hsl.lightness - 0.2).clamp(0.0, 1.0)).toColor();
 
     return GestureDetector(
       onTapDown: (_) {
@@ -117,7 +118,8 @@ class CircleActionButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final hsl = HSLColor.fromColor(color);
-    final darkColor = hsl.withLightness((hsl.lightness - 0.15).clamp(0.0, 1.0)).toColor();
+    final darkColor =
+        hsl.withLightness((hsl.lightness - 0.15).clamp(0.0, 1.0)).toColor();
 
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -233,7 +235,8 @@ class _AnimatedIconButtonState extends State<AnimatedIconButton>
             ],
             border: Border.all(color: Colors.white, width: 2),
           ),
-          child: Icon(widget.icon, size: widget.size * 0.5, color: Colors.white),
+          child:
+              Icon(widget.icon, size: widget.size * 0.5, color: Colors.white),
         ),
       ),
     );

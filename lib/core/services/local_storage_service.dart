@@ -27,7 +27,8 @@ class LocalStorageService {
 
   static SharedPreferences get _p {
     if (_prefs == null) {
-      throw Exception('LocalStorageService no inicializado. Llama a initialize() primero.');
+      throw Exception(
+          'LocalStorageService no inicializado. Llama a initialize() primero.');
     }
     return _prefs!;
   }
@@ -41,11 +42,12 @@ class LocalStorageService {
   static ChildProfile? loadProfile() {
     final jsonString = _p.getString(_profileKey);
     if (jsonString == null || jsonString.isEmpty) return null;
-    
+
     try {
       // FIX: Cast explícito de dynamic a Map<String, dynamic>
       final dynamic decoded = jsonDecode(jsonString);
-      final Map<String, dynamic> map = Map<String, dynamic>.from(decoded as Map);
+      final Map<String, dynamic> map =
+          Map<String, dynamic>.from(decoded as Map);
       return ChildProfile.fromJson(map);
     } catch (e) {
       debugPrint('❌ Error al deserializar perfil: $e');
@@ -64,11 +66,12 @@ class LocalStorageService {
   static ParentalSettings loadParentalSettings() {
     final jsonString = _p.getString(_settingsKey);
     if (jsonString == null) return const ParentalSettings();
-    
+
     try {
       // FIX: Cast explícito para el constructor fromJson
       final dynamic decoded = jsonDecode(jsonString);
-      final Map<String, dynamic> map = Map<String, dynamic>.from(decoded as Map);
+      final Map<String, dynamic> map =
+          Map<String, dynamic>.from(decoded as Map);
       return ParentalSettings.fromJson(map);
     } catch (e) {
       return const ParentalSettings();
@@ -77,7 +80,8 @@ class LocalStorageService {
 
   // --- TIEMPO DE JUEGO Y SESIÓN ---
 
-  static Future<bool> savePlayTime(int minutes) => _p.setInt(_playTimeKey, minutes);
+  static Future<bool> savePlayTime(int minutes) =>
+      _p.setInt(_playTimeKey, minutes);
   static int loadPlayTime() => _p.getInt(_playTimeKey) ?? 0;
 
   static Future<int> addPlayTime(int minutes) async {
@@ -99,11 +103,11 @@ class LocalStorageService {
   static bool isNewDay() {
     final lastSession = loadLastSession();
     if (lastSession == null) return true;
-    
+
     final now = DateTime.now();
-    return lastSession.year != now.year || 
-           lastSession.month != now.month || 
-           lastSession.day != now.day;
+    return lastSession.year != now.year ||
+        lastSession.month != now.month ||
+        lastSession.day != now.day;
   }
 
   // --- PROGRESO E INSIGNIAS ---

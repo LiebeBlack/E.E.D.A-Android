@@ -48,8 +48,12 @@ class IslandBackground extends StatelessWidget {
             Positioned(
               top: -40,
               right: -40,
-              child: _buildSun().animate(onPlay: (c) => c.repeat(reverse: true))
-                  .scale(begin: const Offset(1, 1), end: const Offset(1.1, 1.1), duration: 4.seconds),
+              child: _buildSun()
+                  .animate(onPlay: (c) => c.repeat(reverse: true))
+                  .scale(
+                      begin: const Offset(1, 1),
+                      end: const Offset(1.1, 1.1),
+                      duration: 4.seconds),
             ),
 
             // 4. Las Olas (en la parte inferior)
@@ -121,10 +125,12 @@ class WavesPainter extends CustomPainter {
 
     final path = Path();
     path.moveTo(0, size.height * 0.7);
-    
+
     // Dibujamos una curva suave tipo seno para las olas
-    path.quadraticBezierTo(size.width * 0.25, size.height * 0.5, size.width * 0.5, size.height * 0.7);
-    path.quadraticBezierTo(size.width * 0.75, size.height * 0.9, size.width, size.height * 0.7);
+    path.quadraticBezierTo(size.width * 0.25, size.height * 0.5,
+        size.width * 0.5, size.height * 0.7);
+    path.quadraticBezierTo(
+        size.width * 0.75, size.height * 0.9, size.width, size.height * 0.7);
     path.lineTo(size.width, size.height);
     path.lineTo(0, size.height);
     path.close();
