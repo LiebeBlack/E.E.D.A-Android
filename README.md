@@ -52,7 +52,7 @@ La experiencia de desarrollo priorizó las siguientes áreas para los más peque
 
 1. Clona el repositorio:
    ```bash
-   git clone https://github.com/tu-usuario/isla-digital.git
+   git clone https://github.com/LiebeBlack/I.S.D.I.git
    ```
 2. Ábrelo en **Android Studio** (Koala o superior recomendado).
 3. Asegúrate de tener al menos **JDK 17** habilitado para sincronizar los DSL de Gradle.
