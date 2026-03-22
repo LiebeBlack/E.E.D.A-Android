@@ -1,0 +1,123 @@
+package com.liebeblack.isla_digital.ui.components
+
+import androidx.compose.animation.*
+import androidx.compose.animation.core.*
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.scale
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.liebeblack.isla_digital.domain.model.DigitalPhase
+import com.liebeblack.isla_digital.ui.theme.PhaseColors
+import kotlinx.coroutines.delay
+
+/**
+ * Overlay de transición animado cuando el usuario cambia de fase digital.
+ * Proporciona un efecto "Wow" y feedback visual de crecimiento.
+ */
+@Composable
+fun PhaseTransitionOverlay(
+    newPhase: DigitalPhase,
+    isVisible: Boolean,
+    onDismiss: () -> Unit
+) {
+    if (!isVisible) return
+
+    val colors = PhaseColors.forPhase(newPhase)
+    var showContent by remember { mutableStateOf(false) }
+
+    LaunchedEffect(isVisible) {
+        if (isVisible) {
+            delay(300)
+            showContent = true
+            delay(3000)
+            onDismiss()
+        }
+    }
+
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(
+                brush = Brush.verticalGradient(
+                    listOf(colors.backgroundGradientStart, colors.backgroundGradientEnd)
+                )
+            ),
+        contentAlignment = Alignment.Center
+    ) {
+        AnimatedVisibility(
+            visible = showContent,
+            enter = fadeIn(tween(1000)) + scaleIn(tween(1000, easing = FastOutSlowInEasing)),
+            exit = fadeOut(tween(500))
+        ) {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier.padding(32.dp)
+            ) {
+                Box(contentAlignment = Alignment.Center) {
+                    // Círculos de luz de fondo
+                    Box(
+                        Modifier
+                            .size(200.dp)
+                            .scale(1.5f)
+                            .background(colors.primary.copy(alpha = 0.1f), CircleShape)
+                    )
+                    Text(
+                        text = newPhase.emoji,
+                        fontSize = 100.sp
+                    )
+                }
+                
+                Spacer(modifier = Modifier.height(32.dp))
+                
+                Text(
+                    text = "¡Has evolucionado!",
+                    style = MaterialTheme.typography.headlineMedium.copy(
+                        color = colors.onBackground,
+                        fontWeight = FontWeight.Bold
+                    ),
+                    textAlign = TextAlign.Center
+                )
+                
+                Text(
+                    text = "Ahora estás en la fase",
+                    style = MaterialTheme.typography.bodyLarge.copy(
+                        color = colors.onBackground.copy(alpha = 0.7f)
+                    )
+                )
+                
+                Text(
+                    text = newPhase.displayName.uppercase(),
+                    style = MaterialTheme.typography.displaySmall.copy(
+                        color = colors.primary,
+                        fontWeight = FontWeight.Black,
+                        letterSpacing = 2.sp
+                    ),
+                    textAlign = TextAlign.Center
+                )
+                
+                Spacer(modifier = Modifier.height(24.dp))
+                
+                Text(
+                    text = newPhase.description,
+                    style = MaterialTheme.typography.bodyMedium.copy(
+                        color = colors.onBackground.copy(alpha = 0.8f)
+                    ),
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.padding(horizontal = 16.dp)
+                )
+            }
+        }
+    }
+}

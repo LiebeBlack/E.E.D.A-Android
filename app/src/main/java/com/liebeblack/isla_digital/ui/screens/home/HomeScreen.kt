@@ -2,288 +2,179 @@ package com.liebeblack.isla_digital.ui.screens.home
 
 import androidx.compose.animation.*
 import androidx.compose.animation.core.*
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.rounded.TrendingUp
+import androidx.compose.material.icons.automirrored.rounded.MenuBook
 import androidx.compose.material.icons.rounded.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.liebeblack.isla_digital.domain.model.ChildProfile
-import com.liebeblack.isla_digital.ui.components.BigButton
-import com.liebeblack.isla_digital.ui.components.GlassContainer
-import com.liebeblack.isla_digital.ui.theme.IslaColors
+import com.liebeblack.isla_digital.domain.model.DigitalPhase
+import com.liebeblack.isla_digital.ui.components.*
+import com.liebeblack.isla_digital.ui.theme.IslaAdaptiveTheme
 
-/**
- * Pantalla Principal (HomeScreen) 2026.
- * Migrada de Flutter a Kotlin/Compose con animaciones nativas.
- */
+@Suppress("DEPRECATION")
 @Composable
 fun HomeScreen(
     profile: ChildProfile?,
     onNavigateToLevels: () -> Unit,
     onNavigateToSettings: () -> Unit,
     onNavigateToProfile: () -> Unit,
-    onNavigateToShowcase: () -> Unit
+    onNavigateToShowcase: () -> Unit,
+    onNavigateToSkillTree: () -> Unit = {},
+    onNavigateToLessons: () -> Unit = {},
+    onNavigateToCertifications: () -> Unit = {}
 ) {
-    val profileName = profile?.name ?: "Explorador"
-    val badgesCount = profile?.earnedBadges?.size ?: 0
+    val colors = IslaAdaptiveTheme.colors
+    val config = IslaAdaptiveTheme.typoConfig
+    val phase = IslaAdaptiveTheme.phase
+    val name = profile?.name ?: "Explorador"
+    val badges = profile?.earnedBadges?.size ?: 0
 
     Scaffold(
-        containerColor = Color.Transparent, // El fondo lo pone el IslandBackground
-        topBar = {
-            TopBar(
-                name = profileName,
-                badgesCount = badgesCount,
-                onProfileClick = onNavigateToProfile
-            )
-        }
+        containerColor = Color.Transparent,
+        topBar = { AdaptiveTopBar(name, badges, phase, onNavigateToProfile, onNavigateToSettings) }
     ) { paddingValues ->
         Box(
             modifier = Modifier
                 .fillMaxSize()
+                .background(brush = Brush.verticalGradient(listOf(colors.backgroundGradientStart, colors.backgroundGradientEnd)))
                 .padding(paddingValues)
         ) {
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
                 contentPadding = PaddingValues(horizontal = 24.dp, vertical = 16.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                item { WelcomeHero() }
-                
-                item { Spacer(modifier = Modifier.height(30.dp)) }
-                
-                item {
-                    ActionsGrid(
-                        onPlay = onNavigateToLevels,
-                        onBadges = { /* Mostrar diálogo */ },
-                        onAlbum = onNavigateToShowcase
-                    )
-                }
-                
-                item { Spacer(modifier = Modifier.height(120.dp)) }
+                item { AdaptiveWelcomeHero(phase) }
+                item { PhaseIndicator(phase = phase, compact = false) }
+                item { QuickStatsRow(profile) }
+                item { MainActionsGrid(phase, onNavigateToLevels, onNavigateToSkillTree, onNavigateToLessons, onNavigateToCertifications, onNavigateToShowcase) }
+                item { Spacer(modifier = Modifier.height(80.dp)) }
             }
-
-            // Botón de ajustes en la esquina superior derecha (flotante)
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(16.dp),
-                contentAlignment = Alignment.TopEnd
-            ) {
-                SettingsButton(onClick = onNavigateToSettings)
-            }
-            
-            // Personajes en la parte inferior (Simulado, en Flutter era Lottie)
-            BottomCharacters()
         }
     }
 }
 
 @Composable
-fun TopBar(name: String, badgesCount: Int, onProfileClick: () -> Unit) {
+private fun AdaptiveTopBar(name: String, badges: Int, phase: DigitalPhase, onProfile: () -> Unit, onSettings: () -> Unit) {
+    val colors = IslaAdaptiveTheme.colors
+    val config = IslaAdaptiveTheme.typoConfig
     var visible by remember { mutableStateOf(false) }
     LaunchedEffect(Unit) { visible = true }
 
-    AnimatedVisibility(
-        visible = visible,
-        enter = fadeIn(animationSpec = tween(600)) + slideInVertically { -it / 5 }
-    ) {
-        Box(modifier = Modifier.padding(horizontal = 24.dp, vertical = 16.dp)) {
-            GlassContainer(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(end = 56.dp) // Espacio para el botón de ajustes
-            ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.clickable { onProfileClick() }
-                ) {
-                    AvatarCircle()
-                    Spacer(modifier = Modifier.width(12.dp))
-                    Column(modifier = Modifier.weight(1f)) {
-                        Text(
-                            text = "¡HOLA!",
-                            style = MaterialTheme.typography.labelSmall
-                        )
-                        Text(
-                            text = name.uppercase(),
-                            style = MaterialTheme.typography.titleMedium,
-                            overflow = TextOverflow.Ellipsis,
-                            maxLines = 1
-                        )
+    AnimatedVisibility(visible = visible, enter = fadeIn(tween(600)) + slideInVertically { -it / 5 }) {
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp, vertical = 16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            AdaptiveGlassCard(modifier = Modifier.weight(1f).clickable { onProfile() }) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Surface(Modifier.size(40.dp), shape = CircleShape, color = colors.primary.copy(alpha = 0.2f)) {
+                        Box(contentAlignment = Alignment.Center) { Icon(Icons.Rounded.Face, null, tint = colors.primary, modifier = Modifier.size(24.dp)) }
                     }
-                    BadgePill(count = badgesCount)
+                    Spacer(Modifier.width(12.dp))
+                    Column(Modifier.weight(1f)) {
+                        Text(
+                            text = when (phase) { DigitalPhase.SENSORIAL -> "¡HOLA!"; DigitalPhase.CREATIVE -> "Hey!"; DigitalPhase.PROFESSIONAL -> "Bienvenido" },
+                            style = MaterialTheme.typography.labelSmall.copy(color = colors.onBackground.copy(alpha = 0.6f))
+                        )
+                        Text(name.uppercase(), style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold, color = colors.onBackground), maxLines = 1, overflow = TextOverflow.Ellipsis)
+                    }
+                    Surface(color = colors.primary.copy(alpha = 0.12f), shape = RoundedCornerShape(config.borderRadius.dp)) {
+                        Row(Modifier.padding(horizontal = 10.dp, vertical = 4.dp), verticalAlignment = Alignment.CenterVertically) {
+                            Icon(Icons.Rounded.Star, null, tint = colors.accent, modifier = Modifier.size(16.dp))
+                            Spacer(Modifier.width(4.dp))
+                            Text("$badges", style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold, color = colors.onBackground))
+                        }
+                    }
                 }
+            }
+            Spacer(Modifier.width(8.dp))
+            Surface(modifier = Modifier.size(44.dp).clickable { onSettings() }, shape = CircleShape, color = colors.glassOverlay) {
+                Box(contentAlignment = Alignment.Center) { Icon(Icons.Rounded.Settings, "Ajustes", tint = colors.onBackground) }
             }
         }
     }
 }
 
 @Composable
-fun AvatarCircle() {
-    Surface(
-        modifier = Modifier.size(40.dp),
-        shape = CircleShape,
-        color = IslaColors.Sunflower
-    ) {
-        Icon(
-            imageVector = Icons.Rounded.Face,
-            contentDescription = null,
-            tint = Color.White,
-            modifier = Modifier.padding(8.dp)
-        )
+private fun AdaptiveWelcomeHero(phase: DigitalPhase) {
+    val colors = IslaAdaptiveTheme.colors
+    val icon = when (phase) {
+        DigitalPhase.SENSORIAL -> Icons.Rounded.Park
+        DigitalPhase.CREATIVE -> Icons.Rounded.Palette
+        DigitalPhase.PROFESSIONAL -> Icons.Rounded.RocketLaunch
     }
-}
-
-@Composable
-fun BadgePill(count: Int) {
-    Surface(
-        color = Color.White.copy(alpha = 0.5f),
-        shape = RoundedCornerShape(20.dp)
-    ) {
-        Row(
-            modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Icon(
-                imageVector = Icons.Rounded.Star,
-                contentDescription = null,
-                tint = IslaColors.Sunflower,
-                modifier = Modifier.size(18.dp)
-            )
-            Spacer(modifier = Modifier.width(6.dp))
-            Text(
-                text = count.toString(),
-                style = MaterialTheme.typography.labelSmall.copy(
-                    fontWeight = FontWeight.ExtraBold,
-                    color = IslaColors.Charcoal
-                )
-            )
-        }
+    val subtitle = when (phase) {
+        DigitalPhase.SENSORIAL -> "¡TU AVENTURA COMIENZA AQUÍ!"
+        DigitalPhase.CREATIVE -> "CREA, APRENDE, CONECTA"
+        DigitalPhase.PROFESSIONAL -> "TU FUTURO DIGITAL"
     }
-}
 
-@Composable
-fun WelcomeHero() {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        // En 2026 usaríamos Compose-Lottie o similar
-        Icon(
-            imageVector = Icons.Rounded.Home,
-            contentDescription = null,
-            modifier = Modifier.size(180.dp),
-            tint = IslaColors.JungleGreen
-        )
-        Text(
-            text = "ISLA DIGITAL",
-            style = MaterialTheme.typography.headlineMedium
-        )
-        Text(
-            text = "¡TU AVENTURA COMIENZA AQUÍ!",
-            style = MaterialTheme.typography.labelSmall
-        )
+        Icon(icon, null, Modifier.size(100.dp), tint = colors.primary)
+        Text("ISLA DIGITAL", style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.Black, color = colors.onBackground))
+        Text(subtitle, style = MaterialTheme.typography.labelSmall.copy(color = colors.onBackground.copy(alpha = 0.6f)))
     }
 }
 
 @Composable
-fun ActionsGrid(onPlay: () -> Unit, onBadges: () -> Unit, onAlbum: () -> Unit) {
-    Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
-        BigButton(
-            icon = Icons.Rounded.PlayArrow,
-            label = "JUGAR",
-            color = IslaColors.JungleGreen,
-            onClick = onPlay
-        )
-        
-        Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-            BigButton(
-                icon = Icons.Rounded.Star,
-                label = "LOGROS",
-                color = IslaColors.Sunflower,
-                onClick = onBadges,
-                modifier = Modifier.weight(1f)
-            )
-            BigButton(
-                icon = Icons.Rounded.Image,
-                label = "ÁLBUM",
-                color = IslaColors.OceanBlue,
-                onClick = onAlbum,
-                modifier = Modifier.weight(1f)
-            )
-        }
-        
-        BigButton(
-            icon = Icons.Rounded.Celebration,
-            label = "EVENTO ESPECIAL",
-            color = IslaColors.SunsetPink,
-            onClick = { /* Navegar a evento */ }
-        )
+private fun QuickStatsRow(profile: ChildProfile?) {
+    if (profile == null) return
+    val colors = IslaAdaptiveTheme.colors
+    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
+        QuickStat("Nivel", "${profile.currentLevel}", Icons.Rounded.TrendingUp)
+        QuickStat("Medallas", "${profile.earnedBadges.size}", Icons.Rounded.Star)
+        QuickStat("Tiempo", "${profile.totalPlayTimeMinutes}m", Icons.Rounded.Timer)
     }
 }
 
 @Composable
-fun SettingsButton(onClick: () -> Unit) {
-    Surface(
-        modifier = Modifier.size(48.dp),
-        shape = CircleShape,
-        color = Color.White.copy(alpha = 0.3f),
-        border = androidx.compose.foundation.BorderStroke(1.dp, Color.White.copy(alpha = 0.5f)),
-        onClick = onClick
-    ) {
-        Box(contentAlignment = Alignment.Center) {
-            Icon(
-                imageVector = Icons.Rounded.Settings,
-                contentDescription = "Ajustes",
-                tint = IslaColors.OceanDark
-            )
+private fun QuickStat(label: String, value: String, icon: ImageVector) {
+    val colors = IslaAdaptiveTheme.colors
+    val config = IslaAdaptiveTheme.typoConfig
+    AdaptiveGlassCard {
+        Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.padding(horizontal = 12.dp)) {
+            Icon(icon, null, Modifier.size(20.dp), tint = colors.primary)
+            Spacer(Modifier.height(4.dp))
+            Text(value, style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold, color = colors.onBackground))
+            Text(label, style = MaterialTheme.typography.labelSmall.copy(color = colors.onBackground.copy(alpha = 0.6f)))
         }
     }
 }
 
 @Composable
-fun BottomCharacters() {
-    val infiniteTransition = rememberInfiniteTransition()
-    val offsetY by infiniteTransition.animateFloat(
-        initialValue = 0f,
-        targetValue = 12f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(1200, easing = FastOutSlowInEasing),
-            repeatMode = RepeatMode.Reverse
-        ), label = "PersonajesFlotantes"
-    )
-
-    Box(
-        modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.BottomCenter
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 0.dp, start = 16.dp, end = 16.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.Bottom
-        ) {
-            Icon(
-                Icons.Rounded.Face, 
-                contentDescription = "Personaje Izquierdo", 
-                Modifier.size(100.dp).offset(y = offsetY.dp), 
-                tint = IslaColors.TropicOrange
-            )
-            Icon(
-                Icons.Rounded.Face, 
-                contentDescription = "Personaje Derecho", 
-                Modifier.size(100.dp).offset(y = -offsetY.dp), 
-                tint = IslaColors.OceanBlue
-            )
+private fun MainActionsGrid(
+    phase: DigitalPhase, onLevels: () -> Unit, onSkillTree: () -> Unit,
+    onLessons: () -> Unit, onCerts: () -> Unit, onShowcase: () -> Unit
+) {
+    val colors = IslaAdaptiveTheme.colors
+    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        BigButton(icon = Icons.Rounded.PlayArrow, label = when (phase) { DigitalPhase.SENSORIAL -> "JUGAR"; DigitalPhase.CREATIVE -> "EXPLORAR"; DigitalPhase.PROFESSIONAL -> "INICIAR" }, color = colors.primary, onClick = onLevels)
+        Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+            BigButton(icon = Icons.Rounded.AccountTree, label = "HABILIDADES", color = colors.secondary, onClick = onSkillTree, modifier = Modifier.weight(1f))
+            BigButton(icon = Icons.Rounded.MenuBook, label = "LECCIONES", color = colors.accent, onClick = onLessons, modifier = Modifier.weight(1f))
+        }
+        Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+            BigButton(icon = Icons.Rounded.EmojiEvents, label = "CERTIFICADOS", color = colors.success, onClick = onCerts, modifier = Modifier.weight(1f))
+            BigButton(icon = Icons.Rounded.Image, label = "ÁLBUM", color = colors.info, onClick = onShowcase, modifier = Modifier.weight(1f))
         }
     }
 }

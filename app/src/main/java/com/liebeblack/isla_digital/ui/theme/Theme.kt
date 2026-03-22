@@ -1,34 +1,63 @@
 package com.liebeblack.isla_digital.ui.theme
 
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.graphics.Color
+import com.liebeblack.isla_digital.domain.model.DigitalPhase
 
-private val LightColorScheme = lightColorScheme(
-    primary = IslaColors.OceanBlue,
-    secondary = IslaColors.Sunflower,
-    tertiary = IslaColors.SunsetPink,
-    background = IslaColors.SoftWhite,
-    surface = IslaColors.White,
-    error = IslaColors.CoralReef,
-    onPrimary = Color.White,
-    onSecondary = IslaColors.Charcoal,
-    onBackground = IslaColors.Charcoal,
-    onSurface = IslaColors.Charcoal
-)
-
+/**
+ * Tema principal de Isla Digital con soporte adaptativo por fase.
+ * El tema Material3 se configura dinámicamente según la fase del usuario,
+ * y los CompositionLocal proveen acceso a paletas extendidas.
+ */
 @Composable
 fun IslaDigitalTheme(
+    phase: DigitalPhase = DigitalPhase.SENSORIAL,
     content: @Composable () -> Unit
 ) {
-    // Para una app de niños, solemos preferir el tema claro o uno muy vibrante
-    // Por ahora seguiremos el diseño de Flutter
-    val colorScheme = LightColorScheme
+    val phaseColors = PhaseColors.forPhase(phase)
+    val phaseTypo = PhaseTypography.forPhase(phase)
 
-    MaterialTheme(
-        colorScheme = colorScheme,
-        typography = Typography,
-        content = content
-    )
+    val colorScheme = if (phaseColors.isDark) {
+        darkColorScheme(
+            primary = phaseColors.primary,
+            onPrimary = phaseColors.onPrimary,
+            primaryContainer = phaseColors.primaryVariant,
+            secondary = phaseColors.secondary,
+            onSecondary = phaseColors.onSecondary,
+            secondaryContainer = phaseColors.secondaryVariant,
+            tertiary = phaseColors.accent,
+            background = phaseColors.background,
+            onBackground = phaseColors.onBackground,
+            surface = phaseColors.surface,
+            onSurface = phaseColors.onSurface,
+            surfaceVariant = phaseColors.surfaceVariant,
+            error = phaseColors.error
+        )
+    } else {
+        lightColorScheme(
+            primary = phaseColors.primary,
+            onPrimary = phaseColors.onPrimary,
+            primaryContainer = phaseColors.primaryVariant,
+            secondary = phaseColors.secondary,
+            onSecondary = phaseColors.onSecondary,
+            secondaryContainer = phaseColors.secondaryVariant,
+            tertiary = phaseColors.accent,
+            background = phaseColors.background,
+            onBackground = phaseColors.onBackground,
+            surface = phaseColors.surface,
+            onSurface = phaseColors.onSurface,
+            surfaceVariant = phaseColors.surfaceVariant,
+            error = phaseColors.error
+        )
+    }
+
+    ProvideAdaptiveTheme(phase = phase) {
+        MaterialTheme(
+            colorScheme = colorScheme,
+            typography = phaseTypo.typography,
+            content = content
+        )
+    }
 }
