@@ -12,8 +12,8 @@ import com.liebeblack.isla_digital.domain.model.DigitalPhase
  * Sistema de tipografía adaptativa por fase.
  *
  * - SENSORIAL: Grande, redondeada, cálida (niños 3-7)
- * - CREATIVE: Media, geométrica, moderna (adolescentes 8-14)
- * - PROFESSIONAL: Compacta, profesional, eficiente (jóvenes 15-20)
+ * - CREATIVA: Media, geométrica, moderna (adolescentes 8-14)
+ * - PROFESIONAL: Compacta, profesional, eficiente (jóvenes 15-20)
  */
 data class PhaseTypographyConfig(
     val typography: Typography,
@@ -33,7 +33,7 @@ object PhaseTypography {
     val Sensorial = PhaseTypographyConfig(
         typography = Typography(
             displayLarge = TextStyle(
-                fontFamily = FontFamily.Default, // Idealmente: Nunito
+                fontFamily = FontFamily.Default,
                 fontWeight = FontWeight.Black,
                 fontSize = 52.sp,
                 lineHeight = 60.sp,
@@ -122,12 +122,12 @@ object PhaseTypography {
 
     /**
      * Tipografía para la fase Creativa (8-14 años).
-     * Outfit/Similar: Geométrica, moderna, balanced.
+     * Outfit/Similar: Geométrica, moderna, equilibrada.
      */
     val Creative = PhaseTypographyConfig(
         typography = Typography(
             displayLarge = TextStyle(
-                fontFamily = FontFamily.Default, // Idealmente: Outfit
+                fontFamily = FontFamily.Default,
                 fontWeight = FontWeight.Bold,
                 fontSize = 44.sp,
                 lineHeight = 52.sp,
@@ -221,7 +221,7 @@ object PhaseTypography {
     val Professional = PhaseTypographyConfig(
         typography = Typography(
             displayLarge = TextStyle(
-                fontFamily = FontFamily.Default, // Idealmente: Inter
+                fontFamily = FontFamily.Default,
                 fontWeight = FontWeight.SemiBold,
                 fontSize = 36.sp,
                 lineHeight = 44.sp,

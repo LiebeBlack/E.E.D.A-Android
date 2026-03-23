@@ -103,7 +103,10 @@ fun NavGraph(
             }
 
             composable(Screen.Levels.route) {
-                LevelsScreen(onNavigateBack = { navController.popBackStack() })
+                LevelsScreen(
+                    repository = repository,
+                    onNavigateBack = { navController.popBackStack() }
+                )
             }
 
             composable(Screen.Profile.route) {

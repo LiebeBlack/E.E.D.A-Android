@@ -15,93 +15,114 @@ enum class CertificationType(
     val badgeColor: Long, // Color en formato ARGB
     val tier: Int
 ) {
+    // === SENSORIAL ===
     SAFE_USER(
-        displayName = "Usuario Seguro",
-        description = "Has demostrado conocer las bases de la seguridad en línea y la protección personal",
+        displayName = "Pequeño Guardián",
+        description = "Has aprendido a proteger tus secretos y pedir ayuda a los adultos",
         requiredPhase = DigitalPhase.SENSORIAL,
         requiredSkillIds = listOf("sec_01", "sec_02", "sec_03"),
         badgeColor = 0xFF00C853, // Verde
         tier = 1
     ),
-    DEVICE_NAVIGATOR(
-        displayName = "Navegador del Dispositivo",
-        description = "Dominas las herramientas básicas y la interacción con tu dispositivo",
+    DEVICE_MASTER_JR(
+        displayName = "Explorador Táctil",
+        description = "Dominas los gestos, botones y el uso saludable del dispositivo",
         requiredPhase = DigitalPhase.SENSORIAL,
-        requiredSkillIds = listOf("dev_01", "dev_02", "dev_03", "web_01", "web_02"),
+        requiredSkillIds = listOf("dev_01", "dev_02", "well_01"),
         badgeColor = 0xFF1E90FF, // Azul
         tier = 1
     ),
+    INTERNET_VOYAGER_JR(
+        displayName = "Primer Navegante",
+        description = "Entiendes qué es internet y reconoces los símbolos de conexión",
+        requiredPhase = DigitalPhase.SENSORIAL,
+        requiredSkillIds = listOf("web_01", "web_02"),
+        badgeColor = 0xFFFFD600, // Amarillo
+        tier = 1
+    ),
+
+    // === CREATIVE ===
     DIGITAL_CITIZEN(
         displayName = "Ciudadano Digital",
-        description = "Comprendes la responsabilidad en línea, la huella digital y la ciberseguridad personal",
+        description = "Comprendes la responsabilidad en línea, la huella digital y el respeto",
         requiredPhase = DigitalPhase.CREATIVE,
-        requiredSkillIds = listOf("sec_04", "sec_05", "sec_06", "cont_03"),
+        requiredSkillIds = listOf("cont_03", "sec_05"),
         badgeColor = 0xFF7C4DFF, // Púrpura
         tier = 2
     ),
-    CONTENT_CREATOR(
-        displayName = "Creador de Contenido",
-        description = "Sabes crear, editar y compartir contenido digital con responsabilidad",
+    CREATIVE_PRODUCER(
+        displayName = "Productor Creativo",
+        description = "Sabes crear y editar contenido multimedia con intención",
         requiredPhase = DigitalPhase.CREATIVE,
-        requiredSkillIds = listOf("cont_01", "cont_02", "cont_03"),
-        badgeColor = 0xFFFF8C00, // Naranja
+        requiredSkillIds = listOf("cont_01", "cont_02"),
+        badgeColor = 0xFFFF4081, // Rosa
         tier = 2
     ),
-    LOGIC_PROGRAMMER(
-        displayName = "Programador Lógico",
-        description = "Has desarrollado pensamiento computacional y creado tu primer proyecto",
+    LOGIC_ARCHITECT(
+        displayName = "Arquitecto Lógico",
+        description = "Dominas el pensamiento computacional, bucles y variables",
         requiredPhase = DigitalPhase.CREATIVE,
-        requiredSkillIds = listOf("prog_01", "prog_02", "prog_03", "prog_04"),
+        requiredSkillIds = listOf("prog_01", "prog_02", "prog_03"),
         badgeColor = 0xFF00BCD4, // Cian
         tier = 2
     ),
-    CLOUD_NAVIGATOR(
-        displayName = "Navegador de la Nube",
-        description = "Dominas la nube, la búsqueda eficiente y el almacenamiento en línea",
+    CYBER_DEFENDER_JR(
+        displayName = "Defensor Cibernético",
+        description = "Sabes protegerte del phishing y gestionar tu seguridad avanzada",
         requiredPhase = DigitalPhase.CREATIVE,
-        requiredSkillIds = listOf("web_03", "web_04"),
-        badgeColor = 0xFF64B5F6, // Azul claro
+        requiredSkillIds = listOf("sec_04", "sec_06"),
+        badgeColor = 0xFF43A047, // Verde bosque
         tier = 2
     ),
-    DIGITAL_PROFESSIONAL(
-        displayName = "Profesional Digital",
-        description = "Manejas herramientas de productividad industrial y gestión de identidad profesional",
-        requiredPhase = DigitalPhase.PROFESSIONAL,
-        requiredSkillIds = listOf("prod_01", "prod_02", "prod_03"),
-        badgeColor = 0xFFFFD700, // Dorado
-        tier = 3
+    CLOUD_EXPERT(
+        displayName = "Experto en la Nube",
+        description = "Dominas la búsqueda eficiente y el almacenamiento en la nube",
+        requiredPhase = DigitalPhase.CREATIVE,
+        requiredSkillIds = listOf("web_03", "web_04"),
+        badgeColor = 0xFF03A9F4, // Azul cielo
+        tier = 2
     ),
-    AI_SPECIALIST(
-        displayName = "Especialista en IA",
-        description = "Comprendes la inteligencia artificial, su aplicación y su ética",
+
+    // === PROFESSIONAL ===
+    AI_PRACTITIONER(
+        displayName = "Practicante de IA",
+        description = "Entiendes la IA, su ética y sabes aplicar ingeniería de prompts",
         requiredPhase = DigitalPhase.PROFESSIONAL,
-        requiredSkillIds = listOf("ai_01", "ai_02", "ai_03"),
+        requiredSkillIds = listOf("ai_01", "ai_02", "ai_03", "ai_04"),
         badgeColor = 0xFFE040FB, // Magenta
         tier = 3
     ),
-    FINANCE_MASTER(
-        displayName = "Maestro de Finanzas Digitales",
-        description = "Dominas la banca digital, e-commerce y conceptos de criptomonedas",
+    DIGITAL_ECONOMIST(
+        displayName = "Economista Digital",
+        description = "Dominas la banca digital, la seguridad financiera y el blockchain",
         requiredPhase = DigitalPhase.PROFESSIONAL,
-        requiredSkillIds = listOf("fin_01", "fin_02", "fin_03"),
-        badgeColor = 0xFF4CAF50, // Verde profundo
+        requiredSkillIds = listOf("fin_01", "fin_03"),
+        badgeColor = 0xFF4CAF50, // Verde dinero
         tier = 3
     ),
-    SECURITY_ARCHITECT(
-        displayName = "Arquitecto de Seguridad",
-        description = "Dominas autenticación avanzada, protección de datos y derechos digitales",
+    PROFESSIONAL_LEADER(
+        displayName = "Líder Profesional",
+        description = "Dominas la suite ofimática, marca personal y gestión de proyectos",
         requiredPhase = DigitalPhase.PROFESSIONAL,
-        requiredSkillIds = listOf("sec_07", "sec_08"),
+        requiredSkillIds = listOf("prod_01", "prod_02", "prod_03", "prod_04"),
+        badgeColor = 0xFFFFD700, // Dorado
+        tier = 3
+    ),
+    DATA_STRATEGIST(
+        displayName = "Estratega de Datos",
+        description = "Capacidad para analizar y visualizar información para la toma de decisiones",
+        requiredPhase = DigitalPhase.PROFESSIONAL,
+        requiredSkillIds = listOf("dat_01", "dat_02"),
+        badgeColor = 0xFFFF9800, // Naranja
+        tier = 3
+    ),
+    DIGITAL_RIGHTS_EXPERT(
+        displayName = "Experto en Derechos",
+        description = "Dominas la privacidad de datos, GDPR y derechos digitales",
+        requiredPhase = DigitalPhase.PROFESSIONAL,
+        requiredSkillIds = listOf("sec_08"),
         badgeColor = 0xFFFF5252, // Rojo
         tier = 3
-    ),
-    DIGITAL_ARCHITECT(
-        displayName = "Arquitecto Digital",
-        description = "Has completado TODAS las competencias. Eres un profesional digital completo",
-        requiredPhase = DigitalPhase.PROFESSIONAL,
-        requiredSkillIds = listOf(), // Se verifica con todas las certificaciones anteriores
-        badgeColor = 0xFFFFFFFF, // Blanco/Platino
-        tier = 4
     )
 }
 

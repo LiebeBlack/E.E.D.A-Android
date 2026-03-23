@@ -74,7 +74,7 @@ fun LessonsScreen(
                                 Spacer(modifier = Modifier.height(4.dp))
                                 Text(state.phase.description, style = MaterialTheme.typography.bodySmall.copy(color = colors.onSurface.copy(alpha = 0.7f)))
                                 Spacer(modifier = Modifier.height(8.dp))
-                                Text("${modules.size} módulos disponibles", style = MaterialTheme.typography.labelSmall.copy(color = colors.primary, fontWeight = FontWeight.SemiBold))
+                                Text("${modules.size} módulos de aprendizaje adaptativo", style = MaterialTheme.typography.labelSmall.copy(color = colors.primary, fontWeight = FontWeight.SemiBold))
                             }
                         }
                     }
@@ -123,40 +123,41 @@ private fun LessonModuleCard(
 
 private fun getLessonsForPhase(phase: DigitalPhase): List<LessonModule> = when (phase) {
     DigitalPhase.SENSORIAL -> listOf(
-        LessonModule("s_01", "Toque y Gesto", "Interactúa con la pantalla táctil", Icons.Rounded.TouchApp, phase, 4, estimatedMinutes = 10),
-        LessonModule("s_02", "Mis Botones", "Botones de tu dispositivo", Icons.Rounded.Smartphone, phase, 3, estimatedMinutes = 8),
-        LessonModule("s_03", "Contraseña Mágica", "¿Qué es una contraseña?", Icons.Rounded.Lock, phase, 3, estimatedMinutes = 10),
-        LessonModule("s_04", "Extraños en Pantalla", "Seguridad en internet", Icons.Rounded.Warning, phase, 4, estimatedMinutes = 12),
-        LessonModule("s_05", "Iconos Mágicos", "WiFi, batería, cámara", Icons.Rounded.Apps, phase, 5, estimatedMinutes = 10),
-        LessonModule("s_06", "¿Qué es Internet?", "La red del mundo", Icons.Rounded.Public, phase, 3, estimatedMinutes = 12),
-        LessonModule("s_07", "Tiempo de Pantalla", "Uso saludable", Icons.Rounded.Timer, phase, 3, estimatedMinutes = 8),
-        LessonModule("s_08", "Pedir Ayuda", "Cuándo pedir ayuda", Icons.Rounded.Favorite, phase, 2, estimatedMinutes = 8)
+        // 3-5 años
+        LessonModule("s_01", "Toque y Gesto", "Interactúa con la pantalla táctil de forma divertida", Icons.Rounded.TouchApp, phase, 4, estimatedMinutes = 10),
+        LessonModule("s_02", "Colores Digitales", "Reconoce los colores y formas en tu dispositivo", Icons.Rounded.Palette, phase, 3, estimatedMinutes = 8),
+        LessonModule("s_07", "La Pausa Mágica", "Uso saludable y tiempo de descanso", Icons.Rounded.SelfImprovement, phase, 3, estimatedMinutes = 8),
+        // 6-7 años
+        LessonModule("s_03", "Contraseña Secreta", "Tu primera clave de seguridad", Icons.Rounded.Lock, phase, 3, estimatedMinutes = 10),
+        LessonModule("s_05", "Iconos de Poder", "Qué significan el WiFi y la batería", Icons.Rounded.Apps, phase, 5, estimatedMinutes = 10),
+        LessonModule("s_04", "Amigos o Extraños", "Seguridad básica en la red", Icons.Rounded.Warning, phase, 4, estimatedMinutes = 12),
+        LessonModule("s_08", "Ayuda de Gigantes", "Cuándo llamar a un adulto de confianza", Icons.Rounded.SupportAgent, phase, 2, estimatedMinutes = 8)
     )
     DigitalPhase.CREATIVE -> listOf(
-        LessonModule("c_01", "Ciberseguridad", "Phishing y malware", Icons.Rounded.Security, phase, 5, estimatedMinutes = 20),
-        LessonModule("c_02", "Huella Digital", "Todo deja rastro", Icons.Rounded.Fingerprint, phase, 4, estimatedMinutes = 15),
-        LessonModule("c_03", "Contraseñas Fuertes", "Seguridad avanzada", Icons.Rounded.Key, phase, 4, estimatedMinutes = 15),
-        LessonModule("c_04", "Pensamiento Lógico", "Resolver problemas", Icons.Rounded.Psychology, phase, 6, estimatedMinutes = 25),
-        LessonModule("c_05", "Secuencias y Bucles", "Instrucciones repetidas", Icons.Rounded.Loop, phase, 5, estimatedMinutes = 20),
-        LessonModule("c_06", "Variables y Datos", "Almacenar información", Icons.Rounded.Code, phase, 5, estimatedMinutes = 25),
-        LessonModule("c_07", "Mi Primer Proyecto", "Tu primer programa", Icons.Rounded.RocketLaunch, phase, 8, estimatedMinutes = 40),
-        LessonModule("c_08", "Foto y Edición", "Fotografía creativa", Icons.Rounded.PhotoCamera, phase, 4, estimatedMinutes = 15),
-        LessonModule("c_09", "Video Creativo", "Edición de video", Icons.Rounded.Videocam, phase, 5, estimatedMinutes = 20),
-        LessonModule("c_10", "Ciudadanía Digital", "Ética online", Icons.Rounded.People, phase, 4, estimatedMinutes = 15),
-        LessonModule("c_11", "La Nube", "Almacenamiento cloud", Icons.Rounded.Cloud, phase, 4, estimatedMinutes = 15),
-        LessonModule("c_12", "Búsqueda Eficiente", "Google y más", Icons.Rounded.Search, phase, 4, estimatedMinutes = 15)
+        // 8-10 años
+        LessonModule("c_08", "Foto y Creatividad", "Toma y edita fotos increíbles", Icons.Rounded.PhotoCamera, phase, 4, estimatedMinutes = 15),
+        LessonModule("c_04", "Aventura de Lógica", "Resuelve problemas paso a paso", Icons.Rounded.Psychology, phase, 6, estimatedMinutes = 25),
+        LessonModule("c_01", "Escudo Digital", "Detecta trampas y phishing", Icons.Rounded.Security, phase, 5, estimatedMinutes = 20),
+        // 11-12 años
+        LessonModule("c_10", "Soy Buen Ciudadano", "Respeto y ética en internet", Icons.Rounded.People, phase, 4, estimatedMinutes = 15),
+        LessonModule("c_12", "Super Buscador", "Encuentra información real rápidamente", Icons.Rounded.Search, phase, 4, estimatedMinutes = 15),
+        LessonModule("c_09", "Mini Director", "Crea y edita tus propios videos", Icons.Rounded.Videocam, phase, 5, estimatedMinutes = 20),
+        // 13-14 años
+        LessonModule("c_11", "Mi Mochila en la Nube", "Sincroniza y guarda tus archivos", Icons.Rounded.Cloud, phase, 4, estimatedMinutes = 15),
+        LessonModule("c_03", "Maestro de Claves", "Uso avanzado de gestores de contraseñas", Icons.Rounded.Key, phase, 4, estimatedMinutes = 15)
     )
     DigitalPhase.PROFESSIONAL -> listOf(
-        LessonModule("p_01", "¿Qué es la IA?", "Fundamentos de IA", Icons.Rounded.SmartToy, phase, 6, estimatedMinutes = 30),
-        LessonModule("p_02", "IA Aplicada", "IA para productividad", Icons.Rounded.AutoAwesome, phase, 8, estimatedMinutes = 45),
-        LessonModule("p_03", "Ética de Datos", "Privacidad y sesgo", Icons.Rounded.Balance, phase, 5, estimatedMinutes = 25),
-        LessonModule("p_04", "Banca Digital", "Seguridad bancaria", Icons.Rounded.AccountBalance, phase, 5, estimatedMinutes = 25),
-        LessonModule("p_05", "E-Commerce", "Compras seguras", Icons.Rounded.ShoppingCart, phase, 5, estimatedMinutes = 20),
-        LessonModule("p_06", "Criptomonedas", "Blockchain básico", Icons.Rounded.CurrencyBitcoin, phase, 6, estimatedMinutes = 30),
-        LessonModule("p_07", "Suite Ofimática", "Docs y hojas", Icons.Rounded.Description, phase, 8, estimatedMinutes = 40),
-        LessonModule("p_08", "Gestión Proyectos", "Kanban y planning", Icons.Rounded.Dashboard, phase, 6, estimatedMinutes = 30),
-        LessonModule("p_09", "Identidad Profesional", "LinkedIn y portafolio", Icons.Rounded.Badge, phase, 5, estimatedMinutes = 25),
-        LessonModule("p_10", "Auth Avanzada", "2FA y biometría", Icons.Rounded.VerifiedUser, phase, 5, estimatedMinutes = 25),
-        LessonModule("p_11", "Privacidad GDPR", "Derechos digitales", Icons.Rounded.Policy, phase, 5, estimatedMinutes = 25)
+        // 15-16 años
+        LessonModule("p_01", "Mundo de IA", "Cómo funciona la inteligencia artificial", Icons.Rounded.SmartToy, phase, 6, estimatedMinutes = 30),
+        LessonModule("p_07", "Oficina Pro", "Domina documentos y hojas de cálculo", Icons.Rounded.Description, phase, 8, estimatedMinutes = 40),
+        LessonModule("p_04", "Banca y Ahorro", "Gestiona tu dinero digitalmente", Icons.Rounded.AccountBalance, phase, 5, estimatedMinutes = 25),
+        // 17-18 años
+        LessonModule("p_09", "Mi Marca Digital", "LinkedIn y portafolio profesional", Icons.Rounded.Badge, phase, 5, estimatedMinutes = 25),
+        LessonModule("p_02", "IA para Trabajar", "Productividad con herramientas de IA", Icons.Rounded.AutoAwesome, phase, 8, estimatedMinutes = 45),
+        LessonModule("p_11", "Mis Derechos", "Privacidad y ley de datos (GDPR)", Icons.Rounded.Policy, phase, 5, estimatedMinutes = 25),
+        // 19-20 años
+        LessonModule("p_06", "Futuro del Dinero", "Blockchain y criptomonedas", Icons.Rounded.CurrencyBitcoin, phase, 6, estimatedMinutes = 30),
+        LessonModule("p_08", "Líder de Proyectos", "Gestión ágil de equipos", Icons.Rounded.Dashboard, phase, 6, estimatedMinutes = 30),
+        LessonModule("p_10", "Fortaleza Digital", "2FA, biometría y seguridad total", Icons.Rounded.VerifiedUser, phase, 5, estimatedMinutes = 25)
     )
 }

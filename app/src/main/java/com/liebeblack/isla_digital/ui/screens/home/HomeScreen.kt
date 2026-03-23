@@ -25,6 +25,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.liebeblack.isla_digital.domain.model.ChildProfile
 import com.liebeblack.isla_digital.domain.model.DigitalPhase
+import com.liebeblack.isla_digital.domain.model.CertificationType
 import com.liebeblack.isla_digital.ui.components.*
 import com.liebeblack.isla_digital.ui.theme.IslaAdaptiveTheme
 
@@ -63,7 +64,16 @@ fun HomeScreen(
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 item { AdaptiveWelcomeHero(phase) }
-                item { PhaseIndicator(phase = phase, compact = false) }
+                item { 
+                    val phaseProgress = remember(profile) {
+                        if (profile == null) 0f else {
+                            val phaseCerts = CertificationType.entries.filter { it.requiredPhase == profile.currentPhase }
+                            val earnedPhaseCerts = profile.earnedCertifications.count { it.type.requiredPhase == profile.currentPhase }
+                            if (phaseCerts.isEmpty()) 0f else earnedPhaseCerts.toFloat() / phaseCerts.size
+                        }
+                    }
+                    PhaseIndicator(phase = phase, compact = false, progress = phaseProgress) 
+                }
                 item { QuickStatsRow(profile) }
                 item { MainActionsGrid(phase, onNavigateToLevels, onNavigateToSkillTree, onNavigateToLessons, onNavigateToCertifications, onNavigateToShowcase) }
                 item { Spacer(modifier = Modifier.height(80.dp)) }

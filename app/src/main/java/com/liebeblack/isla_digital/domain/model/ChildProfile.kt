@@ -23,11 +23,6 @@ data class ChildProfile(
     val streakDays: Int = 0,
     val lastActiveDate: String = "",
 
-    // === Progreso de Habilidades Legacy (0-100) ===
-    val logicProgress: Int = 0,
-    val creativityProgress: Int = 0,
-    val problemSolvingProgress: Int = 0,
-
     // === Árbol de Habilidades Digitales ===
     val skillProgress: Map<String, Int> = emptyMap(), // skillId -> xpEarned
     val completedSkillIds: List<String> = emptyList(),
@@ -36,6 +31,9 @@ data class ChildProfile(
     // === Certificaciones ===
     val earnedCertifications: List<EarnedCertification> = emptyList(),
     val earnedBadges: List<String> = emptyList(),
+
+    // === Mapa de Aventuras (Niveles) ===
+    val completedMapLevelIds: List<Int> = emptyList(),
 
     // === Lecciones ===
     val completedLessonIds: List<String> = emptyList(),
@@ -70,6 +68,19 @@ data class ChildProfile(
             ?.type?.displayName ?: "Explorador"
     }
 
+    /**
+     * Sugiere la siguiente acción recomendada basada en el progreso actual.
+     */
+    val nextRecommendedAction: String get() {
+        val phase = currentPhase
+        // Priorizar desbloquear habilidades si no hay suficientes
+        if (unlockedSkillIds.size - completedSkillIds.size < 2) {
+            return "Desbloquea una nueva habilidad en el Árbol del Conocimiento"
+        }
+        // Priorizar niveles del mapa no completados
+        return "Continúa tu aventura en el Mapa de Niveles"
+    }
+
     // === Funciones de Progresión ===
 
     fun addPlayTime(minutes: Int): ChildProfile =
@@ -86,6 +97,13 @@ data class ChildProfile(
             threshold = (100L * level * 1.2).toLong()
         }
         return copy(totalXp = newXp, currentLevel = level)
+    }
+
+    fun finishMapLevel(levelId: Int, xpEarned: Long): ChildProfile {
+        if (levelId in completedMapLevelIds) return addXp(xpEarned / 2) // XP reducida por repetición
+        return copy(completedMapLevelIds = completedMapLevelIds + levelId)
+            .addXp(xpEarned)
+            .logActivity("Completó nivel del mapa: $levelId", "Aventuras")
     }
 
     fun completeSkill(skillId: String): ChildProfile {
@@ -105,7 +123,9 @@ data class ChildProfile(
             unlockedSkillIds = unlockedSkillIds + newlyUnlocked
         )
         
-        return profileWithSkills.checkNewCertifications()
+        // Completar una habilidad otorga 250 XP
+        return profileWithSkills.addXp(250)
+            .checkNewCertifications()
             .logActivity("Completó habilidad: $skillId", "Habilidades")
     }
 
@@ -119,20 +139,11 @@ data class ChildProfile(
             EarnedCertification(type, java.time.Instant.now().toString())
         }
         
-        // Certificación Final Especial (Arquitecto Digital)
-        val allOtherCertsEarned = CertificationType.entries
-            .filter { it != CertificationType.DIGITAL_ARCHITECT }
-            .all { certType -> 
-                (earnedCertifications.map { it.type } + newEarned.map { it.type }).contains(certType)
-            }
+        if (newEarned.isEmpty()) return this
         
-        val finalCerts = if (allOtherCertsEarned && !earnedIds.contains(CertificationType.DIGITAL_ARCHITECT.name)) {
-            newEarned + EarnedCertification(CertificationType.DIGITAL_ARCHITECT, java.time.Instant.now().toString())
-        } else newEarned
-        
-        if (finalCerts.isEmpty()) return this
-        
-        return copy(earnedCertifications = earnedCertifications + finalCerts)
+        // Cada certificación otorga 500 XP
+        return copy(earnedCertifications = earnedCertifications + newEarned)
+            .addXp((newEarned.size * 500).toLong())
     }
 
     fun updateSkillXp(skillId: String, xp: Int): ChildProfile {
@@ -143,23 +154,14 @@ data class ChildProfile(
     fun awardBadge(badgeName: String): ChildProfile {
         if (earnedBadges.contains(badgeName)) return this
         val newBadges = earnedBadges + badgeName
-        val levelUp = if (newBadges.size % 3 == 0) 1 else 0
-        return copy(
-            earnedBadges = newBadges,
-            currentLevel = currentLevel + levelUp
-        )
+        return copy(earnedBadges = newBadges).addXp(150)
     }
-
-    fun updateSkillProgress(logic: Int = 0, creativity: Int = 0, problemSolving: Int = 0): ChildProfile =
-        copy(
-            logicProgress = (logicProgress + logic).coerceIn(0, 100),
-            creativityProgress = (creativityProgress + creativity).coerceIn(0, 100),
-            problemSolvingProgress = (problemSolvingProgress + problemSolving).coerceIn(0, 100)
-        )
 
     fun completeLesson(lessonId: String): ChildProfile {
         if (lessonId in completedLessonIds) return this
+        // Cada lección otorga 100 XP
         val newProfile = copy(completedLessonIds = completedLessonIds + lessonId)
+            .addXp(100)
         return newProfile.logActivity("Completó lección: $lessonId", "Lecciones")
     }
 

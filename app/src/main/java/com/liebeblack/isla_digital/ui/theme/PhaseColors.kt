@@ -5,11 +5,11 @@ import com.liebeblack.isla_digital.domain.model.DigitalPhase
 
 /**
  * Sistema de paletas cromáticas por fase evolutiva.
- * Diseñado para dennotar madurez progresiva visual.
+ * Diseñado para denotar madurez progresiva visual.
  *
- * - SENSORIAL: Vibrante, cálido, amigable (para niños 3-7)
- * - CREATIVE: Moderno, fresco, energético (para adolescentes 8-14)
- * - PROFESSIONAL: Ejecutivo, dark mode, sofisticado (para jóvenes 15-20)
+ * - SENSORIAL: Vibrante, cálido, amigable (niños 3-7)
+ * - CREATIVA: Moderno, fresco, energético (adolescentes 8-14)
+ * - PROFESIONAL: Ejecutivo, modo oscuro, sofisticado (jóvenes 15-20)
  */
 data class PhaseColorPalette(
     val primary: Color,
