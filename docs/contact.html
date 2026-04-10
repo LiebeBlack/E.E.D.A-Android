@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contacto E.E.D.A. - Conecta con Nosotros</title>
+    <meta name="description" content="Contacta con el equipo de E.E.D.A. para soporte, colaboraciones o preguntas">
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <!-- Styles -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="main-nav" id="mainNav">
+        <div class="nav-brand">
+            <span class="logo-e">E.</span><span class="logo-e">E.</span><span class="logo-d">D.</span><span class="logo-a">A.</span>
+        </div>
+        <div class="nav-links">
+            <a href="index.html" class="nav-link">Inicio</a>
+            <a href="about.html" class="nav-link">Acerca de</a>
+            <a href="docs.html" class="nav-link">Documentación</a>
+            <a href="contact.html" class="nav-link active">Contacto</a>
+            <a href="https://github.com/LiebeBlack/E.E.D.A-PC" target="_blank" rel="noopener" class="nav-link github-link">
+                <i data-lucide="github"></i>
+                <span>GitHub</span>
+            </a>
+        </div>
+    </nav>
+ 
+    <!-- Hero Section -->
+    <section class="hero" id="hero">
+        <div class="hero-bg">
+            <div class="gradient-orb orb-1"></div>
+            <div class="gradient-orb orb-2"></div>
+            <div class="gradient-orb orb-3"></div>
+        </div>
+ 
+        <div class="hero-content">
+            <div class="hero-badge scroll-reveal">
+                <i data-lucide="mail"></i>
+                <span>Contacto</span>
+            </div>
+ 
+            <h1 class="hero-title scroll-reveal">
+                <span class="title-line">Conecta</span>
+                <span class="title-line highlight">Con Nosotros</span>
+            </h1>
+
+            <p class="hero-subtitle scroll-reveal">
+                Estamos aquí para ayudarte en tu viaje educativo
+            </p>
+
+            <div class="hero-description scroll-reveal">
+                <p>Ya sea que necesites soporte técnico, quieras colaborar o simplemente tengas preguntas sobre E.E.D.A., no dudes en contactarnos.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Methods -->
+    <section class="contact-methods">
+        <div class="container">
+            <div class="section-header scroll-reveal">
+                <span class="section-tag">Vías de Contacto</span>
+                <h2 class="section-title">Encuéntranos en <span class="gradient-text">Múltiples Plataformas</span></h2>
+                <p class="section-desc">Elige la forma que mejor se adapte a tus necesidades</p>
+            </div>
+
+            <div class="contact-grid scroll-reveal">
+                <div class="contact-card">
+                    <div class="contact-icon github">
+                        <i data-lucide="github"></i>
+                    </div>
+                    <h3>GitHub</h3>
+                    <p>Reporta issues, solicita features o contribuye al proyecto</p>
+                    <a href="https://github.com/LiebeBlack/E.E.D.A-PC" target="_blank" rel="noopener" class="contact-link">
+                        <span>Visitar Repositorio</span>
+                        <i data-lucide="external-link"></i>
+                    </a>
+                </div>
+
+                <div class="contact-card">
+                    <div class="contact-icon email">
+                        <i data-lucide="mail"></i>
+                    </div>
+                    <h3>Email</h3>
+                    <p>Para consultas directas y soporte personalizado</p>
+                    <a href="mailto:contacto@eeda.tech" class="contact-link">
+                        <span>contacto@eeda.tech</span>
+                        <i data-lucide="send"></i>
+                    </a>
+                </div>
+
+                <div class="contact-card">
+                    <div class="contact-icon discord">
+                        <i data-lucide="message-circle"></i>
+                    </div>
+                    <h3>Comunidad</h3>
+                    <p>Únete a nuestra comunidad de educadores y desarrolladores</p>
+                    <a href="#" class="contact-link">
+                        <span>Unirse a Discord</span>
+                        <i data-lucide="external-link"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Form -->
+    <section class="contact-form-section">
+        <div class="container">
+            <div class="section-header scroll-reveal">
+                <span class="section-tag">Formulario de Contacto</span>
+                <h2 class="section-title">Envíanos un <span class="gradient-text">Mensaje Directo</span></h2>
+                <p class="section-desc">Te responderemos lo antes posible</p>
+            </div>
+
+            <div class="form-container scroll-reveal">
+                <form class="contact-form" id="contactForm">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="name">Nombre Completo</label>
+                            <input type="text" id="name" name="name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="email">Email</label>
+                            <input type="email" id="email" name="email" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="subject">Asunto</label>
+                        <select id="subject" name="subject" required>
+                            <option value="">Selecciona un asunto</option>
+                            <option value="soporte">Soporte Técnico</option>
+                            <option value="colaboracion">Colaboración</option>
+                            <option value="sugerencia">Sugerencias</option>
+                            <option value="general">Consulta General</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="message">Mensaje</label>
+                        <textarea id="message" name="message" rows="6" required></textarea>
+                    </div>
+
+                    <button type="submit" class="submit-btn">
+                        <i data-lucide="send"></i>
+                        <span>Enviar Mensaje</span>
+                    </button>
+                </form>
+
+                <div class="form-info">
+                    <div class="info-item">
+                        <i data-lucide="clock"></i>
+                        <div>
+                            <h4>Tiempo de Respuesta</h4>
+                            <p>Generalmente respondemos dentro de 24-48 horas hábiles</p>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <i data-lucide="globe"></i>
+                        <div>
+                            <h4>Idiomas</h4>
+                            <p>Español e inglés</p>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <i data-lucide="shield-check"></i>
+                        <div>
+                            <h4>Privacidad</h4>
+                            <p>Tu información está segura y nunca será compartida</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ Section -->
+    <section class="faq-section">
+        <div class="container">
+            <div class="section-header scroll-reveal">
+                <span class="section-tag">Preguntas Frecuentes</span>
+                <h2 class="section-title">Resolvemos tus <span class="gradient-text">Dudas</span></h2>
+                <p class="section-desc">Respuestas a las preguntas más comunes sobre E.E.D.A.</p>
+            </div>
+
+            <div class="faq-grid scroll-reveal">
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <h4>¿Es E.E.D.A. completamente gratuito?</h4>
+                        <i data-lucide="chevron-down" class="faq-icon"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <p>Sí, E.E.D.A. es un proyecto open source y completamente gratuito. Puedes usarlo, modificarlo y distribuirlo libremente bajo los términos de la licencia MIT.</p>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <h4>¿Qué edad recomendada tienen los módulos?</h4>
+                        <i data-lucide="chevron-down" class="faq-icon"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <p>E.E.D.A. está diseñado para jóvenes de 3 a 16 años, con contenido adaptado a cada grupo etario mediante nuestros protocolos CPA (Concreto-Pictórico-Abstracto).</p>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <h4>¿Necesito conocimientos técnicos para instalarlo?</h4>
+                        <i data-lucide="chevron-down" class="faq-icon"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <p>No, hemos creado guías paso a paso muy detalladas. Solo necesitas tener Python 3.12+ instalado y seguir los comandos de instalación.</p>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <h4>¿Puedo contribuir al proyecto?</h4>
+                        <i data-lucide="chevron-down" class="faq-icon"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <p>¡Absolutamente! Aceptamos contribuciones de todo tipo: código, documentación, traducciones, reporte de errores y sugerencias. Visita nuestro GitHub para más información.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="main-footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <span class="logo-e">E.</span><span class="logo-e">E.</span><span class="logo-d">D.</span><span class="logo-a">A.</span>
+                    <p>Ecosistema Educativo Digital Adaptable</p>
+                </div>
+
+                <div class="footer-links">
+                    <div class="link-group">
+                        <h4>Proyecto</h4>
+                        <a href="index.html">Inicio</a>
+                        <a href="about.html">Acerca de</a>
+                        <a href="docs.html">Documentación</a>
+                    </div>
+                    <div class="link-group">
+                        <h4>Recursos</h4>
+                        <a href="https://github.com/LiebeBlack/E.E.D.A-PC" target="_blank" rel="noopener">GitHub</a>
+                        <a href="contact.html">Contacto</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="footer-bottom">
+                <p>2025 E.E.D.A. - Educación en Ciberseguridad para todas las edades</p>
+                <div class="footer-tech">
+                    <span>Built with</span>
+                    <i data-lucide="heart" class="heart-icon"></i>
+                    <span>+</span>
+                    <i data-lucide="code-2" class="code-icon"></i>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="app.js"></script>
+    <script>
+        // FAQ functionality
+        document.querySelectorAll('.faq-question').forEach(question => {
+            question.addEventListener('click', () => {
+                const item = question.parentElement;
+                const answer = item.querySelector('.faq-answer');
+                const icon = question.querySelector('.faq-icon');
+                
+                item.classList.toggle('active');
+                
+                if (item.classList.contains('active')) {
+                    answer.style.maxHeight = answer.scrollHeight + 'px';
+                    icon.style.transform = 'rotate(180deg)';
+                } else {
+                    answer.style.maxHeight = '0';
+                    icon.style.transform = 'rotate(0deg)';
+                }
+            });
+        });
+
+        // Contact form submission
+        document.getElementById('contactForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Here you would normally send the form data to a server
+            // For now, we'll just show a success message
+            const formData = new FormData(this);
+            const data = Object.fromEntries(formData);
+            
+            console.log('Form data:', data);
+            
+            // Show success message
+            const submitBtn = this.querySelector('.submit-btn');
+            const originalContent = submitBtn.innerHTML;
+            submitBtn.innerHTML = '<i data-lucide="check"></i><span>¡Mensaje Enviado!</span>';
+            submitBtn.style.background = 'linear-gradient(135deg, #10b981, #059669)';
+            
+            setTimeout(() => {
+                submitBtn.innerHTML = originalContent;
+                submitBtn.style.background = '';
+                this.reset();
+            }, 3000);
+        });
+    </script>
+</body>
+</html>

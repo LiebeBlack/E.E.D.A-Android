@@ -1,0 +1,523 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>E.E.D.A. - Ecosistema Educativo de Ciberseguridad</title>
+    <meta name="description" content="Aplicación Android de Educación y Ciberseguridad CPA para niños y jóvenes (3-16 años)">
+    
+    <!-- Optimized for mobile -->
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <!-- Styles -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="main-nav" id="mainNav">
+        <div class="nav-brand">
+            <span class="logo-e">E.</span><span class="logo-e">E.</span><span class="logo-d">D.</span><span class="logo-a">A.</span>
+        </div>
+        
+        <button class="mobile-menu-toggle" id="mobileMenuToggle" aria-label="Toggle menu">
+            <i data-lucide="menu"></i>
+        </button>
+        
+        <div class="nav-links" id="navLinks">
+            <a href="#ecosistema" class="nav-link">Ecosistema</a>
+            <a href="#modulos" class="nav-link">Módulos</a>
+            <a href="#instalacion" class="nav-link">Instalación</a>
+            <a href="about.html" class="nav-link">Acerca de</a>
+            <a href="docs.html" class="nav-link">Docs</a>
+            <a href="contact.html" class="nav-link">Contacto</a>
+            <a href="https://github.com/LiebeBlack/E.E.D.A-PC" target="_blank" rel="noopener" class="nav-link github-link">
+                <i data-lucide="github"></i>
+                <span>GitHub</span>
+            </a>
+        </div>
+    </nav>
+ 
+    <!-- Hero Section -->
+    <section class="hero" id="hero">
+        <div class="hero-bg">
+            <div class="gradient-orb orb-1"></div>
+            <div class="gradient-orb orb-2"></div>
+            <div class="gradient-orb orb-3"></div>
+        </div>
+ 
+        <div class="hero-content">
+            <div class="hero-badge scroll-reveal">
+                <i data-lucide="shield-check"></i>
+                <span>Plataforma Educativa CPA</span>
+            </div>
+ 
+            <h1 class="hero-title scroll-reveal">
+                <span class="title-line">Ecosistema</span>
+                <span class="title-line highlight">Educativo</span>
+                <span class="title-line">Digital</span>
+                <span class="title-line gradient-text">Adaptable</span>
+            </h1>
+ 
+            <p class="hero-subtitle scroll-reveal">
+                Educación y Ciberseguridad CPA para el futuro <span class="age-range">(3-16 años)</span>
+            </p>
+ 
+            <div class="hero-description scroll-reveal">
+                <p>Transformamos conceptos tecnológicos de alta complejidad en metáforas visuales que los más jóvenes pueden navegar de forma intuitiva.</p>
+            </div>
+ 
+            <div class="hero-cta scroll-reveal">
+                <a href="https://github.com/LiebeBlack/E.E.D.A-PC" target="_blank" rel="noopener" class="magnetic-btn primary-btn" id="ctaPrimary">
+                    <i data-lucide="download"></i>
+                    <span>Descargar E.E.D.A.</span>
+                    <div class="btn-glow"></div>
+                </a>
+                <a href="https://liebeblack.github.io/EEDA/" target="_blank" rel="noopener" class="magnetic-btn secondary-btn" id="ctaSecondary">
+                    <i data-lucide="external-link"></i>
+                    <span>Ver Proyecto</span>
+                </a>
+            </div>
+ 
+            <div class="hero-stats scroll-reveal">
+                <div class="stat-item">
+                    <span class="stat-number">8</span>
+                    <span class="stat-label">Módulos Educativos</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number">3</span>
+                    <span class="stat-label">Protocolos CPA</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number">17</span>
+                    <span class="stat-label">Años de Edad</span>
+                </div>
+            </div>
+        </div>
+    </section>
+ 
+    <!-- Ecosistema Multiplataforma -->
+    <section class="ecosistema-section" id="ecosistema">
+        <div class="container">
+            <div class="section-header scroll-reveal">
+                <span class="section-tag">Multiplataforma</span>
+                <h2 class="section-title">Diseñado para <span class="gradient-text">todos los dispositivos</span></h2>
+                <p class="section-desc">Arquitectura modular optimizada con Flet (Flutter/Python) para una experiencia fluida y reactiva.</p>
+            </div>
+ 
+            <div class="devices-showcase scroll-reveal">
+                <div class="device device-desktop">
+                    <div class="device-frame">
+                        <div class="device-screen">
+                            <div class="screen-content">
+                                <div class="app-header">
+                                    <div class="app-dots">
+                                        <span></span><span></span><span></span>
+                                    </div>
+                                    <span class="app-title">E.E.D.A. Desktop</span>
+                                </div>
+                                <div class="app-body">
+                                    <div class="bento-mini">
+                                        <div class="mini-card hardware"><i data-lucide="cpu"></i></div>
+                                        <div class="mini-card logic"><i data-lucide="brain-circuit"></i></div>
+                                        <div class="mini-card networks"><i data-lucide="network"></i></div>
+                                        <div class="mini-card security"><i data-lucide="shield"></i></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="device-stand"></div>
+                        <div class="device-base"></div>
+                    </div>
+                    <div class="device-label">
+                        <i data-lucide="monitor"></i>
+                        <span>Windows & Linux</span>
+                    </div>
+                </div>
+ 
+                <div class="device device-mobile">
+                    <div class="device-frame">
+                        <div class="device-notch"></div>
+                        <div class="device-screen">
+                            <div class="screen-content mobile">
+                                <div class="mobile-header">
+                                    <span class="mobile-time">9:41</span>
+                                    <div class="mobile-notch"></div>
+                                </div>
+                                <div class="mobile-body">
+                                    <div class="mobile-card">
+                                        <i data-lucide="shield-check"></i>
+                                        <span>Ciberseguridad</span>
+                                    </div>
+                                    <div class="mobile-card">
+                                        <i data-lucide="code-2"></i>
+                                        <span>Programación</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="device-label">
+                        <i data-lucide="smartphone"></i>
+                        <span>Android App</span>
+                    </div>
+                </div>
+            </div>
+ 
+            <div class="tech-stack scroll-reveal">
+                <div class="stack-item">
+                    <div class="stack-icon python">
+                        <i data-lucide="code"></i>
+                    </div>
+                    <span>Python 3.12+</span>
+                </div>
+                <div class="stack-divider"></div>
+                <div class="stack-item">
+                    <div class="stack-icon flet">
+                        <i data-lucide="layers"></i>
+                    </div>
+                    <span>Flet v0.27.3+</span>
+                </div>
+                <div class="stack-divider"></div>
+                <div class="stack-item">
+                    <div class="stack-icon sqlite">
+                        <i data-lucide="database"></i>
+                    </div>
+                    <span>SQLite3</span>
+                </div>
+            </div>
+        </div>
+    </section>
+ 
+    <!-- Bento Grid - Módulos Educativos -->
+    <section class="modulos-section" id="modulos">
+        <div class="container">
+            <div class="section-header scroll-reveal">
+                <span class="section-tag">Arquitectura Pedagógica</span>
+                <h2 class="section-title">8 Ejes de <span class="gradient-text">Aprendizaje</span></h2>
+                <p class="section-desc">Módulos interconectados basados en el modelo CPA y gamificación avanzada.</p>
+            </div>
+ 
+            <div class="bento-grid" id="bentoGrid">
+                <!-- Hardware -->
+                <div class="bento-card card-large card-hardware scroll-reveal" data-delay="0">
+                    <div class="card-glow"></div>
+                    <div class="card-content">
+                        <div class="card-icon">
+                            <i data-lucide="cpu"></i>
+                        </div>
+                        <h3 class="card-title">Hardware</h3>
+                        <p class="card-desc">Fundamentos físicos y microarquitectura. Desde transistores hasta CPUs modernas.</p>
+                        <div class="card-tags">
+                            <span class="tag">CPU</span>
+                            <span class="tag">RAM</span>
+                            <span class="tag">GPU</span>
+                        </div>
+                    </div>
+                    <div class="card-shine"></div>
+                </div>
+ 
+                <!-- Lógica -->
+                <div class="bento-card card-medium card-logic scroll-reveal" data-delay="50">
+                    <div class="card-glow"></div>
+                    <div class="card-content">
+                        <div class="card-icon">
+                            <i data-lucide="brain-circuit"></i>
+                        </div>
+                        <h3 class="card-title">Lógica</h3>
+                        <p class="card-desc">Pensamiento computacional y algoritmia fundamental.</p>
+                        <div class="card-tags">
+                            <span class="tag">Algoritmos</span>
+                            <span class="tag">Lógica</span>
+                        </div>
+                    </div>
+                    <div class="card-shine"></div>
+                </div>
+ 
+                <!-- Redes -->
+                <div class="bento-card card-medium card-networks scroll-reveal" data-delay="100">
+                    <div class="card-glow"></div>
+                    <div class="card-content">
+                        <div class="card-icon">
+                            <i data-lucide="network"></i>
+                        </div>
+                        <h3 class="card-title">Redes</h3>
+                        <p class="card-desc">Conectividad global y protocolos de comunicación.</p>
+                        <div class="card-tags">
+                            <span class="tag">TCP/IP</span>
+                            <span class="tag">HTTP</span>
+                        </div>
+                    </div>
+                    <div class="card-shine"></div>
+                </div>
+ 
+                <!-- Ciberseguridad -->
+                <div class="bento-card card-large card-security scroll-reveal" data-delay="150">
+                    <div class="card-glow"></div>
+                    <div class="card-content">
+                        <div class="card-icon">
+                            <i data-lucide="shield"></i>
+                        </div>
+                        <h3 class="card-title">Ciberseguridad</h3>
+                        <p class="card-desc">Protección de identidad, criptografía y ciberdefensa práctica.</p>
+                        <div class="card-tags">
+                            <span class="tag">Criptografía</span>
+                            <span class="tag">Malware</span>
+                            <span class="tag">Firewalls</span>
+                        </div>
+                    </div>
+                    <div class="card-shine"></div>
+                </div>
+ 
+                <!-- Sistemas Operativos -->
+                <div class="bento-card card-small card-os scroll-reveal" data-delay="200">
+                    <div class="card-glow"></div>
+                    <div class="card-content">
+                        <div class="card-icon">
+                            <i data-lucide="terminal-square"></i>
+                        </div>
+                        <h3 class="card-title">Sistemas Operativos</h3>
+                        <p class="card-desc">Gestión de recursos, kernel y sistemas de archivos.</p>
+                        <div class="card-tags">
+                            <span class="tag">Kernel</span>
+                            <span class="tag">FS</span>
+                        </div>
+                    </div>
+                    <div class="card-shine"></div>
+                </div>
+ 
+                <!-- Inteligencia Artificial -->
+                <div class="bento-card card-small card-ai scroll-reveal" data-delay="250">
+                    <div class="card-glow"></div>
+                    <div class="card-content">
+                        <div class="card-icon">
+                            <i data-lucide="sparkles"></i>
+                        </div>
+                        <h3 class="card-title">Inteligencia Artificial</h3>
+                        <p class="card-desc">Redes neuronales y ética algorítmica.</p>
+                        <div class="card-tags">
+                            <span class="tag">ML</span>
+                            <span class="tag">Ética</span>
+                        </div>
+                    </div>
+                    <div class="card-shine"></div>
+                </div>
+ 
+                <!-- Programación -->
+                <div class="bento-card card-small card-code scroll-reveal" data-delay="300">
+                    <div class="card-glow"></div>
+                    <div class="card-content">
+                        <div class="card-icon">
+                            <i data-lucide="code-2"></i>
+                        </div>
+                        <h3 class="card-title">Programación</h3>
+                        <p class="card-desc">Paradigmas de desarrollo y Clean Code.</p>
+                        <div class="card-tags">
+                            <span class="tag">Python</span>
+                            <span class="tag">Clean Code</span>
+                        </div>
+                    </div>
+                    <div class="card-shine"></div>
+                </div>
+ 
+                <!-- Ética Digital -->
+                <div class="bento-card card-small card-ethics scroll-reveal" data-delay="350">
+                    <div class="card-glow"></div>
+                    <div class="card-content">
+                        <div class="card-icon">
+                            <i data-lucide="scale"></i>
+                        </div>
+                        <h3 class="card-title">Ética Digital</h3>
+                        <p class="card-desc">Ciudadanía responsable en el ciberespacio.</p>
+                        <div class="card-tags">
+                            <span class="tag">Privacidad</span>
+                            <span class="tag">Derechos</span>
+                        </div>
+                    </div>
+                    <div class="card-shine"></div>
+                </div>
+            </div>
+ 
+            <!-- Protocolos CPA -->
+            <div class="protocols-section scroll-reveal">
+                <h3 class="protocols-title">Protocolos Adaptativos CPA</h3>
+                <div class="protocols-grid">
+                    <div class="protocol-card protocol-alpha">
+                        <div class="protocol-icon">α</div>
+                        <h4>Alpha</h4>
+                        <p>Concreto: Manipulación física de objetos y metáforas táctiles</p>
+                        <span class="protocol-age">3-6 años</span>
+                    </div>
+                    <div class="protocol-card protocol-delta">
+                        <div class="protocol-icon">δ</div>
+                        <h4>Delta</h4>
+                        <p>Pictórico: Representaciones visuales y diagramas interactivos</p>
+                        <span class="protocol-age">7-11 años</span>
+                    </div>
+                    <div class="protocol-card protocol-omega">
+                        <div class="protocol-icon">Ω</div>
+                        <h4>Omega</h4>
+                        <p>Abstracto: Conceptos formales y código real</p>
+                        <span class="protocol-age">12-16 años</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+ 
+    <!-- Terminal de Instalación -->
+    <section class="terminal-section" id="instalacion">
+        <div class="container">
+            <div class="section-header scroll-reveal">
+                <span class="section-tag">Despliegue</span>
+                <h2 class="section-title">Instalación <span class="gradient-text">Rápida</span></h2>
+                <p class="section-desc">Comandos listos para copiar y ejecutar en tu terminal.</p>
+            </div>
+ 
+            <div class="terminal-wrapper scroll-reveal">
+                <div class="terminal-window">
+                    <div class="terminal-header">
+                        <div class="terminal-buttons">
+                            <span class="term-btn close"></span>
+                            <span class="term-btn minimize"></span>
+                            <span class="term-btn maximize"></span>
+                        </div>
+                        <div class="terminal-title">
+                            <i data-lucide="terminal"></i>
+                            <span>eeda@system: ~/E.E.D.A-PC</span>
+                        </div>
+                        <div class="terminal-tabs">
+                            <button class="tab-btn active" data-tab="clone">Clone</button>
+                            <button class="tab-btn" data-tab="install">Install</button>
+                            <button class="tab-btn" data-tab="run">Run</button>
+                        </div>
+                    </div>
+ 
+                    <div class="terminal-body">
+                        <div class="tab-content active" id="tab-clone">
+                            <div class="terminal-line">
+                                <span class="prompt">eeda@system:~$</span>
+                                <code class="command">git clone https://github.com/LiebeBlack/E.E.D.A-PC.git</code>
+                            </div>
+                            <div class="terminal-line output">
+                                <span>Cloning into 'E.E.D.A-PC'...</span>
+                                <span>remote: Enumerating objects: 1,247, done.</span>
+                                <span>remote: Total 1,247 (delta 0), reused 0 (delta 0)</span>
+                                <span>Receiving objects: 100% (1247/1247), 15.4 MiB | 8.2 MiB/s, done.</span>
+                            </div>
+                            <button class="copy-btn" data-clipboard="git clone https://github.com/LiebeBlack/E.E.D.A-PC.git">
+                                <i data-lucide="copy"></i>
+                                <span>Copiar</span>
+                                <i data-lucide="check" class="check-icon"></i>
+                            </button>
+                        </div>
+ 
+                        <div class="tab-content" id="tab-install">
+                            <div class="terminal-line">
+                                <span class="prompt">eeda@system:~$</span>
+                                <code class="command">cd E.E.D.A-PC && pip install -r requirements.txt</code>
+                            </div>
+                            <div class="terminal-line output">
+                                <span>Collecting flet>=0.27.3</span>
+                                <span>Downloading flet-0.27.3-py3-none-any.whl (15.4 MB)</span>
+                                <span>Requirement already satisfied: sqlite3 in /usr/lib/python3.12</span>
+                                <span>Successfully installed flet-0.27.3</span>
+                            </div>
+                            <button class="copy-btn" data-clipboard="cd E.E.D.A-PC && pip install -r requirements.txt">
+                                <i data-lucide="copy"></i>
+                                <span>Copiar</span>
+                                <i data-lucide="check" class="check-icon"></i>
+                            </button>
+                        </div>
+ 
+                        <div class="tab-content" id="tab-run">
+                            <div class="terminal-line">
+                                <span class="prompt">eeda@system:~$</span>
+                                <code class="command">python main.py</code>
+                            </div>
+                            <div class="terminal-line output">
+                                <span>[INFO] Initializing E.E.D.A. ContentEngine...</span>
+                                <span>[INFO] Loading 8 educational modules...</span>
+                                <span>[INFO] DatabaseManager: SQLite3 connected</span>
+                                <span>[INFO] EventBus: Listening on port 8080</span>
+                                <span class="success">[SUCCESS] E.E.D.A. is running! 🚀</span>
+                            </div>
+                            <button class="copy-btn" data-clipboard="python main.py">
+                                <i data-lucide="copy"></i>
+                                <span>Copiar</span>
+                                <i data-lucide="check" class="check-icon"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+ 
+                <div class="terminal-info">
+                    <div class="info-item">
+                        <i data-lucide="check-circle-2"></i>
+                        <span>Python 3.12+ requerido</span>
+                    </div>
+                    <div class="info-item">
+                        <i data-lucide="check-circle-2"></i>
+                        <span>Funciona en Windows & Linux</span>
+                    </div>
+                    <div class="info-item">
+                        <i data-lucide="check-circle-2"></i>
+                        <span>Empaquetado multiplataforma</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+ 
+    <!-- Footer -->
+    <footer class="main-footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <span class="logo-e">E.</span><span class="logo-e">E.</span><span class="logo-d">D.</span><span class="logo-a">A.</span>
+                    <p>Ecosistema Educativo Digital Adaptable</p>
+                </div>
+ 
+                <div class="footer-links">
+                    <div class="link-group">
+                        <h4>Proyecto</h4>
+                        <a href="index.html">Inicio</a>
+                        <a href="about.html">Acerca de</a>
+                        <a href="docs.html">Documentación</a>
+                        <a href="contact.html">Contacto</a>
+                    </div>
+                    <div class="link-group">
+                        <h4>Recursos</h4>
+                        <a href="https://github.com/LiebeBlack/E.E.D.A-PC" target="_blank" rel="noopener">GitHub - PC</a>
+                        <a href="https://liebeblack.github.io/EEDA/" target="_blank" rel="noopener">Web Principal</a>
+                    </div>
+                    <div class="link-group">
+                        <h4>Desarrollador</h4>
+                        <a href="https://github.com/LiebeBlack" target="_blank" rel="noopener">GitHub @LiebeBlack</a>
+                    </div>
+                </div>
+            </div>
+ 
+            <div class="footer-bottom">
+                <p>2025 E.E.D.A. - Educación en Ciberseguridad para todas las edades</p>
+                <div class="footer-tech">
+                    <span>Built with</span>
+                    <i data-lucide="heart" class="heart-icon"></i>
+                    <span>+</span>
+                    <i data-lucide="code-2" class="code-icon"></i>
+                </div>
+            </div>
+        </div>
+    </footer>
+ 
+    <!-- Scripts -->
+    <script src="app.js"></script>
+</body>
+</html>
